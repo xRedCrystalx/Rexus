@@ -1,0 +1,105 @@
+{
+    "Plugins": {
+        "AI": true,
+        "Alt": false,
+        "Impersonator": false,
+        "Link": false,
+        "Reaction": false,
+        "AutoMod": false,
+        "Ping": true,
+        "AutoDelete": false,
+        "LevelingSystem": false,
+        "Responder": false,
+        "AutoSlowmode": false,
+        "FanArt": false,
+        "ReactionFilter": false,
+        "Achievements": false
+    },
+    "Logging": {
+        "Alt": null,
+        "Impersonator": null,
+        "Link": null,
+        "AutoSlowmode": null,
+        "AutoDelete": null,
+        "LevelingSystem": null,
+        "ReactionFilter": null,
+        "Achievements": false
+    },
+    "PingProtection": {
+        "BypassRole": 1133824407069003876,
+        "IgnoreChannels": [],
+        "DetectReplyPings": false,
+        "MemberProtection": {
+            "Role": null,
+            "Ping": false,
+            "Log": false,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "StaffProtection": {
+            "Role": 1133826250717270098,
+            "Ping": false,
+            "Log": false,
+            "Delete": true,
+            "LogChannel": 1131072120387027047
+        },
+        "YouTuberProtection": {
+            "Role": 1133824407069003876,
+            "Ping": false,
+            "Log": null,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "Everyone/Here": {
+            "Ping": false,
+            "Log": false,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "Bot": {
+            "Ping": false,
+            "Log": false,
+            "Delete": false,
+            "LogChannel": null
+        }
+    },
+    "ServerInfo": {
+        "StaffRole": null,
+        "StaffChannel": 1131102048864194621,
+        "LogChannel": null
+    },
+    "AI": null,
+    "AutoSlowmode": [],
+    "AutoMod": {},
+    "AutoDelete": {},
+    "FanArt": [],
+    "AutoResponder": {},
+    "LevelingSystem": {
+        "config": {
+            "levels": {
+                "message": false,
+                "voice": false,
+                "reaction": false,
+                "giveaways": false
+            },
+            "notifications": {
+                "message": "Congrats {member}, you just advanced to {type} level {num}!",
+                "dm": false,
+                "guild": {
+                    "send": false,
+                    "channel": null,
+                    "ping": false
+                }
+            },
+            "rewards": {
+                "message": {},
+                "voice": {},
+                "reaction": {},
+                "giveaway": {}
+            },
+            "achievements": {},
+            "switch": ""
+        },
+        "members": {}
+    }
+}

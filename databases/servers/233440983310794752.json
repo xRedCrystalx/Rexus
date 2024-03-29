@@ -1,0 +1,108 @@
+{
+    "Plugins": {
+        "AI": false,
+        "Alt": true,
+        "Impersonator": true,
+        "Link": false,
+        "Reaction": false,
+        "AutoMod": false,
+        "Ping": true,
+        "AutoDelete": false,
+        "LevelingSystem": false,
+        "Responder": false,
+        "AutoSlowmode": false,
+        "FanArt": false,
+        "ReactionFilter": false,
+        "Achievements": false
+    },
+    "Logging": {
+        "Alt": 956603616687439922,
+        "Impersonator": 956603616687439922,
+        "Link": null,
+        "AutoSlowmode": null,
+        "AutoDelete": null,
+        "LevelingSystem": null,
+        "ReactionFilter": null,
+        "Achievements": false
+    },
+    "PingProtection": {
+        "IgnoreChannels": [],
+        "BypassRole": 1086403151134990346,
+        "DetectReplyPings": false,
+        "MemberProtection": {
+            "Role": null,
+            "Ping": false,
+            "Log": false,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "StaffProtection": {
+            "Role": 761631914909630494,
+            "Ping": false,
+            "Log": true,
+            "Delete": false,
+            "LogChannel": 761619159263477870
+        },
+        "YouTuberProtection": {
+            "Role": 233804612761550848,
+            "Ping": true,
+            "Log": true,
+            "Delete": true,
+            "LogChannel": 956603616687439922
+        },
+        "Everyone/Here": {
+            "Ping": true,
+            "Log": true,
+            "Delete": true,
+            "LogChannel": 956603616687439922
+        },
+        "Bot": {
+            "Ping": false,
+            "Log": true,
+            "Delete": false,
+            "LogChannel": 761619159263477870
+        }
+    },
+    "ServerInfo": {
+        "StaffRole": 761631914909630494,
+        "StaffChannel": 956603616687439922,
+        "LogChannel": 761619159263477870
+    },
+    "AI": null,
+    "AutoSlowmode": [],
+    "AutoMod": {},
+    "AutoDelete": {},
+    "FanArt": [],
+    "AutoResponder": {},
+    "LevelingSystem": {
+        "config": {
+            "levels": {
+                "message": false,
+                "voice": false,
+                "reaction": false,
+                "giveaway": false
+            },
+            "notifications": {
+                "dm": {
+                    "send": false,
+                    "ping": false,
+                    "message": "Congrats {member}, you just advanced to {type} level {num}!"
+                },
+                "guild": {
+                    "send": false,
+                    "ping": false,
+                    "message": "Congrats {member}, you just advanced to {type} level {num}!"
+                }
+            },
+            "rewards": {
+                "message": {},
+                "voice": {},
+                "reaction": {},
+                "giveaway": {}
+            },
+            "achievements": {},
+            "switch": ""
+        },
+        "members": {}
+    }
+}

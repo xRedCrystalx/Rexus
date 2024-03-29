@@ -1,0 +1,247 @@
+{
+    "general": {
+        "allowAdminEditing": false,
+        "staffRole": null,
+        "staffChannel": null,
+        "adminChannel": null
+    },
+    "alt": {
+        "status": true,
+        "log_channel": 938805878432333854
+    },
+    "imper": {
+        "status": false,
+        "log_channel": 1015937645135790120
+    },
+    "ai": {
+        "status": true,
+        "log_channel": 1015937645135790120,
+        "talkChannels": [
+            1032353612665466992,
+            1037720138335662141,
+            1043532394042503198
+        ]
+    },
+    "automod": {
+        "status": false,
+        "log_channel": 1015937645135790120,
+        "rules": {
+
+        }
+    },
+    "link": {
+        "status": true,
+        "log_channel": 1015937645135790120,
+        "options": {
+            "allowDiscordInvites": false,
+            "allowSocialLinks": false,
+            "allowNitroGifts": false
+        }
+    },
+    "ping": {
+        "status": false,
+        "detectReplyPings": false,
+        "bypassRole": null,
+        "ignoredChannels": [],
+        "rules": {
+            "MemberProtection": {
+                "role": 996861513409249373,
+                "ping": false,
+                "logChannel": 1015937645135790120,
+                "log": true,
+                "delete": false
+            },
+            "StaffProtection": {
+                "role": 996878384867065967,
+                "ping": false,
+                "logChannel": 1015937645135790120,
+                "log": true,
+                "delete": false
+            },
+            "Bot": {
+                "role": "Every bot",
+                "ping": false,
+                "log": true,
+                "logChannel": 1015937645135790120,
+                "delete": false
+            }
+        }
+    },
+    "auto_delete": {
+        "status": false,
+        "log_channel": 1015937645135790120,
+        "monitored": []
+    },
+    "auto_slowmode": {
+        "status": false,
+        "log_channel": null,
+        "monitored": {
+            "1032353612665466992": 102
+        }
+    },
+    "reaction": {
+        "status": false,
+        "log_channel": 1015937645135790120,
+        "reactionBanRole": null
+    },
+    "QOFTD": {
+        "status": false,
+        "log_channel": 1032353612665466992
+    },
+    "cmd": {
+        "allowed": true
+    },
+    "fan_art" : {
+        "status" : false,
+        "log_channel" : null,
+        "montired" : []
+    },
+    "responder": {
+        "status": false
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    "Plugins": {
+        "AI": true,
+        "Alt": false,
+        "Impersonator": false,
+        "Link": true,
+        "Reaction": false,
+        "AutoMod": false,
+        "Ping": true,
+        "AutoDelete": true,
+        "LevelingSystem": false,
+        "Responder": true,
+        "AutoSlowmode": false,
+        "FanArt": false,
+        "ReactionFilter": true,
+        "Achievements": false,
+        "QOFTD": true
+    },
+    "Logging": {
+        "Alt": null,
+        "Impersonator": null,
+        "Link": 1015937645135790120,
+        "AutoSlowmode": null,
+        "AutoDelete": 1015937645135790120,
+        "LevelingSystem": null,
+        "ReactionFilter": 1015937645135790120,
+        "Achievements": null,
+        "QOFTD": 1032353612665466992
+    },
+    "PingProtection": {
+        "BypassRole": null,
+        "IgnoreChannels": [],
+        "DetectReplyPings": false,
+        "MemberProtection": {
+            "Role": null,
+            "Ping": false,
+            "Log": false,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "StaffProtection": {
+            "Role": null,
+            "Ping": false,
+            "Log": false,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "YouTuberProtection": {
+            "Role": null,
+            "Ping": false,
+            "Log": null,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "Everyone/Here": {
+            "Ping": false,
+            "Log": false,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "Bot": {
+            "Ping": false,
+            "Log": true,
+            "Delete": true,
+            "LogChannel": 1015937645135790120
+        }
+    },
+    "ServerInfo": {
+        "StaffRole": null,
+        "StaffChannel": null,
+        "LogChannel": null
+    },
+    "AutoSlowmode": [],
+    "AutoMod": {},
+    "AutoDelete": {
+        "1015937738823970856": 5
+    },
+    "AutoResponder": {
+        "-joinmm2": {
+            "startsWith": true,
+            "content": "**How do I play MM2 with Ant?**\n\n- When Ant is hosting a game of MM2, he'll post a join link in <#871141617170513950>. Click that link to join the game.\n- Try to be fast! The game fills up quickly!"
+        }
+    },
+    "FanArt": [
+        1037720138335662141
+    ],
+    "AI": 1095810937501532200,
+    "ReactionFilter": {
+        "role": 1203444406108295258
+    },
+    "LevelingSystem": {
+        "config": {
+            "levels": {
+                "message": false,
+                "voice": false,
+                "reaction": false,
+                "giveaway": false
+            },
+            "notifications": {
+                "dm": {
+                    "send": false,
+                    "ping": false,
+                    "message": "Congrats {member}, you just advanced to {type} level {num}!"
+                },
+                "guild": {
+                    "send": false,
+                    "ping": false,
+                    "message": "Congrats {member}, you just advanced to {type} level {num}!"
+                }
+            },
+            "rewards": {
+                "message": {},
+                "voice": {},
+                "reaction": {},
+                "giveaway": {}
+            },
+            "achievements": {},
+            "switch": ""
+        },
+        "members": {}
+    }
+}
