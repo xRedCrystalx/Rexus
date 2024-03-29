@@ -36,7 +36,7 @@ class AI:
                     if text := JSONreply.get("cnt"):
                         if [word for word in ["http://", "https://"] if word in text]:
                             return [{message.channel : {"action" : "send", "kwargs" : {"content" : "[Filter] Sorry, but AI is not allowed to send links."}}}]
-                        elif [word for word in bot_db["BadWords"] if str(word).lower() in text.lower()]:
+                        elif [word for word in bot_db["filters"]["message"]["bad_words"] if str(word).lower() in text.lower()]:
                             return [{message.channel : {"action" : "send", "kwargs" : {"content" : "[Filter] Sorry, but AI is not allowed to say bad words."}}}]
                         elif text == "[JOKE]":
                             return [{message.channel : {"action" : "send", "kwargs" : {"content" : self.jokes[random.randint(0, len(self.jokes)-1)]}}}]
