@@ -9,7 +9,6 @@ class ImpersonatorDetection:
     def _create_embed(self, member: discord.Member) -> discord.Embed:
         embed: discord.Embed = discord.Embed(title="Impersonator Detection", color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
         embed.set_thumbnail(url=member.display_avatar.url)
-        embed.set_footer(text=f"User ID: {member.id}")
         return embed
 
     async def detection_on_join(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], member: discord.Member, **OVERFLOW) -> dict[typing.Any, dict[str, typing.Any]] | None:
@@ -18,7 +17,7 @@ class ImpersonatorDetection:
             if member.display_name.lower() in names or str(member.global_name).lower() in names and member.id not in names:
                 try:
                     embed: discord.Embed = self._create_embed(member)
-                    embed.add_field(name="`` Member ``", value=f"**Display Name:** {member.display_name}\n**Global Name:** {member.global_name}\n**ID:** {member.id}", inline=True)
+                    embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{member.display_name}\n<:global:1203410626492240023>┇{member.global_name}\n<:ID:1203410054016139335>┇{member.id}", inline=True)
                     embed.add_field(name="`` Rule ``", value=f"**Member joined with Celebrity/YouTuber/Bot/Staff name.**", inline=True)
                     embed.add_field(name="`` Kick Message ``", value=f"```Impersonating a youtuber/celebrity/bot/staff. Come back when you've changed your name or you can request a nickname from staff.```", inline=False)
 
@@ -36,8 +35,8 @@ class ImpersonatorDetection:
                 if after.display_name.lower() in names or str(after.global_name).lower() in names and after.id not in names:
                     try:
                         embed: discord.Embed = self._create_embed(after)
-                        embed.add_field(name="`` Before ``", value=f"**Display Name:** {before.display_name}\n**Global Name:** {before.global_name}\n**ID:** {before.id}", inline=True)
-                        embed.add_field(name="`` After ``", value=f"**Display Name:** {after.display_name}\n**Global Name:** {after.global_name}\n**ID:** {after.id}", inline=True)
+                        embed.add_field(name="`` Before ``", value=f"<:profile:1203409921719140432>┇{before.display_name}\n<:global:1203410626492240023>┇{before.global_name}\n<:ID:1203410054016139335>┇{before.id}", inline=True)
+                        embed.add_field(name="`` After ``", value=f"<:profile:1203409921719140432>┇{after.display_name}\n<:global:1203410626492240023>┇{after.global_name}\n<:ID:1203410054016139335>┇{after.id}", inline=True)
                         embed.add_field(name="`` Reason ``", value=f"Member changed name to Celebrity/YouTuber/Bot/Staff name. name.\n\n```Impersonating a youtuber/celebrity/bot/staff. Come back when you've changed your name or you can request a nickname from staff.```", inline=False)
 
                         if channel := after.guild.get_channel(channel_id):
