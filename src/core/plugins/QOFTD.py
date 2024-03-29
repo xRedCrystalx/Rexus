@@ -9,8 +9,8 @@ class QOFTD:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
         self.bot: commands.Bot = self.shared.bot
+        self.job: schedule.Job = None
         self.current_msgs: dict[int, discord.Message] = {}
-        self.loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
 
         self.quotes: list[str] = ["Would you allow someone to throw garbage over your head in return for a $100 reward?",
                               "What would you do when you reach your school or workplace and realize that you forgot to have a bath before coming?",
@@ -144,15 +144,16 @@ class QOFTD:
                 db: dict[str, typing.Any] = self.shared.db.load_data(guild.id)
                 
                 if db["QOFTD"]["status"] and (channel_id := db["QOFTD"]["log_channel"]):
-                    self.loop.create_task(self.handle_quote(channel_id=channel_id))
+                    self.shared.loop.create_task(self.handle_quote(channel_id=channel_id))
 
         except Exception as error:
             self.shared.logger.log(f"@QOFTD.loader: {type(error).__name__}: {error}", "ERROR")
     
     async def start(self) -> None:
-        await self.bot.wait_until_ready()
-        schedule.clear()
-        schedule.every().day.at("00:00").do(self.loader)
+        if self.job:
+           schedule.cancel_job(self.job) 
+        
+        self.job: schedule.Job = schedule.every().day.at("00:00").do(self.loader)
         while True:
             schedule.run_pending()
-            await asyncio.sleep(1)
+            await asyncio.sleep(15)
