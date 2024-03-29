@@ -8,8 +8,8 @@ class Logger:
         self.c = self.shared.colors
         self._levels: dict[str, int] = {
             "UPDATE": 25, 
-            "SYSTEM": 35,
-            "NP_DEBUG": 15
+            "SYSTEM": 17,
+            "NP_DEBUG": 15,
         }
         self.handlers: list[logging.Handler] = []
         self.logger: logging.Logger = logging.getLogger("discord")
@@ -36,7 +36,7 @@ class Logger:
                 (logging.WARNING, self.c.Bold+self.c.Yellow),
                 (logging.ERROR, self.c.Bold+self.c.Red),
                 (logging.CRITICAL, self.c.Red),
-                (35, self.c.DBlue)
+                (17, self.c.Bold+self.c.White)
             ]
 
             FORMATS: dict[int, logging.Formatter] = {level: logging.Formatter(
@@ -74,7 +74,7 @@ class Logger:
         
         self.log(f"@Logger.StreamHandler > Setting handler's data.", "NP_DEBUG")
         stream_handler.setFormatter(formmatter)
-        stream_handler.setLevel(25) # update level
+        stream_handler.setLevel(17) # update level
         stream_handler.set_name("Stream Handler")
 
         self.handlers.append(stream_handler)
@@ -104,7 +104,12 @@ class Logger:
         return self
 
     def log(self, msg: str, level: str = "INFO") -> None:
-        self.logger.log(level=getattr(logging, level), msg=msg)
+        try:
+            lvl: int = getattr(logging, level)
+            self.logger.log(lvl, msg=msg)
+        except:
+            pass
+            
 
 """
 CRITICAL = 50
