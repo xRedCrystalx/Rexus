@@ -19,9 +19,9 @@ class MiscellaneousHandlers:
                 if joinedAt-createdAt <= 259200:
                     embed: discord.Embed=discord.Embed(title="Alt Detection", color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
                     embed.set_thumbnail(url=member.display_avatar.url)
-                    embed.add_field(name="`` Member ``", value=f"**Display Name:** {member.display_name}\n**Global Name:** {member.global_name}\n**ID:** {member.id}", inline=True)
+                    embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{member.display_name}\n<:global:1203410626492240023>┇{member.global_name}\n<:ID:1203410054016139335>┇{member.id}", inline=True)
                     embed.add_field(name="`` Rule ``", value=f"**Account was created <t:{createdAt}:R>.**\n`AccountAge < 3 days`", inline=True)
-                    embed.set_footer(text=f"User ID: {member.id} | Have an eye on this member.")
+                    embed.set_footer(text=f"Have an eye on this member.")
 
                     if channel := member.guild.get_channel(channel_id):
                         return [{channel : {"action" : "send", "kwargs" : {"embed" : embed}}}]
@@ -48,3 +48,5 @@ class MiscellaneousHandlers:
         except Exception as error:
             self.shared.logger.log(f"@MiscellaneousHandlers.automod_response: {type(error).__name__}: {error}", "ERROR")
         return None
+
+# TODO: safe dataclass for placeholders
