@@ -62,7 +62,7 @@ class MessageHandlers:
 
                         embed: discord.Embed = discord.Embed(title="XNDUIW | CBE_Simon Protection", color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
                         embed.set_thumbnail(url=message.author.display_avatar.url)
-                        embed.add_field(name="`` Member ``", value=f"**Display Name:** {message.author.display_name}\n**Global Name:** {message.author.global_name}\n**ID:** {message.author.id}", inline=True)
+                        embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
                         embed.add_field(name="`` Rule ``", value=f"Detected invite link redirecting to Simon's server.", inline=True)
                         embed.add_field(name="`` Message Content ``", value=message.content if len(message.content) < 1000 else message.content[:1000], inline=False)
                         embed.set_footer(text="Member has been banned from the guild.")
@@ -81,8 +81,8 @@ class MessageHandlers:
 
                     embed: discord.Embed=discord.Embed(title="Link Protection", color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
                     embed.set_thumbnail(url=message.author.display_avatar.url)
-                    embed.add_field(name="`` Author ``", value=f"**Display Name:** {message.author.display_name}\n**Global Name:** {message.author.global_name}\n**ID:** {message.author.id}", inline=True)
-                    embed.add_field(name="`` Message ``", value=f"**Message ID:** {message.author.id}\n**Channel Name:** {message.channel.name}\n**Channel ID:** {message.channel.id}", inline=True)
+                    embed.add_field(name="`` Author ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
+                    embed.add_field(name="`` Message ``", value=f"<:msg_id:1203422168046768129>┇{message.author.id}\n<:text_c:1203423388320669716>┇{message.channel.name}\n<:ID:1203410054016139335>┇{message.channel.id}", inline=True)
 
                     if (msglen := len(message.content)) > 1000:
                         embed.add_field(name="`` Message ``", value=f"{message.content[:msglen-1000]}...", inline=False)
