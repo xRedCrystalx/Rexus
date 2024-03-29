@@ -17,7 +17,7 @@ class BotListeners(commands.Cog):
         channel: discord.TextChannel = guild.system_channel
 
         CopyDB: dict = json.load(open(f"{self.shared.path}/src/system/CopyDB.json", "r"))
-        file: str = f"{self.shared.path}/database/{guild.id}.json"
+        file: str = f"{self.shared.path}/databases/servers/{guild.id}.json"
 
         try:
             with open(file, "r"):
@@ -49,16 +49,6 @@ class BotListeners(commands.Cog):
             self.shared.logger.log(f"Global database file exception{self.c.R} for server {self.c.Cyan}{guild.name} ({guild.id}){self.c.R} has occured. {self.c.DBlue}ID{self.c.R}: {self.c.Red}{id} Error: {type(error).__name__}: {error}{self.c.R}", "ERROR")
 
         await channel.send("Thank you for inviting me to your server! To start with my configuration, execute `/help` command!")
-
-
-    @commands.Cog.listener()
-    async def on_connect(self) -> None:
-        pass
-        #TODO: reload on re-connect
-    
-        #schedule.clear()
-        #self.CONNECTOR.queue.reload_plugin_object()
-        #self.CONNECTOR.logging(f"Successfully reloaded plugins", logType="INFO")
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(BotListeners(bot))
