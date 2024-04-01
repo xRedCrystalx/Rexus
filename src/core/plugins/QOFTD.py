@@ -133,7 +133,7 @@ class QOFTD:
                     await self.shared.sender.resolver([{self.current_msgs[channel_id] : {"action" : "unpin"}}])
 
                 self.current_msgs[channel_id] = await channel.send(self.quotes[random.randint(0, len(self.quotes)-1)])
-                await self.shared.sender.resolver([{self.current_msgs[channel_id] : {"action" : "pin"}}])
+                self.shared.sender.resolver([{self.current_msgs[channel_id] : {"action" : "pin"}}])
         
         except Exception as error:
             self.shared.logger.log(f"@QOFTD.handle_quote: {type(error).__name__}: {error}", "ERROR")

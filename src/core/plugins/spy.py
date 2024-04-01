@@ -29,10 +29,15 @@ class Spy:
                 if message.channel.id in input and output.startswith("https://"):
                     async with aiohttp.ClientSession() as session:
                         webhook: discord.Webhook = discord.Webhook.from_url(url=output, session=session)
-                        await webhook.send(username=f"{message.author.display_name} in {message.channel.name}", avatar_url=message.author.display_avatar.url,
-                                    content=message.clean_content,
-                                    files=[await x.to_file(filename=x.filename, description=x.description) for x in message.attachments],
-                                    embeds=message.embeds)
+                        self.shared.sender.resolver([{webhook: {"action": "send", "kwargs": {
+                            "username": f"{message.author.display_name} in {message.channel.name}",
+                            "avatar_url": message.author.display_avatar.url,
+                            "content": message.clean_content,
+                            "files" :[await x.to_file(filename=x.filename, description=x.description) for x in message.attachments],
+                            "embeds": message.embeds
+                        }}}])
+                        
+
         except Exception as error:
             self.shared.logger.log(f"@Spy.webhook_handler: {type(error).__name__}: {error}", "ERROR")
         return None
@@ -54,7 +59,7 @@ class Spy:
 
             async for old_message in channel.history(limit=25):
                 if old_message.content == before.content:
-                    return await self.shared.sender.resolver([{old_message : {"action" : "edit", "kwargs" : {"content" : after.content}}}])
+                    return self.shared.sender.resolver([{old_message : {"action" : "edit", "kwargs" : {"content" : after.content}}}])
         
         except Exception as error:
             self.shared.logger.log(f"@Spy.bot_edit_handler: {type(error).__name__}: {error}", "ERROR")

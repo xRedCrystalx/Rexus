@@ -47,7 +47,7 @@ class MessageHandlers:
 
     async def simon_invite_link_detection(self, guild_db: dict[str, typing.Any], message: discord.Message = None, after: discord.Message = None, **OVERFLOW) -> dict[typing.Any, dict[str, typing.Any]] | None:
         try:
-            message: discord.Message = self.shared.return_true(message, after)
+            message: discord.Message = message or after
 
             if links := self.invite_link_pattern.findall(string=message.content) and message.guild.id == 1175874833146450042:
                 for link in links:
@@ -75,7 +75,7 @@ class MessageHandlers:
 
     async def antilink(self, guild_db: dict[str, typing.Any], message: discord.Message = None, after: discord.Message = None, **OVERFLOW) -> dict[typing.Any, dict[str, typing.Any]] | None:
         try:
-            message: discord.Message = self.shared.return_true(message, after)
+            message: discord.Message = message or after
             if guild_db["link"]["status"] and (message.author.guild_permissions.administrator or guild_db["ServerInfo"]["StaffRole"] in [role.id for role in message.author.roles]): # not
                 if "http://" in message.content or "https://" in message.content and (channel_id := guild_db["Logging"]["Link"]):
 

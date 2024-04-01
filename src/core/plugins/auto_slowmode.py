@@ -68,7 +68,7 @@ class AutoSlowmode:
 
                 if channel := self.bot.get_channel(channel_id):
                     self.shared.logger.log(f"@AutoSlowmode.slowmode > Sending notification message.", "NP_DEBUG")
-                    await self.shared.sender.resolver([{channel: {"action" : "send", "kwargs" : {"embed" : embed}}}])
+                    self.shared.sender.resolver([{channel: {"action" : "send", "kwargs" : {"embed" : embed}}}])
 
     async def start(self) -> None:
         while True:

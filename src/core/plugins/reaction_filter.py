@@ -37,7 +37,7 @@ class ReactionFilter:
                     embed.set_footer(text=f"Reaction will be removed.")
                     
                     if log_channel := payload.member.guild.get_channel(log_channnel_id):
-                        await self.shared.sender.resolver([{log_channel : {"action" : "send", "kwargs" : {"embed" : embed}}}])
+                        self.shared.sender.resolver([{log_channel : {"action" : "send", "kwargs" : {"embed" : embed}}}])
 
         except Exception as error:
             self.shared.logger.log(f"@ReactionFilter.check_reaction: {type(error).__name__}: {error}", "ERROR")
@@ -64,7 +64,7 @@ class ReactionFilter:
                         if (role_id := guild_db["reaction"]["reactionBanRole"]) and (member := message.guild.get_member(user_id)):
 
                             if role_id not in [role.id for role in member.roles]:
-                                await self.shared.sender.resolver([{member : {"action" : "add_roles", "args" : [discord.Object(role_id)]}}])
+                                self.shared.sender.resolver([{member : {"action" : "add_roles", "args" : [discord.Object(role_id)]}}])
 
                             if log_channel_id := guild_db["reaction"]["log_channel"]:                            
                                 embed: discord.Embed=discord.Embed(title="Reaction Ban", color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
@@ -73,7 +73,7 @@ class ReactionFilter:
                                 embed.set_footer(text=f"Sucessfully reaction banned the user.")
 
                                 if log_channel := message.guild.get_channel(log_channel_id):
-                                    await self.shared.sender.resolver([{log_channel : {"action" : "send", "kwargs" : {"embed" : embed}}}])
+                                    self.shared.sender.resolver([{log_channel : {"action" : "send", "kwargs" : {"embed" : embed}}}])
 
                         self.db[message_id]["users"].pop(user_id)
 

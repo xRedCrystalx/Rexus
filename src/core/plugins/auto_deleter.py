@@ -20,7 +20,7 @@ class AutoDeleter:
                 self.database[msg] = self.database[msg] - 5
                 
                 if self.database[msg] <= 0:
-                    await self.shared.sender.resolver([{msg : {"action" : "delete"}}])
+                    self.shared.sender.resolver([{msg : {"action" : "delete"}}])
                     self.database.pop(msg)
 
             await asyncio.sleep(5)
