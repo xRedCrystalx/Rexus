@@ -5,7 +5,6 @@ import src.connector as con
 class QueueSystem:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
-        self.loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
 
     async def _thread_event_runner(self, funcs: tuple[typing.Callable], guild_id: int, **kwargs) -> None:        
         guild_database: dict = self.shared.db.load_data(guild_id)
@@ -13,7 +12,7 @@ class QueueSystem:
         self.shared.logger.log(f"@QueueSystem._thread_event_runner > Recieved task for execution. Loaded guild's and bot's database into the memory.", "NP_DEBUG")
 
         try:
-            tasks: list[asyncio.Task] = [self.loop.create_task(func(guild_id=guild_id, guild_db=guild_database, bot_db=bot_database, **kwargs), name=func.__qualname__) for func in funcs]
+            tasks: list[asyncio.Task] = [self.shared.loop.create_task(func(guild_id=guild_id, guild_db=guild_database, bot_db=bot_database, **kwargs), name=func.__qualname__) for func in funcs]
             self.shared.logger.log(f"@QueueSystem._thread_event_runner > Created list of task functions.", "NP_DEBUG")
             
             done: set[asyncio.Task]
@@ -30,14 +29,14 @@ class QueueSystem:
                     result: list[dict] = await task
                     if result:
                         self.shared.logger.log(f"@QueueSystem._thread_event_runner > Sending task data to Sender.resolver", "NP_DEBUG")
-                        await self.shared.sender.resolver(result)
+                        self.shared.sender.resolver(result)
 
                 except (asyncio.CancelledError, asyncio.InvalidStateError, asyncio.TimeoutError):
                     self.shared.logger.log(f"@QueueSystem.Task.{task.get_name()} ({guild_id}): Task killed.", "WARNING")
                 except Exception as error:
                     self.shared.logger.log(f"@QueueSystem.Task.{task.get_name()} ({guild_id}): {type(error).__name__}: {error}", "ERROR")
             
-            self.shared.logger.log(f"@QueueSystem._thread_event_runner > Completed main Task. Success rate: {len(done)}/{len(pending)+len(done)}", "NP_DEBUG")
+            self.shared.logger.log(f"@QueueSystem._thread_event_runner > Completed main Task. Success rate: {len(done)}/{len(pending)+len(done)}", "SYSTEM")
 
         except ExceptionGroup as groupError:
             self.shared.logger.log(f"@QueueSystem._thread_event_runner ({guild_id}): Exception Group: {', '.join([f'SubE {num}: {exception}' for num, exception in enumerate(groupError.exceptions, 1)])}", "ERROR")
@@ -51,8 +50,8 @@ class QueueSystem:
 
         if functions:
             try:
-                self.loop.create_task(self._thread_event_runner(guild_id=guild_id, funcs=functions, **kwargs))
-                self.shared.logger.log(f"@QueueSystem.add_to_queue > Successfully created task for {event} event.", "NP_DEBUG")
+                self.shared.loop.create_task(self._thread_event_runner(guild_id=guild_id, funcs=functions, **kwargs))
+                self.shared.logger.log(f"@QueueSystem.add_to_queue > Successfully created task for {event} event.", "SYSTEM")
             except Exception as error:
                 self.shared.logger.log(f"@QueueSystem.add_to_queue: {type(error).__name__}: {error}", "ERROR")
         return None

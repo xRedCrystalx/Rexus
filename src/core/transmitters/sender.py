@@ -5,12 +5,11 @@ import src.connector as con
 class Sender:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
-        self.loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
 
         self.events: list[list[dict[typing.Any, dict[str, typing.Any]]]] = []
         self.rate_limited: dict[int, float] = {}
 
-    async def resolver(self, data: list[dict[typing.Any, dict[str, typing.Any]]] | None) -> None:
+    def resolver(self, data: list[dict[typing.Any, dict[str, typing.Any]]] | None) -> None:
         if data and isinstance(data, list):
             self.events.append(data)
             self.shared.logger.log(f"@Sender.resolver > Added events to the sender queue list", "NP_DEBUG")
@@ -33,14 +32,14 @@ class Sender:
         
             if error.response.status_code == 429:
                 if json_response.get("global") and (retry_after := json_response.get("retry_after") or response_header.get("Retry-After")):
-                    self.shared.logger.log(f"@Sender.rate_limit_handler > Detected global rate limit. Waiting {retry_after} seconds.", "NP_DEBUG")
+                    self.shared.logger.log(f"@Sender.rate_limit_handler > Detected global rate limit. Waiting {retry_after} seconds.", "SYSTEM")
                     # this should block `start` task for x seconds - global ratelimit ?? if safe
                     return await asyncio.sleep(retry_after)
                 
                 elif retry_after := (json_response.get("retry_after") or response_header.get("Retry-After")):
                     self.rate_limited.update(ID := getattr(event, "id"), retry_after)
-                    self.shared.logger.log(f"@Sender.rate_limit_handler > Detected endpoint specific rate limit. Waiting {retry_after} seconds on that endpoint.", "NP_DEBUG")
-                    return self.loop.create_task(self.countdown(ID), name=f"ratelimit_countdown_{ID}")
+                    self.shared.logger.log(f"@Sender.rate_limit_handler > Detected endpoint specific rate limit. Waiting {retry_after} seconds on that endpoint.", "SYSTEM")
+                    return self.shared.loop.create_task(self.countdown(ID), name=f"ratelimit_countdown_{ID}")
             else:
                 self.shared.logger.log(f"@Sender.rate_limit_handler > Not a rate limit error, returning.", "NP_DEBUG")
 
