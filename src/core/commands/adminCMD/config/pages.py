@@ -29,7 +29,7 @@ class HelpPages:
     pingProtection.add_field(name="`` Future Update ``", value="Fully customizable detections.", inline=False)
 
     autoDelete: Embed = Embed(title="Auto Delete", description="AutoDelete is a plugin that deletes new created messages after x seconds/minutes/hours (depending of configuration) in the channel.", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
-    autoDelete.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Member sends message\n2. <:settings:1205253280741982259> Bot saves message & waits x seconds (configured time)\n3. <:delete:1205252465252114452> Bot tries to delete message.", inline=False)
+    autoDelete.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Member sends message\n2. <:settings:1205253280741982259> Bot saves message & waits x seconds (configured time_converter)\n3. <:delete:1205252465252114452> Bot tries to delete message.", inline=False)
 
     autoSlowmode: Embed = Embed(title="Auto Slowmode", description="AutoSlowmode is a plugin that records messages every 5 minutes and determinates how active channel is. Automatically sets slowmode to different values (seconds).", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
     autoSlowmode.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Members send message\n2. <:log:1203410684365504692> Bot counts messages in specified channels\n3. <:dev:1203411510832136202> Every 5 minutes, bot calculates activity\n4. <:settings:1205253280741982259> Edits channel's slowmode delay", inline=False)
@@ -40,7 +40,7 @@ class HelpPages:
     automod.add_field(name="Placeholder channel:", value="This placeholder specifies the __channel__ where member triggered Automod.\n- `channel.name` ➔ Get channel name\n- `channel.id` ➔ Get channel ID\n- `channel.mention` ➔ Mentions channel", inline=True)
     automod.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Automod triggers\n2. <:settings:1205253280741982259> Bot reads report and attempts to find correct response message\n3. <:message:1203419599824101416> Formats and sends message under automod's report", inline=False)
 
-    AI: Embed = Embed(title="Artificial Intelligence", description="Artificial Inteligence (computer that understands human text and responds to it). Talk to NoPing!\n**Prefix:** `> ` (space)", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
+    ai: Embed = Embed(title="Artificial Intelligence", description="Artificial Inteligence (computer that understands human text and responds to it). Talk to NoPing!\n**Prefix:** `> ` (space)", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
 
     commands: Embed = Embed(title="Commands", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
     commands.add_field(name="Staff Commands:", value="- `/report message_link:[Link]` Optional: `extra:[Text]`, `age:[Number]`\
@@ -53,23 +53,26 @@ class HelpPages:
 class ConfigPages:
     shared: con.Shared = con.shared
 
-    general: Embed = Embed(title="General", description="General settings", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
+    general: Embed = Embed(title="General", description="*Click on `❔` for general information about bot.*\n\n", color=discord.Colour.dark_embed())
+    general.set_thumbnail(url="attachment://security.png")
 
-    linkProtection: Embed = Embed(title="Link Protection", description="**Status:** {status:_boolTrans}\n**Logging Channel:** {log_channel:resolve_id?var='mention'}", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
+    commands: Embed = Embed(title="Commands", description="e", color=discord.Colour.dark_embed())
+    general.set_thumbnail(url="attachment://slash_command.png")
+
+    # enable once custom options are ready!
+    #linkProtection: Embed = Embed(title="Link Protection", description="Current plugin configuration:\n\n**Status:** {status:_boolTrans}\n**Logging Channel:** {log_channel:resolve_id?var='mention'}", color=discord.Colour.dark_embed())
     #linkProtection.add_field(name="Options", value="**Allow Discord Invites:** `{options[allowDiscordInvites]}`\n**Allow Social Links:** `{options[allowSocialLinks]}`\n**Allow Nitro Gifts:** `{options[allowNitroGifts]}`")
 
-    pingProtection: Embed = Embed(title="Ping Protection", description="**Status:** {status:_boolTrans}\n**Bypass Role:** {bypassRole:resolve_id?var='mention'}\n**Detect Reply Pings:** {detectReplyPings:to_code}\n**Ignored Channels:** {ignoredChannels:resolve_id?var='mention'&handle_list_format?sep='point'}", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
-    pingProtection.add_field(name="rules $ ``  {key}  ``", value="**Protected role:** {role:resolve_id?var='mention'}\n**Ping staff:** {ping:to_code}\n**Log message:** {log:to_code}\n**Logging channel:** {logChannel:resolve_id?var='mention'}\n**Delete message:** {delete:to_code}", inline=False)
+    pingProtection: Embed = Embed(title="Ping Protection", description="**Status:** {status:_boolTrans}\n**Bypass Role:** {bypassRole:resolve_id?var='mention'}\n**Detect Reply Pings:** {detectReplyPings:discord_format?format='CODE'}\n**Ignored Channels:** {ignoredChannels:resolve_id?var='mention'&handle_list_format?sep='point'}", color=discord.Colour.dark_embed())
+    pingProtection.add_field(name="rules $ ``  {key}  ``", value="**Protected role:** {role:resolve_id?var='mention'}\n**Ping staff:** {ping:discord_format?format='CODE'}\n**Log message:** {log:discord_format?format='CODE'}\n**Logging channel:** {logChannel:resolve_id?var='mention'}\n**Delete message:** {delete:discord_format?format='CODE'}", inline=False)
 
-    automod: Embed = Embed(title="AutoMod Response", description="Under development.\nUse `/automod load_rules` and `/automod create_response` commands.", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
+    automod: Embed = Embed(title="AutoMod Response", description="Under development.\nUse `/automod load_rules` and `/automod create_response` commands.", color=discord.Colour.dark_embed())
 
-    autoDelete: Embed = Embed(title="Auto Delete", description="**Status:** {status:_boolTrans}\n**Logging Channel:** {log_channel:resolve_id?var='mention'}\n**Monitored channels:**\n{monitored:resolve_id?var='mention'&handle_list_format?sep='point'}", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
+    autoDelete: Embed = Embed(title="Auto Delete", description="**Status:** {status:_boolTrans}\n**Logging Channel:** {log_channel:resolve_id?var='mention'}\n**Monitored channels:**\n{monitored:resolve_id?var='mention'|time_converter&discord_format?format='CODE'>handle_list_format?sep='point'}", color=discord.Colour.dark_embed())
 
-    autoSlowmode: Embed = Embed(title="Auto Slowmode", description="**Status:** {status:_boolTrans}\n**Monitored channels:**\n{monitored:resolve_id?var='mention'|time&to_code>handle_list_format?sep='point'}", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
+    autoSlowmode: Embed = Embed(title="Auto Slowmode", description="**Status:** {status:_boolTrans}\n**Monitored channels:**\n{monitored:resolve_id?var='mention'|time_converter&discord_format?format='CODE'>handle_list_format?sep='point'}", color=discord.Colour.dark_embed())
 
-    AI: Embed = Embed(title="Artificial intelligence", description="**Status:** {status:_boolTrans}\n**Respond Channels:**\n{talkChannels:resolve_id?var='mention'&handle_list_format?sep='point'}", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
-
-    commands: Embed = Embed(title="Commands", description="e", color=discord.Colour.dark_embed(), timestamp=shared._datetime())
+    ai: Embed = Embed(title="Artificial intelligence", description="**Status:** {status:_boolTrans}\n**Respond Channels:**\n{talkChannels:resolve_id?var='mention'&handle_list_format?sep='point'}", color=discord.Colour.dark_embed())
 
 
     def _boolTrans(self, boolean: bool)-> str:
@@ -95,19 +98,13 @@ class ConfigPages:
                 interaction = self.interaction
 
             if guild := interaction.guild:
-                if isinstance(id, (tuple, list)):
-                    if not var:
-                        return [obj(int(x)) for x in id]
-                    else:
-                        return [getattr(obj(int(x)), var) for x in id]
+                if not var:
+                    return obj(int(id))
                 else:
-                    if not var:
-                        return obj(int(id))
-                    else:
-                        return getattr(obj(int(id)), var)
+                    return getattr(obj(int(id)), var)
 
-        except ValueError:
-            return id
+        except (ValueError, TypeError):
+            return f"`{id}`"
         except Exception as error:
             self.shared.logger.log( f"@ConfigPages.resolve_id > {type(error).__name__}: {error}", "ERROR")
 
@@ -124,14 +121,27 @@ class ConfigPages:
             self.shared.logger.log( f"@ConfigPages.handle_list_format > {type(error).__name__}: {error}", "ERROR")
         return None
     
-    def to_code(self, var) -> str:
-        if isinstance(var, (tuple, list)):
-            return [f"`{x}`" for x in var]
-        else:
+    def discord_format(self, var: str, format: str) -> str:
+        if format == "CODE":
             return f"`{var}`"
-    
-    def time(self, time: int) -> str:
-        return time
+        elif format == "BOLD":
+            return f"**{var}**"
+        elif format == "ITALIC":
+            return f"*{var}*"
+        else:
+            return var
+
+    def time_converter(self, seconds: int) -> str:
+        units: list[tuple[str, int]] = [("day", 86400), ("hour", 3600), ("minute", 60), ("second", 1)]
+        if seconds == 0:
+            return '0'
+        
+        parts = []
+        for unit, div in units:
+            amount, seconds = divmod(int(seconds), div)
+            if amount > 0:
+                parts.append('{} {}{}'.format(amount, unit, "" if amount == 1 else "s"))
+        return " ".join(parts)
 
     def format(self, string: str, **kwargs) -> str:
         def handle_functions(value: str, funcs: str) -> typing.Any:
@@ -146,49 +156,82 @@ class ConfigPages:
                         kwargs: dict[str, typing.Any] = {k: ast.literal_eval(v) for k, v in (param.split("=") for param in params)}
                         functions.append([data[0].strip(), kwargs])
 
+                self.shared.logger.log(f"@ConfigPages.create_embed > Found {len(functions)} functions. {functions}", "NP_DEBUG")
+
                 for function, arguments in functions:                
-                    callable: typing.Callable = getattr(self, function)
-                    value = callable(value, **arguments)
+                    if function and (callable_function := getattr(self, function)):
+                        if isinstance(value, (list, tuple)) and function not in ["handle_list_format"]: # exception list for funcs that require iterable
+                            value = [callable_function(x, **arguments) for x in value]
+                        else:
+                            value = callable_function(value, **arguments)
                 return value
+
             except Exception as error:
                 self.shared.logger.log(f"@ConfigPages.format.handle_functions > {type(error).__name__}: {error}", "ERROR")
             return None
         
         try:
-            placeholders: list[str] = re.findall(r"\{([^:}]+)(?::([^}]+))?\}", string)
+            placeholders: list[tuple[str, str]] = re.findall(r"\{([^:}]+)(?::([^}]+))?\}", string)
+            self.shared.logger.log(f"@ConfigPages.create_embed > Found {len(placeholders)} placeholders. {placeholders}", "NP_DEBUG")
 
             for value_path, funcs in placeholders:
                 value_path, funcs = (value_path.strip(), funcs.strip())
-                
-                if funcs == "":
+
+                # handling non-func placeholders
+                if not funcs:
                     placeholder: str = "{"+value_path+"}"
+                    self.shared.logger.log(f"@ConfigPages.create_embed > Replacing non-func placeholder {placeholder}.", "NP_DEBUG")
                     string = string.replace(placeholder, placeholder.format(**kwargs))
-                else:
-                    placeholder: str = "{"+f"{value_path}:{funcs}"+"}"
-                    try:
-                        value: str =  ast.literal_eval(("{"+value_path+"}").format(**kwargs))
-                    except:
-                        value: str = ("{"+value_path+"}").format(**kwargs)
-                    
-                    if isinstance(value, dict):
-                        keys = tuple(value.keys())
-                        values = tuple(value.values())
+                
+                # function placeholder
+                placeholder: str = "{"+f"{value_path}:{funcs}"+"}"
+                self.shared.logger.log(f"@ConfigPages.create_embed > Handling {placeholder} placeholder.", "NP_DEBUG")
 
-                        functions: list[str] = funcs.split("|") if "|" in funcs else [funcs] # 1 or 2
-                        final: str | None = functions[-1].split(">")[-1] if ">" in funcs else None
+                # getting path value
+                try:
+                    value: typing.Any =  ast.literal_eval(("{"+value_path+"}").format(**kwargs))
+                except:
+                    value: str = ("{"+value_path+"}").format(**kwargs)
 
-                        formatted_keys: str | list[str]= handle_functions(keys, functions[0]) if keys and functions[0] != "" else keys
-                        formatted_values: str | list[str] = handle_functions(values, functions[-1].split(">")[0]) if values and len(functions) == 2 and functions[-1] != "" else values
+                self.shared.logger.log(f"@ConfigPages.create_embed > Got {placeholder}'s value {value}.", "NP_DEBUG")
+                
+                # if the value is dict > formatting both key and value
+                if isinstance(value, dict):
+                    self.shared.logger.log(f"@ConfigPages.create_embed > Detected dictionary as value.", "NP_DEBUG")
+                    # both key and values must exist
+                    keys = tuple(value.keys())
+                    values = tuple(value.values())
 
-                        formatted: list[str] = [f"{key}: `{formatted_values[index]}`" for index, key in enumerate(formatted_keys)]
+                    if not keys or not values:
+                        self.shared.logger.log(f"@ConfigPages.create_embed > Missing keys or values, ignoring.", "NP_DEBUG")
+                        continue
+
+                    # getting functions
+                    functions: list[str] = funcs.split("|")
+                    if len(functions) == 2:
+                        final_functions: str | None = functions[-1].split(">")[-1] if ">" in functions[-1] else None
+
+                        # fornatting keys and values
+                        formatted_keys: str | list[str]= handle_functions(keys, functions[0])
+                        formatted_values: str | list[str] = handle_functions(values, functions[-1].split(">")[0])
+
+                        self.shared.logger.log(f"@ConfigPages.create_embed > Formatted keys and values.", "NP_DEBUG")
+
+                        formatted: list[str] = [f"{key}: {formatted_values[index]}" for index, key in enumerate(formatted_keys)]
+                        self.shared.logger.log(f"@ConfigPages.create_embed > Connected keys and values.", "NP_DEBUG")
                         
-                        if final:
-                            formatted = handle_functions(formatted, final)
+                        # final formatting/replacing placeholder
+                        if final_functions:
+                            formatted = handle_functions(formatted, final_functions)
+                            self.shared.logger.log(f"@ConfigPages.create_embed > Final formatting.", "NP_DEBUG")
 
+                        self.shared.logger.log(f"@ConfigPages.create_embed > Replacing {placeholder} with {formatted}.", "NP_DEBUG")
                         string = string.replace(placeholder, str(formatted))
-                    
-                    else:
-                        string = string.replace(placeholder, str(handle_functions(value, funcs)))
+                else:
+                    value = str(handle_functions(value, funcs))
+                    self.shared.logger.log(f"@ConfigPages.create_embed > Replacing {placeholder} with {value}", "NP_DEBUG")
+                    string = string.replace(placeholder, value)
+            
             return string
 
         except Exception as error:
@@ -212,21 +255,28 @@ class ConfigPages:
             })
         return fields or []
 
-    def create_embed(self, data: dict, embed: discord.Embed, interaction: discord.Interaction, name: str) -> discord.Embed:
+    def create_embed(self, data: dict, blueprint_embed: discord.Embed, interaction: discord.Interaction, name: str) -> discord.Embed:
         self.interaction: discord.Interaction = interaction
-        
-        if not embed:
+
+        if not blueprint_embed:
             embed: Embed = Embed(title=name, description=f"**Status:** `{self._boolTrans(data.get("status"))}`\n**Logging channel:** {self._idTrans(data.get("log_channel"), "channel")}", color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
+        else:
+            embed: Embed = Embed(title=blueprint_embed.title, description=self.format(blueprint_embed.description, **data), color=blueprint_embed.color, timestamp=self.shared._datetime())
+            
+            if blueprint_embed.thumbnail:
+                self.shared.logger.log(f"@ConfigPages.create_embed > Blueprint has thumbnail: {blueprint_embed.thumbnail.url}", "NP_DEBUG")
+                embed.set_thumbnail(url=blueprint_embed.thumbnail.url)
 
-        embed.description = self.format(embed.description, **data)
+        print(blueprint_embed.to_dict())
 
-        for field in embed.fields.copy():
-            index: int = embed.fields.index(field)
-            if "$" in field.name:
-                for new_filed in self.handle_fields(field, data):
-                    embed.add_field(name=new_filed["name"], value=new_filed["value"], inline=new_filed["inline"])
-                embed.remove_field(index)
-            else:
-                embed.set_field_at(index, name=self.format(field.name, **data), value=self.format(field.value, **data), inline=field.inline)
+        self.shared.logger.log(f"@ConfigPages.create_embed > Creating new {name} embed.", "NP_DEBUG")
+
+        if blueprint_embed:
+            for field in blueprint_embed.fields.copy():
+                if "$" in field.name:
+                    for new_filed in self.handle_fields(field, data):
+                        embed.add_field(name=new_filed["name"], value=new_filed["value"], inline=new_filed["inline"])
+                else:
+                    embed.add_field(name=self.format(field.name, **data), value=self.format(field.value, **data), inline=field.inline)
         return embed
 

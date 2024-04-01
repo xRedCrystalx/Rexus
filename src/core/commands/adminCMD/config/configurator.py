@@ -5,14 +5,14 @@ import src.connector as con
 from discord.ui import RoleSelect, ChannelSelect, UserSelect, Select, MentionableSelect, Button
 
 if typing.TYPE_CHECKING:
-    from .config_handler import AdvancedPaginator
+    from .base_handler import AdvancedPaginator
 
 class Configuration:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
 
         self.FALLBACK: dict = dict(title="Configuration Wizard 🪄", description="This plugin does not have any configurations! ✨", timestamp=self.shared._datetime(), color=discord.Colour.dark_embed())
-        self.MAIN_SCREEN: dict = dict(title="Configuration Wizard 🪄", description="Choose an option from the buttons below and I will help you with the request! ✨\n\n**PS:**\n Use `Enabled/Disabled` button for fast plugin switch! 🌠", timestamp=self.CONNECTOR._datetime(), color=discord.Colour.dark_embed())
+        self.MAIN_SCREEN: dict = dict(title="Configuration Wizard 🪄", description="Choose an option from the buttons below and I will help you with the request! ✨\n\n**PS:**\n Use `Enabled/Disabled` button for fast plugin switch! 🌠", timestamp=self.shared._datetime(), color=discord.Colour.dark_embed())
         self.EMBED: dict = dict(title="Configuration Wizard 🪄", timestamp=self.shared._datetime(), color=discord.Colour.dark_embed())
 
         self.config: dict[str, dict[str, str | list] | list | str] = {
@@ -99,7 +99,16 @@ class Configuration:
                     "status": {
                         "embed": {**self.EMBED, "description": "Description 2"},
                         "view": [{"name": "btn_enable"}, {"name": "btn_disable"}, {"name": "btn_back"}],
-                        "exec": "alt.status"
+                        "btn_enable": {
+                            "path": "ai.status",
+                            "value": (True, None, "Final"),
+                            "return": 2
+                        },
+                        "btn_disable": {
+                            "path": "ai.status",
+                            "value": (False, None, "Final"),
+                            "return": 2
+                        }
                     },
                     "respond": {
                         "embed": {**self.EMBED, "description": "Choose what do you want to do."},
@@ -285,8 +294,6 @@ class Configuration:
                 raise NotImplementedError("Could not locate embed or view in the config.")
             
             self.config_value = []
-
-
 
 
 
