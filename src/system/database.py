@@ -5,29 +5,42 @@ import src.connector as con
 class Database:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
+        self.config_path: str = f"{self.shared.path}/src/config.json"
+        self.databases_path: str = self.shared.path + "/databases/{type}/{id}.json"
 
     def load_data(self, id: int | None = None, db: str = None) -> dict[str, typing.Any]:
         if id:
             try:
-                with open(f"{self.shared.path}/databases/{"users" if db == "USERS" else "servers"}/{id}.json") as file:
+                with open(self.databases_path.format(type="users" if str(db).upper() in ["USERS", "USER", "MEMBER", "MEMBERS"] else "servers", id=id), "r", encoding="utf-8") as file:
                     return json.load(file)
+            
+            except FileNotFoundError:
+                self.create_database(id, db)
             except Exception as error:
                 self.shared.logger.log(f"@databaseHandler.load_data: Error trying to load data for {id}. {type(error).__name__}: {error}", "ERROR")
         else:
             try:
-                with open(f"{self.shared.path}/src/config.json") as file:
+                with open(self.config_path, "r", encoding="utf-8") as file:
                     return json.load(file)
             except Exception as error:
                 self.shared.logger.log(f"@databaseHandler.load_data: Error trying to load bot's config. {type(error).__name__}: {error}", "ERROR")
 
     def save_data(self, id: int, update_data: dict, db: str = None) -> None:
-        with open(f"{self.shared.path}/database/{"users" if db == "USERS" else "servers"}/{id}.json", "w") as old_data:
+        with open(self.databases_path.format(type="users" if str(db).upper() in ["USERS", "USER", "MEMBER", "MEMBERS"] else "servers", id=id), "w", encoding="utf-8") as old_data:
             try:
                 json.dump(update_data, old_data, indent=4)
             except Exception as error:
                 self.shared.logger.log(f"@databaseHandler.save_data: Error trying to save data for {id}. {type(error).__name__}: {error}", "ERROR")
 
-    # possible update needed
+    def create_database(self, id: str | int, option: str) -> None:
+        try:
+            with open(self.databases_path.format(type="users" if str(option).upper() in ["USERS", "USER", "MEMBER", "MEMBERS"] else "servers", id=id), "w", encoding="utf-8") as new_file:
+                ...
+        
+        except Exception as error:
+            self.shared.logger.log(f"@databaseHandler.create_database: Error trying to save data for {id}. {type(error).__name__}: {error}", "ERROR")
+
+
     def add_value(self, key: str, value_type: typing.Literal["str", "int", "bool", "list", "dict", "none"], path: str | None = None, db_id: int | None = None) -> bool:
         values: dict[str, typing.Any] = {
             "str" : "",
