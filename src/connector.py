@@ -1,4 +1,4 @@
-import sys, datetime, uuid, typing, platform, os, aiohttp, asyncio
+import sys, datetime, uuid, typing, platform, aiohttp, asyncio, schedule
 sys.dont_write_bytecode = True
 from discord.ext import commands
 
@@ -8,6 +8,7 @@ class Shared:
     path: str = None
     OS: str = platform.system()
     session: aiohttp.ClientSession = None
+    schedule_jobs: list[schedule.Job] = []
     
     import src.system.colors as colors_module
     colors: colors_module.C | colors_module.CNone = colors_module.auto_color_handler()
@@ -49,6 +50,7 @@ class Shared:
         from src.core.plugins.reaction_filter import ReactionFilter
         from src.core.plugins.spy import Spy
         from src.core.helpers.images import Images
+        from src.core.helpers.string_formats import StringFormats
 
         self.imper_detection = ImpersonatorDetection()
         self.AI = AI()    
@@ -61,6 +63,7 @@ class Shared:
         self.reaction_filter = ReactionFilter()
         self.spy = Spy()
         self.images = Images()
+        self.string_formats = StringFormats()
 
         loader: tuple[typing.Callable] = (self.auto_slowmode.start, self.QOFTD.start, self.auto_deleter.start, self.reaction_filter.start, self.sender.start)
         self.plugin_tasks: list[asyncio.Task] = [self.loop.create_task(func(), name=func.__qualname__) for func in loader]
