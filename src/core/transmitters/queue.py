@@ -7,8 +7,14 @@ class QueueSystem:
         self.shared: con.Shared = con.shared
 
     async def _thread_event_runner(self, funcs: tuple[typing.Callable], guild_id: int, **kwargs) -> None:        
-        guild_database: dict = self.shared.db.load_data(guild_id)
         bot_database: dict[str, typing.Any] = self.shared.db.load_data()
+        if guild_id in bot_database["blacklisted_guilds"]:
+            return
+        
+        guild_database: dict = self.shared.db.load_data(guild_id)
+        if not guild_database["general"]["status"]:
+            return
+        
         self.shared.logger.log(f"@QueueSystem._thread_event_runner > Recieved task for execution. Loaded guild's and bot's database into the memory.", "NP_DEBUG")
 
         try:
