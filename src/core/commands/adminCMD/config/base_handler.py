@@ -1,4 +1,4 @@
-import sys, typing, discord
+import sys, typing, discord, traceback
 sys.dont_write_bytecode = True
 import src.connector as con
 
@@ -22,12 +22,12 @@ class AdvancedPaginator(discord.ui.View):
             "alt": {
                 "name": "Alt Detection",
                 "help": self.help_obj.altDetection,
-                "config": None
+                "config": self.config_obj.altDetection
             },
             "imper": {
-                "name": "Impersonator detection",
+                "name": "Impersonator Detection",
                 "help": self.help_obj.impersonatorDetection,
-                "config": None
+                "config": self.config_obj.imperDetection
             },
             "ai": {
                 "name": "Artificial Intelligence",
@@ -42,7 +42,7 @@ class AdvancedPaginator(discord.ui.View):
             "link": {
                 "name": "Link Protection",
                 "help": self.help_obj.linkProtection,
-                "config": None
+                "config": self.config_obj.linkProtection
             },
             "ping": {
                 "name": "Ping Protection",
@@ -63,17 +63,17 @@ class AdvancedPaginator(discord.ui.View):
         
         self.page_names: list[str] = list(self.global_config.keys())
         self.page_len: int = len(self.page_names)-1
-        self.current_position: str = current_position if current_position else self.page_names[-1] # temp
+        self.current_position: str = current_position if current_position else self.page_names[-1]
 
     def _handle_imports(self) -> None:
         self.shared.logger.log(f"@AdvancedPaginator._handle_imports > Importing handlers.", "NP_DEBUG")
         from .pages import HelpPages, ConfigPages
-        from .configurator import Configuration
+        from .configurator import Configurator
 
         try:
             self.help_obj: HelpPages = HelpPages()
             self.config_obj: ConfigPages = ConfigPages()
-            self.configurator: Configuration = Configuration()
+            self.configurator: Configurator = Configurator()
             self.shared.logger.log(f"@AdvancedPaginator._handle_imports > Imported and executed handlers..", "NP_DEBUG")
 
         except Exception as error:
@@ -125,21 +125,17 @@ class AdvancedPaginator(discord.ui.View):
         elif custom_id.endswith(":STOP"):
             self.shared.logger.log(f"@AdvancedPaginator.change_page > Changing page to STOP.", "NP_DEBUG")
             await self.update_message(interaction, {"view": self.clear_items()})
+            self.stop()
 
         elif custom_id.endswith(":RETURN"):
-            self.shared.logger.log(f"@AdvancedPaginator.change_page > Resetting navigation.", "NP_DEBUG")
-            self.configurator.reset_navigation()
+            self.shared.logger.log(f"@AdvancedPaginator.change_page > Resetting configurator.", "NP_DEBUG")
+            self.configurator.reset_configurator()
             if config := guild_db.get(self.current_position):
                 self.shared.logger.log(f"@AdvancedPaginator.change_page > Changing page to RETURN.", "NP_DEBUG")
                 cnf: dict[str, str | discord.Embed] = self.global_config.get(self.current_position)
                 await self.update_message(interaction, {"embed": self.config_obj.create_embed(config, name=cnf["name"], interaction=interaction, blueprint_embed=cnf["config"]), "view": self.clear_items().create_paginator_buttons()})
             else:
                 raise ValueError(f"Could not find data for {self.current_position} in {interaction.guild.name} ({interaction.guild.id}) >> Triggered by RETURN interaction.")
-
-
-
-    async def on_timeout(self) -> None:
-        print("TIMED OUT")
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if not interaction.data:
@@ -159,7 +155,7 @@ class AdvancedPaginator(discord.ui.View):
     
     async def on_error(self, interaction: discord.Interaction, error: Exception, item: discord.ui.item.Item) -> None:
         error_id: str = self.shared._create_id()
-        self.shared.logger.log(f"@AdvancedPaginator.on_error > {type(error).__name__}: {error} | Error ID: {error_id}", "ERROR")
+        self.shared.logger.log(f"@AdvancedPaginator.on_error > Error ID: {error_id}\n{traceback.format_exc()}", "ERROR")
 
         error_embed: discord.Embed = self.help_obj.ERROR
         error_embed.description = error_embed.description.format(error=error_id)

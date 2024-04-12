@@ -38,12 +38,13 @@ class ConfigureCommand(commands.Cog):
         self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Loaded databases.", "NP_DEBUG")
 
         if (allowAdminEditing and interaction.user.guild_permissions.administrator) or (interaction.user.id in bot_db["owners"]) or (interaction.user == interaction.guild.owner):
+            self.reload()
             paginator = self.advancedPaginator(current_position=plugin.value if plugin else None)
             self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Created base paginator system.", "NP_DEBUG")
             
             if plugin:
                 # plugin specific config
-                await interaction.response.send_message(embed=paginator.config_obj.create_embed(guild_db.get(plugin.value), name=plugin.value, interaction=interaction), view=paginator.create_paginator_buttons(), ephemeral=True)
+                await interaction.response.send_message(embed=paginator.config_obj.create_embed(guild_db.get(plugin.value), name=plugin.value, interaction=interaction, blueprint_embed=paginator.global_config.get(plugin.value)["config"]), view=paginator.create_paginator_buttons(), ephemeral=True)
                 self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Executing plugin specific config.", "NP_DEBUG")
             else:
                 # global config
