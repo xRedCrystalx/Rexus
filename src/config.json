@@ -1,5 +1,5 @@
 {
-    "owners" : [312693600842547201, 333588605748510721],
+    "owners" : [],
     "blacklisted_guilds" : [],
     "filters" : {
         "impersonator" : {
@@ -21,23 +21,7 @@
             ]           
         }       
     },
-    "spy" : {
-        "1074188787699167253" : {
-            "https://discord.com/api/webhooks/1141072905246085190/6Z2m5gZpWKJLLm-EZo09SjvpPrMzM16i3_GR22AZKWC5_ENcnaXUwv58EwW7Q0o39jDn" : [1114791447095414794, 1074191101763780648],
-            "https://discord.com/api/webhooks/1141075746928992297/VXUfVjIBROQ9IYA9T0rusjnBPgHMxWfrJ-t5raHvGyL4qf7l5PsqL3X84EM6cB_hPArh" : [1074188790610022412],
-            "https://discord.com/api/webhooks/1141087452300316763/zWbxRmDfVE-vSt4MTs-5rhALkpoCqGhEhIqXsHWoBLKnlc0PoqNltomugvYfemxNulzM" : [1131048613267648532],
-            "https://discord.com/api/webhooks/1141078861455564830/NqckE2EDttOKNAqjnIhiZBXWCXm3i7fiJ5DEp7FK22O7daXReGSzDNl2R260CVmZac06" : [1104999993695281252],
-            "https://discord.com/api/webhooks/1141086692758007839/0nBbtNZhjpRfWKnnlzKGmk6HxlVQVNCRAl0AB567LEqnLsXRdxGe0-A8nl_Wk1XZa8jx" : [1105956029398794280, 1105949196101615708],
-            "https://discord.com/api/webhooks/1141086514722390076/GCiqTX1GTN98rPzOW8MpKKglf8v1_9lDhMrrnsMx8mCcjA5qJQlVGobt7uUd0w3Mu8BF" : [1104993674472988684, 1104993674472988684, 1074193519406743583, 1114790672336167012],
-            "https://discord.com/api/webhooks/1141086842893119568/7A8hcpVBwElfX2m7-JGU-K988Kizxk4WxgIHkgI_6rh3XjswVWWElTH9i9DkiUIl1nh5" : [1127884899899150356, 1122300613569556510, 1133995408088109108, 1074192653438165063],
-            "https://discord.com/api/webhooks/1141086972635533394/mxVwEXwZKuMPU5FyKRZTV7omu8cyQ9eMD1EHZm3HbzcVNYX61PubHAnyygxzwpRC97Pw" : [1105004801923764285],
-            "https://discord.com/api/webhooks/1141087088977129482/cDqP_khQ0OYs0mpWTfrXarfvMfTOf9zKtamn44aav8RoabotiU3lkR0_Xi-ZlVJUH8_e" : [1124767738506793010, 1123083637022273546, 1127764368382247012],
-            "https://discord.com/api/webhooks/1141087232783036566/soVFhLijtuUYo1qcfrrOVk2nP1f16wq3x8NbB0NKt_put79WRnWtAC9cPBwfA5KoTDYW" : [1124766971947384913],
-            "https://discord.com/api/webhooks/1141087325254844496/pWwRMZe-qNIeQnUsdqK4YGXFIgewX0UtyMPNqqZ6NSv25uCelrPIPKzCmArwz-jYihyh" : [1074193221837668422]
-        }
-    },
     "reloader" : {
-
         "ImpersonatorDetection" : {
             "path" : "src.core.plugins.impersonator_detection",
             "var" : "imper_detection",
@@ -59,20 +43,22 @@
         "AutoSlowmode" : {
             "path" : "src.core.plugins.auto_slowmode",
             "var" : "auto_slowmode",
-            "kwargs" : {},
-            "save" : []
+            "kwargs" : {
+                "interval_minutes" : 0.5
+            },
+            "save" : ["database"]
         },
         "MessageHandlers" : {
             "path" : "src.core.plugins.message_handlers",
             "var" : "message_handlers",
             "kwargs" : {},
-            "save" : []
+            "save" : ["link_db"]
         },
         "QOFTD" : {
             "path" : "src.core.plugins.QOFTD",
             "var" : "QOFTD",
             "kwargs" : {},
-            "save" : ["current_msgs"]
+            "save" : ["current_msgs", "job"]
         },
         "AutoDeleter" : {
             "path" : "src.core.plugins.auto_deleter",
