@@ -33,10 +33,10 @@ class MyBot(commands.AutoShardedBot):
         print(f"{self.c.Gray}---------------------------------------------------\n{self.c.R}[{self.c.Green}+{self.c.R}]    Loading Global Extensions...")
 
         cogPaths: tuple[str, ...] = ("src/core/listeners", "src/core/commands")
-        for cogPath in cogPaths:
-            print(f"{self.c.Green}+{self.c.R} Loading {cogPath}..")
+        for path in cogPaths:
+            print(f"{self.c.Green}+{self.c.R} Loading {path}..")
             counter = 0
-            for cog in (cogList := glob.glob(f"{cogPath}/**/*.py" if self.shared.OS == "Windows" else f"*/{cogPath}/**/*.py", recursive=True)):
+            for cog in (cogList := glob.glob(f"{path}/**/*.py" if self.shared.OS == "Windows" else f"*/{path}/**/*.py", recursive=True)):
                 try:
                     await self.load_extension(cog.replace("\\", ".").replace("/", ".").removesuffix(".py"))
                     counter += 1
@@ -62,8 +62,4 @@ class MyBot(commands.AutoShardedBot):
         await self.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.playing, name="V3 out!"))
 
 if __name__ == "__main__":
-    MyBot().run("MTIwMDUyODA4NjU3MjIxMjI0NA.Gu_DzA.hRo15rlNlSO0m2QYdUzHd8MNFSdxRtgRTnBXYo", reconnect=True, log_handler=None)
-
-
-# MTIwMDUyODA4NjU3MjIxMjI0NA.Gu_DzA.hRo15rlNlSO0m2QYdUzHd8MNFSdxRtgRTnBXYo   | TESTINGBOT
-# OTgwMDMxOTA2ODM2MDA5MDAw.GurIcz.CpBn4sf3kzHwd3n8Domvzl_f7YBcimWlSXeuIo     | NOPING
+    MyBot().run("SECRET-TOKEN", reconnect=True, log_handler=None)
