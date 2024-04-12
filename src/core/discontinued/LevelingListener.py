@@ -91,6 +91,3 @@ class LevelingListener:
                         self.reaction_db[reaction.guild_id] = {}
                         self.reaction_db[reaction.guild_id][reaction.message_id] = [reaction.member.id]
                     #print("[reaction_handler] Saved.")
-    
-    async def giveaway_handler(self, reaction: discord.RawReactionActionEvent, message: discord.Message) -> None:
-        ...
