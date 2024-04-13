@@ -10,5 +10,6 @@ class Images:
 
     def load_images(self) -> None:
         for image_name in os.listdir(self.image_path):
-            file = discord.File(f"{self.image_path}/{image_name}", image_name)
-            setattr(self, image_name.split(".")[0], file)
+            if image_name.endswith(".png"):
+                file = discord.File(f"{self.image_path}/{image_name}", image_name)
+                setattr(self, image_name.split(".")[0], file)
