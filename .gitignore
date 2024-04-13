@@ -160,7 +160,11 @@ cython_debug/
 #.idea/
 
 # repo specific ignores
-Test/
-logs/
-databases/
+Test/**
+logs/**
+databases/**
 secret.txt 
+
+databases/servers/server.json
+databases/users/user.json
+logs/logger@discord-system.log
