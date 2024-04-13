@@ -1,0 +1,108 @@
+{
+    "Plugins": {
+        "AI": false,
+        "Alt": false,
+        "Impersonator": false,
+        "Link": false,
+        "Reaction": false,
+        "AutoMod": false,
+        "Ping": true,
+        "AutoDelete": false,
+        "LevelingSystem": false,
+        "Responder": false,
+        "AutoSlowmode": false,
+        "FanArt": false,
+        "ReactionFilter": false,
+        "Achievements": false
+    },
+    "Logging": {
+        "Alt": null,
+        "Impersonator": null,
+        "Link": null,
+        "AutoSlowmode": null,
+        "AutoDelete": null,
+        "LevelingSystem": null,
+        "ReactionFilter": null,
+        "Achievements": false
+    },
+    "PingProtection": {
+        "BypassRole": 1086066775294230670,
+        "IgnoreChannels": [],
+        "DetectReplyPings": false,
+        "MemberProtection": {
+            "Role": 1055262744468783185,
+            "Ping": false,
+            "Log": true,
+            "Delete": false,
+            "LogChannel": 1040698878380474438
+        },
+        "StaffProtection": {
+            "Role": null,
+            "Ping": true,
+            "Log": true,
+            "Delete": true,
+            "LogChannel": 1040698878380474438
+        },
+        "YouTuberProtection": {
+            "Role": null,
+            "Ping": false,
+            "Log": null,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "Everyone/Here": {
+            "Ping": false,
+            "Log": false,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "Bot": {
+            "Ping": false,
+            "Log": false,
+            "Delete": false,
+            "LogChannel": null
+        }
+    },
+    "ServerInfo": {
+        "StaffRole": 1040173533164224623,
+        "StaffChannel": null,
+        "LogChannel": null
+    },
+    "AI": null,
+    "AutoSlowmode": [],
+    "AutoMod": {},
+    "AutoDelete": {},
+    "FanArt": [],
+    "AutoResponder": {},
+    "LevelingSystem": {
+        "config": {
+            "levels": {
+                "message": false,
+                "voice": false,
+                "reaction": false,
+                "giveaway": false
+            },
+            "notifications": {
+                "dm": {
+                    "send": false,
+                    "ping": false,
+                    "message": "Congrats {member}, you just advanced to {type} level {num}!"
+                },
+                "guild": {
+                    "send": false,
+                    "ping": false,
+                    "message": "Congrats {member}, you just advanced to {type} level {num}!"
+                }
+            },
+            "rewards": {
+                "message": {},
+                "voice": {},
+                "reaction": {},
+                "giveaway": {}
+            },
+            "achievements": {},
+            "switch": ""
+        },
+        "members": {}
+    }
+}

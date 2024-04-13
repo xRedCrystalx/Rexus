@@ -1,0 +1,265 @@
+{
+    "general": {
+        "allowAdminEditing": false,
+        "staffRole": 1002486727081992273,
+        "staffChannel": 1037720138335662141,
+        "adminRole": 968534241782673408,
+        "adminChannel": 1226136202864754779,
+        "language": "US/en",
+        "status": true
+    },
+    "cmd": {
+        "logCmdExecution": true,
+        "failedCmdExecution": true,
+        "cmdExecutionLogChannel": 1043532394042503198
+    },
+    "alt": {
+        "status": true,
+        "log_channel": 996865305672421537
+    },
+    "imper": {
+        "status": true,
+        "log_channel": 1015937645135790120
+    },
+    "ai": {
+        "status": false,
+        "talkChannels": [
+            1032353612665466992,
+            938804743122346078,
+            1037720138335662141,
+            1043532394042503198
+        ]
+    },
+    "automod": {
+        "status": false,
+        "log_channel": 1015937645135790120,
+        "rules": {}
+    },
+    "link": {
+        "status": true,
+        "log_channel": 939053881021845505,
+        "options": {
+            "allowDiscordInvites": true,
+            "allowNitroGifts": false,
+            "allowSocialLinks": true
+        }
+    },
+    "ping": {
+        "status": true,
+        "detectReplyPings": false,
+        "ignoredChannels": [
+            983622968859049994,
+            939962732059430922,
+            939053941935718450,
+            938818662847098901,
+            968490796116492310,
+            974974486417932309,
+            938805845737746492,
+            938805878432333854
+        ],
+        "rules": {
+            "MemberProtection": {
+                "role": 996861513409249373,
+                "ping": false,
+                "logChannel": 1015937645135790120,
+                "log": true,
+                "delete": false,
+                "bypass": null
+            },
+            "StaffProtection": {
+                "role": 996878384867065967,
+                "ping": false,
+                "logChannel": 1015937645135790120,
+                "log": true,
+                "delete": false,
+                "bypass": null
+            },
+            "Bot": {
+                "role": "Every bot",
+                "ping": false,
+                "log": true,
+                "logChannel": 1015937645135790120,
+                "delete": false,
+                "bypass": null
+            }
+        }
+    },
+    "auto_delete": {
+        "status": true,
+        "log_channel": 1015937645135790120,
+        "monitored": {
+            "1015937738823970856": 313
+        }
+    },
+    "auto_slowmode": {
+        "status": true,
+        "log_channel": 1015937645135790120,
+        "monitored": {
+            "1032353612665466992": 31235,
+            "1015937645135790120": 145
+        }
+    },
+    "reaction": {
+        "status": true,
+        "log_channel": 1015937645135790120,
+        "reactionBanRole": 1203444406108295258
+    },
+    "QOFTD": {
+        "status": true,
+        "log_channel": 1032353612665466992
+    },
+    "fan_art": {
+        "status": false,
+        "log_channel": null,
+        "montired": []
+    },
+    "responder": {
+        "status": false
+    },
+    "leveling_system": {
+        "status": false,
+        "log_channel": null,
+        "levels": {
+            "message": false,
+            "voice": false,
+            "reaction": false
+        },
+        "rewards": {
+            "message": [],
+            "voice": [],
+            "reaction": []
+        },
+        "notifications": {
+            "dm": {
+                "send": false,
+                "ping": false,
+                "message": "Congrats {member}, you just advanced to {type} level {num}!"
+            },
+            "guild": {
+                "send": false,
+                "ping": false,
+                "message": "Congrats {member}, you just advanced to {type} level {num}!"
+            }
+        }
+    },
+    "Plugins": {
+        "AI": true,
+        "Alt": false,
+        "Impersonator": false,
+        "Link": true,
+        "Reaction": false,
+        "AutoMod": false,
+        "Ping": true,
+        "AutoDelete": true,
+        "LevelingSystem": false,
+        "Responder": true,
+        "AutoSlowmode": false,
+        "FanArt": false,
+        "ReactionFilter": true,
+        "Achievements": false,
+        "QOFTD": true
+    },
+    "Logging": {
+        "Alt": null,
+        "Impersonator": null,
+        "Link": 1015937645135790120,
+        "AutoSlowmode": null,
+        "AutoDelete": 1015937645135790120,
+        "LevelingSystem": null,
+        "ReactionFilter": 1015937645135790120,
+        "Achievements": null,
+        "QOFTD": 1032353612665466992
+    },
+    "PingProtection": {
+        "BypassRole": null,
+        "IgnoreChannels": [],
+        "DetectReplyPings": false,
+        "MemberProtection": {
+            "Role": null,
+            "Ping": false,
+            "Log": false,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "StaffProtection": {
+            "Role": null,
+            "Ping": false,
+            "Log": false,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "YouTuberProtection": {
+            "Role": null,
+            "Ping": false,
+            "Log": null,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "Everyone/Here": {
+            "Ping": false,
+            "Log": false,
+            "Delete": false,
+            "LogChannel": null
+        },
+        "Bot": {
+            "Ping": false,
+            "Log": true,
+            "Delete": true,
+            "LogChannel": 1015937645135790120
+        }
+    },
+    "ServerInfo": {
+        "StaffRole": null,
+        "StaffChannel": null,
+        "LogChannel": null
+    },
+    "AutoSlowmode": [],
+    "AutoMod": {},
+    "AutoDelete": {
+        "1015937738823970856": 5
+    },
+    "AutoResponder": {
+        "-joinmm2": {
+            "startsWith": true,
+            "content": "**How do I play MM2 with Ant?**\n\n- When Ant is hosting a game of MM2, he'll post a join link in <#871141617170513950>. Click that link to join the game.\n- Try to be fast! The game fills up quickly!"
+        }
+    },
+    "FanArt": [
+        1037720138335662141
+    ],
+    "AI": 1095810937501532200,
+    "ReactionFilter": {
+        "role": 1203444406108295258
+    },
+    "LevelingSystem": {
+        "config": {
+            "levels": {
+                "message": false,
+                "voice": false,
+                "reaction": false,
+                "giveaway": false
+            },
+            "notifications": {
+                "dm": {
+                    "send": false,
+                    "ping": false,
+                    "message": "Congrats {member}, you just advanced to {type} level {num}!"
+                },
+                "guild": {
+                    "send": false,
+                    "ping": false,
+                    "message": "Congrats {member}, you just advanced to {type} level {num}!"
+                }
+            },
+            "rewards": {
+                "message": {},
+                "voice": {},
+                "reaction": {},
+                "giveaway": {}
+            },
+            "achievements": {},
+            "switch": ""
+        },
+        "members": {}
+    }
+}
