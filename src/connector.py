@@ -1,4 +1,4 @@
-import sys, datetime, uuid, typing, platform, aiohttp, asyncio, schedule
+import sys, uuid, typing, platform, aiohttp, asyncio, schedule
 sys.dont_write_bytecode = True
 from discord.ext import commands
 
@@ -38,7 +38,15 @@ class Shared:
 
         self.execution_reports: exec_report.ExecReport = exec_report.ExecReport()
 
-    def plugin_load(self) -> None:
+    def plugin_load(self) -> None:        
+        from src.core.helpers.images import Images
+        from src.core.helpers.string_formats import StringFormats
+        from src.core.helpers.time import Time
+
+        self.images = Images()
+        self.string_formats = StringFormats()
+        self.time = Time()
+
         from src.core.plugins.impersonator_detection import ImpersonatorDetection
         from src.core.plugins.AI import AI
         from src.core.plugins.ping_protection import PingProtection
@@ -49,8 +57,6 @@ class Shared:
         from src.core.plugins.miscellaneous_handlers import MiscellaneousHandlers
         from src.core.plugins.reaction_filter import ReactionFilter
         from src.core.plugins.spy import Spy
-        from src.core.helpers.images import Images
-        from src.core.helpers.string_formats import StringFormats
 
         self.imper_detection = ImpersonatorDetection()
         self.AI = AI()    
@@ -62,16 +68,12 @@ class Shared:
         self.miscellaneous = MiscellaneousHandlers()
         self.reaction_filter = ReactionFilter()
         self.spy = Spy()
-        self.images = Images()
-        self.string_formats = StringFormats()
+
 
         loader: tuple[typing.Callable] = (self.auto_slowmode.start, self.QOFTD.start, self.auto_deleter.start, self.reaction_filter.start, self.sender.start)
         self.plugin_tasks: list[asyncio.Task] = [self.loop.create_task(func(), name=func.__qualname__) for func in loader]
 
         self.queue.reload_filters()
-
-    def _datetime(self) -> datetime:
-        return datetime.datetime.now()
 
     def _create_id(self) -> str:
         return str(uuid.uuid1())
@@ -84,16 +86,6 @@ class Shared:
  
         return f"{bar} {percentage:.1f}%"
 
-    def seconds_to_string(self, seconds) -> str:
-        units: list[tuple[str, int]] = [("day", 86400), ("hour", 3600), ("minute", 60), ("second", 1)]
-        time_str = []
-
-        for unit, value in units:
-            if seconds >= value:
-                count, seconds = divmod(seconds, value)
-                time_str.append(f"{count} {unit}{'s' if count != 1 else ''}")
-
-        return ", ".join(time_str) if time_str else "0 seconds"
 
 
 #making global class var, so data is presistent
