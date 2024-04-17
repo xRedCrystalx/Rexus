@@ -11,6 +11,10 @@ class Logger:
             "SYSTEM": 17,
             "NP_DEBUG": 15,
         }
+
+        self.FILE_LEVEL = 15
+        self.CONSOLE_LEVEL = 17
+
         self.handlers: list[logging.Handler] = []
         self.logger: logging.Logger = logging.getLogger("discord")
         self.logger.setLevel(10)
@@ -74,7 +78,7 @@ class Logger:
         
         self.log(f"@Logger.StreamHandler > Setting handler's data.", "NP_DEBUG")
         stream_handler.setFormatter(formmatter)
-        stream_handler.setLevel(17) # update level
+        stream_handler.setLevel(self.CONSOLE_LEVEL)
         stream_handler.set_name("Stream Handler")
 
         self.handlers.append(stream_handler)
@@ -87,7 +91,7 @@ class Logger:
         file_handler: logging.handlers.RotatingFileHandler = logging.handlers.RotatingFileHandler(filename=f"{self.shared.path}/logs/logger@discord-system.log", encoding="utf-8")
         
         self.log(f"@Logger.FileHandler > Setting handler's data.", "NP_DEBUG")
-        file_handler.setLevel(15) # NoPing Debug +
+        file_handler.setLevel(self.FILE_LEVEL) # NoPing Debug +
         file_handler.setFormatter(formatter)
         file_handler.set_name("MainFile Handler")
 
