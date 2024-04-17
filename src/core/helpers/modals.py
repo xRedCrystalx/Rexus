@@ -4,7 +4,7 @@ from discord.ui import Modal
 import src.connector as con
 
 
-class ModalHandler(Modal):
+class ModalHelper(Modal):
     def __init__(self, title: str, custom_id: str, timeout: float | None = None) -> None:
         """Handler for `discord.Modal`
         
@@ -23,7 +23,7 @@ class ModalHandler(Modal):
         await interaction.response.defer()
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
-        self.shared.logger.log(f"@ModalHandler.on_error[{interaction.data['custom_id']}] > {type(error).__name__}: {error}", "ERROR")
+        self.shared.logger.log(f"@ModalHelper.on_error[{interaction.data['custom_id']}] > {type(error).__name__}: {error}", "ERROR")
         self.data = {"error": error, "interaction": interaction}
     
     async def on_timeout(self) -> None:
