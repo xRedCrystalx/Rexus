@@ -1,8 +1,8 @@
-import sys, discord, asyncio, datetime, time, typing
+import sys, datetime, time, typing
 sys.dont_write_bytecode = True
 import src.connector as con
 
-class Time:
+class TimeHelper:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
         self.units: dict[str, int] = {
