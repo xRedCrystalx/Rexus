@@ -70,17 +70,13 @@ class StringFormats:
         else:
             return var
 
-    def time_converter(self, seconds: int) -> str:
-        units: list[tuple[str, int]] = [("day", 86400), ("hour", 3600), ("minute", 60), ("second", 1)]
-        if seconds == 0:
-            return '0'
-        
-        parts = []
-        for unit, div in units:
-            amount, seconds = divmod(int(seconds), div)
-            if amount > 0:
-                parts.append('{} {}{}'.format(amount, unit, "" if amount == 1 else "s"))
-        return " ".join(parts)
+    def completion_bar(self, total: int, completed: int, _len: int = 15) -> str:
+        percentage: float = (completed / total) * 100
+        completed_bar = int(_len * percentage / 100)
+        remaining_bar: int = _len - completed_bar
+        bar: str = "[" + "#" * completed_bar + "-" * remaining_bar + "]"
+ 
+        return f"{bar} {percentage:.1f}%"
     
 
     def format(self, string: str, kwargs) -> str:
