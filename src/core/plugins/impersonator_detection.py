@@ -7,7 +7,7 @@ class ImpersonatorDetection:
         self.shared: con.Shared = con.shared
 
     def _create_embed(self, member: discord.Member) -> discord.Embed:
-        embed: discord.Embed = discord.Embed(title="Impersonator Detection", color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
+        embed: discord.Embed = discord.Embed(title="Impersonator Detection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
         embed.set_thumbnail(url=member.display_avatar.url)
         return embed
 

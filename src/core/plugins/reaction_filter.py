@@ -30,7 +30,7 @@ class ReactionFilter:
                     self.db[payload.message_id]["users"][payload.member.id] = 1
 
                 if (log_channnel_id := guild_db["reaction"]["log_channel"]):                    
-                    embed: discord.Embed=discord.Embed(title="Reaction Filter", color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
+                    embed: discord.Embed=discord.Embed(title="Reaction Filter", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
                     embed.set_thumbnail(url=payload.member.display_avatar.url)
                     embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{payload.member.display_name}\n<:global:1203410626492240023>┇{payload.member.global_name}\n<:ID:1203410054016139335>┇{payload.member.id}", inline=True)
                     embed.add_field(name="`` Rule ``", value=f"User reacted with {payload.emoji} emoji under https://discord.com/channels/{payload.guild_id}/{payload.channel_id}/{payload.message_id}.", inline=True)
@@ -67,7 +67,7 @@ class ReactionFilter:
                                 self.shared.sender.resolver([{member : {"action" : "add_roles", "args" : [discord.Object(role_id)]}}])
 
                             if log_channel_id := guild_db["reaction"]["log_channel"]:                            
-                                embed: discord.Embed=discord.Embed(title="Reaction Ban", color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
+                                embed: discord.Embed=discord.Embed(title="Reaction Ban", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
                                 embed.set_thumbnail(url=member.display_avatar.url)
                                 embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{member.display_name}\n<:global:1203410626492240023>┇{member.global_name}\n<:ID:1203410054016139335>┇{member.id}", inline=True)
                                 embed.set_footer(text=f"Sucessfully reaction banned the user.")

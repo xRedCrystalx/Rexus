@@ -62,7 +62,7 @@ class AutoSlowmode:
             self.shared.logger.log(f"@AutoSlowmode.slowmode > Delay sent to the resolver.", "NP_DEBUG")
                 
             if (channel_id := guild_db["auto_slowmode"]["log_channel"]):
-                embed: discord.Embed = discord.Embed(title="Auto Slowmode", color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
+                embed: discord.Embed = discord.Embed(title="Auto Slowmode", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
                 embed.add_field(name="`` Channel ``", value=f"<:text_c:1203423388320669716>┇{channel.name}\n<:ID:1203410054016139335>┇{channel.id}", inline=True)
                 embed.add_field(name="`` Change ``", value=f"Value change:\n`{channel.slowmode_delay}s` ➔ `{delay}s`", inline=True)
 

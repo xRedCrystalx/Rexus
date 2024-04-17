@@ -16,7 +16,7 @@ class PingProtection:
         if guild_db["ping"][module]["log"] and (channel_id := guild_db["PingProtection"][module]["LogChannel"]):
             channel: discord.TextChannel = message.guild.get_channel(channel_id)
 
-            embed: discord.Embed = discord.Embed(title="Ping Protection", timestamp=self.shared._datetime())
+            embed: discord.Embed = discord.Embed(title="Ping Protection", timestamp=self.shared.time.datetime())
             embed.set_thumbnail(url=message.author.display_avatar.url)
             embed.add_field(name="`` Author ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
             embed.add_field(name="`` Location ``", value=f"<:msg_id:1203422168046768129>┇{message.id}\n<:text_c:1203423388320669716>┇{message.channel.name}\n<:ID:1203410054016139335>┇{message.channel.id}", inline=True)

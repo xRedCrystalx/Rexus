@@ -60,7 +60,7 @@ class MessageHandlers:
                     if invite_object.guild.id == 1067152607459688549:
                         await message.author.ban(delete_message_days=7, reason="Autoban - XNDUIW")
 
-                        embed: discord.Embed = discord.Embed(title="XNDUIW | CBE_Simon Protection", color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
+                        embed: discord.Embed = discord.Embed(title="XNDUIW | CBE_Simon Protection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
                         embed.set_thumbnail(url=message.author.display_avatar.url)
                         embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
                         embed.add_field(name="`` Rule ``", value=f"Detected invite link redirecting to Simon's server.", inline=True)
@@ -79,7 +79,7 @@ class MessageHandlers:
             if guild_db["link"]["status"] and (message.author.guild_permissions.administrator or guild_db["ServerInfo"]["StaffRole"] in [role.id for role in message.author.roles]): # not
                 if "http://" in message.content or "https://" in message.content and (channel_id := guild_db["Logging"]["Link"]):
 
-                    embed: discord.Embed=discord.Embed(title="Link Protection", color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
+                    embed: discord.Embed=discord.Embed(title="Link Protection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
                     embed.set_thumbnail(url=message.author.display_avatar.url)
                     embed.add_field(name="`` Author ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
                     embed.add_field(name="`` Message ``", value=f"<:msg_id:1203422168046768129>┇{message.author.id}\n<:text_c:1203423388320669716>┇{message.channel.name}\n<:ID:1203410054016139335>┇{message.channel.id}", inline=True)
