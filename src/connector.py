@@ -41,11 +41,13 @@ class Shared:
     def plugin_load(self) -> None:        
         from src.core.helpers.images import Images
         from src.core.helpers.string_formats import StringFormats
-        from src.core.helpers.time import Time
+        from src.core.helpers.time import TimeHelper
+        from src.core.helpers.errors import ErrorHelper
 
         self.images = Images()
         self.string_formats = StringFormats()
-        self.time = Time()
+        self.time = TimeHelper()
+        self.errors = ErrorHelper()
 
         from src.core.plugins.impersonator_detection import ImpersonatorDetection
         from src.core.plugins.AI import AI
