@@ -32,12 +32,12 @@ class Time:
     
     def string_to_seconds(self, time_string: str) -> int:
         total_seconds = 0
-        components: list[str] = map(str.strip, time_string.split(", "))
+        components: list[str] = map(str.strip, time_string.split(","))
         
         for comp in components:
             count, unit = comp.split(" ")
 
-            total_seconds += int(count) * self.units[unit.rstrip("s")]
+            total_seconds += int(count) * self.units[unit.strip("s")]
 
         return total_seconds
     
