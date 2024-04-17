@@ -30,7 +30,7 @@ class Sender:
             response_header: dict[str, typing.Any] = dict(error.response.headers)
             self.shared.logger.log(f"@Sender.rate_limit_handler > Retrieved response headers and json data.", "NP_DEBUG")
         
-            if error.response.status_code == 429:
+            if error.response.status == 429:
                 if json_response.get("global") and (retry_after := json_response.get("retry_after") or response_header.get("Retry-After")):
                     self.shared.logger.log(f"@Sender.rate_limit_handler > Detected global rate limit. Waiting {retry_after} seconds.", "SYSTEM")
                     # this should block `start` task for x seconds - global ratelimit ?? if safe
@@ -58,7 +58,7 @@ class Sender:
                         event_data: dict = event[event_obj]
 
                         if getattr(event_obj, "id") in self.rate_limited:
-                            self.shared.logger.log(f"@Sender.start[sender] > Requested event endpoint under rate limit, adding back to queue.", "NP_DEBUG")
+                            self.shared.logger.log(f"@Sender.start > Requested event endpoint under rate limit, adding back to queue.", "NP_DEBUG")
                             self.events.append([{event_obj: event_data}])
                         else:
                             function: typing.Callable = getattr(event_obj, event_data.get("action"))
@@ -68,13 +68,13 @@ class Sender:
                             if not event_data.get("args"):
                                 event_data["args"] = ()
 
-                            self.shared.logger.log(f"@Sender.start[sender] > Executing API event.", "NP_DEBUG")
+                            self.shared.logger.log(f"@Sender.start > Executing API event.", "NP_DEBUG")
                             await function(*event_data.get("args"), **event_data.get("kwargs"))
                     
                     except Exception as error:
                         if isinstance(error, discord.HTTPException):
                             if await self.rate_limit_handler(error, event_obj):
-                                self.shared.logger.log(f"@Sender.start[sender] > Under rate limit. Adding back to queue.", "NP_DEBUG")
+                                self.shared.logger.log(f"@Sender.start > Under rate limit. Adding back to queue.", "NP_DEBUG")
                                 self.events.append([{event_obj: event_data}])
                             else:
                                 self.shared.logger.log(f"@Sender.execution.discord.HTTPException: {type(error).__name__}: {error}", "ERROR")
