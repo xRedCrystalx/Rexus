@@ -80,15 +80,5 @@ class Shared:
     def _create_id(self) -> str:
         return str(uuid.uuid1())
 
-    def _completion_bar(self, total: int, completed: int, _len: int = 15) -> str:
-        percentage: float = (completed / total) * 100
-        completed_bar = int(_len * percentage / 100)
-        remaining_bar: int = _len - completed_bar
-        bar: str = "[" + "#" * completed_bar + "-" * remaining_bar + "]"
- 
-        return f"{bar} {percentage:.1f}%"
-
-
-
 #making global class var, so data is presistent
 shared: Shared = Shared()
