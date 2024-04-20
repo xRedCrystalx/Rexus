@@ -20,7 +20,7 @@ class StringFormats:
         return "`None`" if not id else f"`{id}`" if not isinstance(id, int) else f"<#{id}>" if option == "channel" else f"<@&{id}>" if option == "role" else f"<@!{id}>" if option == "user" else "Error"
 
     def resolve_id(self, id: int | str, guild: discord.Guild | int, var: str = None) -> discord.abc.GuildChannel | discord.User | discord.Member | discord.Role:
-        def obj(ID: int) -> object:
+        def obj(ID: int, guild: discord.Guild) -> object:
             try:
                 if channel := guild.get_channel(ID):
                     return channel
@@ -32,17 +32,18 @@ class StringFormats:
                 self.shared.logger.log( f"@ConfigPages.resolve_id.obj > {type(error).__name__}: {error}", "ERROR")
 
         try:
-            if not guild:
-                return id
-
-            if isinstance(guild, discord.Guild) or (guild := self.shared.bot.get_guild(guild)):
+            if isinstance(guild, discord.Guild) or (guild := self.shared.bot.get_guild(int(guild))):
+                discord_object = obj(int(id), guild)
+                print(id)
+                
                 if not var:
-                    return obj(int(id))
+                    return discord_object
                 else:
-                    return getattr(obj(int(id)), var)
+                    return getattr(discord_object, var)
 
         except (ValueError, TypeError):
             return f"`{id}`"
+        
         except Exception as error:
             self.shared.logger.log( f"@ConfigPages.resolve_id > {type(error).__name__}: {error}", "ERROR")
 
@@ -78,8 +79,13 @@ class StringFormats:
  
         return f"{bar} {percentage:.1f}%"
     
+    def placeholder(self, string: str) -> str:
+        return string
 
-    def format(self, string: str, kwargs) -> str:
+    def time_converter(self, seconds: int) -> str:
+        return self.shared.time.seconds_to_string(seconds)
+
+    def format(self, string: str, db: dict) -> str:
         def handle_functions(value: str, funcs: str) -> typing.Any:
             try:
                 functions: list[tuple[str, dict[str, typing.Any]]] = []
@@ -116,7 +122,7 @@ class StringFormats:
                 if not funcs:
                     placeholder: str = "{"+value_path+"}"
                     self.shared.logger.log(f"@StringFormats.format > Replacing non-func placeholder {placeholder}.", "NP_DEBUG")
-                    string = string.replace(placeholder, placeholder.format(**kwargs))
+                    string = string.replace(placeholder, placeholder.format(**db))
                 
                 # function placeholder
                 placeholder: str = "{"+f"{value_path}:{funcs}"+"}"
@@ -124,9 +130,9 @@ class StringFormats:
 
                 # getting path value
                 try:
-                    value: typing.Any =  ast.literal_eval(("{"+value_path+"}").format(**kwargs))
+                    value: typing.Any =  ast.literal_eval(("{"+value_path+"}").format(**db))
                 except:
-                    value: str = ("{"+value_path+"}").format(**kwargs)
+                    value: str = ("{"+value_path+"}").format(**db)
 
                 self.shared.logger.log(f"@StringFormats.format > Got {placeholder}'s value {value}.", "NP_DEBUG")
                 
@@ -170,5 +176,5 @@ class StringFormats:
             return string
 
         except Exception as error:
-            self.shared.logger.log( f"@StringFormats.format > {type(error).__name__}: {error}", "ERROR")
+            self.shared.logger.log( f"@StringFormats.format >\n{self.shared.errors.full_traceback()}", "ERROR")
         return
