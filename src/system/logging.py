@@ -8,12 +8,12 @@ class Logger:
         self.c = self.shared.colors
         self._levels: dict[str, int] = {
             "UPDATE": 25, 
-            "SYSTEM": 17,
+            "SYSTEM": 18,
             "NP_DEBUG": 15,
+            "TESTING": 17
         }
-
-        self.FILE_LEVEL = 15
-        self.CONSOLE_LEVEL = 17
+        self.FILE_LEVEL = 17
+        self.CONSOLE_LEVEL = 18
 
         self.handlers: list[logging.Handler] = []
         self.logger: logging.Logger = logging.getLogger("discord")
@@ -70,12 +70,12 @@ class Logger:
     def StreamHandler(self) -> None:
         self.log(f"@Logger.StreamHandler > Creating stream handler (console)", "NP_DEBUG")
         stream_handler = logging.StreamHandler()
-        
+
         if sys.stdout.isatty():
             formmatter = self._formatter("COLOR")
         else:
             formmatter = self._formatter()
-        
+
         self.log(f"@Logger.StreamHandler > Setting handler's data.", "NP_DEBUG")
         stream_handler.setFormatter(formmatter)
         stream_handler.setLevel(self.CONSOLE_LEVEL)
@@ -89,7 +89,7 @@ class Logger:
         self.log(f"@Logger.FileHandler > Creating new handler and formatter for file handler.", "NP_DEBUG")
         formatter: logging.Formatter = self._formatter()
         file_handler: logging.handlers.RotatingFileHandler = logging.handlers.RotatingFileHandler(filename=f"{self.shared.path}/logs/logger@discord-system.log", encoding="utf-8")
-        
+
         self.log(f"@Logger.FileHandler > Setting handler's data.", "NP_DEBUG")
         file_handler.setLevel(self.FILE_LEVEL) # NoPing Debug +
         file_handler.setFormatter(formatter)
@@ -113,14 +113,11 @@ class Logger:
             self.logger.log(lvl, msg=msg)
         except:
             pass
-            
 
 """
-CRITICAL = 50
-FATAL = CRITICAL
+FATAL/CRITICAL = 50
 ERROR = 40
-WARNING = 30
-WARN = WARNING
+WARN/WARNING = 30
 INFO = 20
 DEBUG = 10
 NOTSET = 0
