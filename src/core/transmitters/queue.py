@@ -64,7 +64,7 @@ class QueueSystem:
 
     def reload_filters(self) -> None:
         self.filter: dict[str, tuple[typing.Callable]] = {
-            "on_message" : (self.shared.AI.ask_ai, self.shared.ping_prot.find_pings, self.shared.auto_slowmode.message_listener, self.shared.message_handlers.fan_art,
+            "on_message" : (self.shared.AI.ask_ai, self.shared.ping_prot.find_pings, self.shared.auto_slowmode.message_listener,
                             self.shared.message_handlers.responder, self.shared.message_handlers.simon_invite_link_detection, self.shared.message_handlers.antilink,
                             self.shared.auto_deleter.add_to_queue, self.shared.spy.queue),
             "on_message_edit" : (self.shared.ping_prot.find_pings, self.shared.message_handlers.antilink, self.shared.message_handlers.simon_invite_link_detection,
