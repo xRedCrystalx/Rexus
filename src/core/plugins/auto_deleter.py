@@ -9,18 +9,15 @@ class AutoDeleter:
 
     async def add_to_queue(self, guild_db: dict[str, typing.Any], message: discord.Message, **OVERFLOW) -> None:
         if str(message.channel.id) in guild_db["auto_delete"]["monitored"] and guild_db["auto_delete"]["status"]:
-            try:
-                self.database.update({message: guild_db["auto_delete"]["monitored"][str(message.channel.id)]})
-            except Exception as error:
-                self.shared.logger.log(f"@AutoDeleter.add_to_queue: {type(error).__name__}: {error}", "ERROR")
+            self.database.update({message: guild_db["auto_delete"]["monitored"][str(message.channel.id)]})
 
     async def start(self) -> None:
         while True:
             for msg in self.database.copy():
-                self.database[msg] = self.database[msg] - 5
-                
-                if self.database[msg] <= 0:
-                    self.shared.sender.resolver([{msg : {"action" : "delete"}}])
+                self.database[msg] -= 5
+
+                if self.database[msg] <=  0:
+                    self.shared.sender.resolver(con.Event(msg, "delete", event_data={}))
                     self.database.pop(msg)
 
             await asyncio.sleep(5)
