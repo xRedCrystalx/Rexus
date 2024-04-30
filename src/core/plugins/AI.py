@@ -22,7 +22,7 @@ class AI:
             "What do you get from a pampered cow? Spoiled milk!"
         ]
 
-    async def ask_ai(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message, **OVERFLOW) -> dict[typing.Any, dict[str, typing.Any]] | None: 
+    async def ask_ai(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message, **OVERFLOW) -> None: 
         if guild_db["ai"]["status"] and message.channel.id in guild_db["ai"]["talkChannels"]:
             if message.content.startswith("> "):
                 response: requests.Response = requests.get(f"http://api.brainshop.ai/get?bid=168684&key=lkrMGm9sSb22jqSG&uid={message.author.id}&msg={urllib.parse.quote(message.content[2:])}", headers=self.header)
