@@ -23,30 +23,27 @@ class AI:
         ]
 
     async def ask_ai(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message, **OVERFLOW) -> dict[typing.Any, dict[str, typing.Any]] | None: 
-        try:
-            if guild_db["ai"]["status"] and message.channel.id in guild_db["ai"]["talkChannels"]:
-                if message.content.startswith("> "):
-                    response: requests.Response = requests.get(f"http://api.brainshop.ai/get?bid=168684&key=lkrMGm9sSb22jqSG&uid={message.author.id}&msg={urllib.parse.quote(message.content[2:])}", headers=self.header)
+        if guild_db["ai"]["status"] and message.channel.id in guild_db["ai"]["talkChannels"]:
+            if message.content.startswith("> "):
+                response: requests.Response = requests.get(f"http://api.brainshop.ai/get?bid=168684&key=lkrMGm9sSb22jqSG&uid={message.author.id}&msg={urllib.parse.quote(message.content[2:])}", headers=self.header)
+                try:
+                    JSONreply: dict[str, str] = response.json()
+                except:
+                    JSONreply: dict[str, str] = {"cnt" : "[INFO] Oh no, something went wrong! Corrupted response."}
 
-                    try:
-                        JSONreply: dict[str, str] = response.json()
-                    except:
-                        JSONreply: dict[str, str] = {"cnt" : "[INFO] Oh no, something went wrong! Corrupted response."}
+                if text := JSONreply.get("cnt"):
+                    if [word for word in ["http://", "https://"] if word in text]:
+                        filtered: str = "[Filter] Sorry, but AI is not allowed to send links."
+                    elif [word for word in bot_db["filters"]["message"]["bad_words"] if str(word).lower() in text.lower()]:
+                        filtered: str = "[Filter] Sorry, but AI is not allowed to say bad words."
+                    elif text == "[JOKE]":
+                        filtered: str = self.jokes[random.randint(0, len(self.jokes)-1)]
+                    else:
+                        filtered: str = text
 
-                    if text := JSONreply.get("cnt"):
-                        if [word for word in ["http://", "https://"] if word in text]:
-                            return [{message.channel : {"action" : "send", "kwargs" : {"content" : "[Filter] Sorry, but AI is not allowed to send links."}}}]
-                        elif [word for word in bot_db["filters"]["message"]["bad_words"] if str(word).lower() in text.lower()]:
-                            return [{message.channel : {"action" : "send", "kwargs" : {"content" : "[Filter] Sorry, but AI is not allowed to say bad words."}}}]
-                        elif text == "[JOKE]":
-                            return [{message.channel : {"action" : "send", "kwargs" : {"content" : self.jokes[random.randint(0, len(self.jokes)-1)]}}}]
-                        else:
-                            return [{message.channel : {"action" : "send", "kwargs" : {"content" : text}}}]
+                    self.shared.sender.resolver(con.Event(message.channel, "send", event_data={"content": filtered}))
 
-                elif "<@980031906836009000>" in message.content or "noping" in message.content.lower() or "no ping" in message.content.lower():
-                    embed: discord.Embed = discord.Embed(title="Hey there!", color=discord.Colour.dark_embed(), description="To talk to me, use `> ` infront of message!\nHere is an example: `> Hey, how are you!`")
-                    return [{message.channel : {"action" : "send", "kwargs" : {"embed" : embed}}}]
-
-        except Exception as error:
-            self.shared.logger.log(f"@AI.ask_ai: {type(error).__name__}: {error}", "ERROR")
+            elif "<@980031906836009000>" in message.content or "noping" in message.content.lower() or "no ping" in message.content.lower():
+                embed: discord.Embed = discord.Embed(title="Hey there!", color=discord.Colour.dark_embed(), description="To talk to me, use `> ` infront of message!\nHere is an example: `> Hey, how are you!`")
+                self.shared.sender.resolver(con.Event(message.channel, "send", event_data={"embed": embed}))
         return None
