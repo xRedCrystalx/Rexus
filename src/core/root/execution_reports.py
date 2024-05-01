@@ -6,10 +6,9 @@ import src.connector as con
 class ExecReport:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
-        self.loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
 
     def _create_report(self, data: dict[str, typing.Any]) -> discord.Embed:
-        return discord.Embed(title=data.get("title"), description=data.get("description"), color=discord.Colour.dark_embed(), timestamp=self.shared._datetime())
+        return discord.Embed(title=data.get("title"), description=data.get("description"), color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
 
     async def send(self, embed: discord.Embed, guild: bool = False) -> None:
         if guild:
@@ -19,9 +18,9 @@ class ExecReport:
 
     def report(self, data: dict[str, typing.Any]) -> None:
         embed: discord.Embed = self._create_report(data)
-        task: asyncio.Task[None] = self.loop.create_task(self.send(embed))
+        task: asyncio.Task[None] = self.shared.loop.create_task(self.send(embed))
 
         try:
             task.result()
         except Exception as error:
-            self.shared.logger.log(f"@ExecReport.report > Failed to .send() message. {type(error).__name__}: {error}")
+            self.shared.logger.log(f"@ExecReport.report > Failed to .send() message. {self.shared.errors.simple_error(error)}")
