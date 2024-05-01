@@ -1,4 +1,4 @@
-import discord, json, sys, schedule
+import discord, json, sys, typing
 sys.dont_write_bytecode = True
 from discord.ext import commands
 import src.connector as con
@@ -7,48 +7,35 @@ class BotListeners(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.shared: con.Shared = con.shared
         self.bot: commands.Bot = bot
-        self.c: con.Colors.C | con.Colors.CNone = self.shared.colors
+        self.events_channel_id: int = 1234545937435725864
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild) -> None:
-        self.shared.logger.log(f"Successfully joined {self.c.Cyan}{guild.name} {self.c.R}({guild.id})! {self.c.DBlue}Info{self.c.R}: Mnum: {guild.member_count}, Owner: {guild.owner.name} ({guild.owner_id})")
-        
         await self.bot.tree.sync(guild = discord.Object(id=guild.id))
         channel: discord.TextChannel = guild.system_channel
 
-        CopyDB: dict = json.load(open(f"{self.shared.path}/src/system/CopyDB.json", "r"))
-        file: str = f"{self.shared.path}/databases/servers/{guild.id}.json"
+        # read attempt, db handler will create or read database, if nothing returned, error happened.
+        database: dict[str, typing.Any] = self.shared.db.load_data(guild.id)
 
-        try:
-            with open(file, "r"):
-                self.shared.logger.log(f"Found {self.c.Yellow}database for {self.c.Cyan}{guild.name}.")
-
-        except FileNotFoundError as error:
-            try:
-                with open(file, "w+") as file3:
-                    json.dump(CopyDB, file3, indent=4)
-
-            except Exception as error:
-                id: str = self.shared._create_id()
-                await channel.send(f"Failed to create database. Please contact @xRedCrystalx. Error ID: `{id}`")
-                self.shared.logger.log(f"Failed to {self.c.Red}create database file{self.c.R} for server {self.c.Cyan}{guild.name} ({guild.id}){self.c.R}. {self.c.DBlue}ID{self.c.R}: {self.c.Red}{id} Error: {type(error).__name__}: {error}{self.c.R}", "ERROR")
-
-            try:  
-                with open(file, "r") as file4:
-                    json.load(file4)
-                    self.shared.logger.log(f"Successfully {self.c.Green}saved and read Database{self.c.R} for server {self.c.Cyan}{guild.name} ({guild.id}){self.c.R}.")
-
-            except Exception as error:
-                id: str = self.shared._create_id()
-                await channel.send(f"Failed to create database. Please contact @xRedCrystalx. Error ID: {id}")
-                self.shared.logger.log(f"Failed to {self.c.Red}read database file{self.c.R} for server {self.c.Cyan}{guild.name} ({guild.id}){self.c.R}. {self.c.DBlue}ID{self.c.R}: {self.c.Red}{id} Error: {type(error).__name__}: {error}{self.c.R}", "ERROR")
-
-        except Exception as error:
+        if not database:
             id: str = self.shared._create_id()
-            await channel.send(f"Failed to create database. Please contact @xRedCrystalx. Error ID: {id}")
-            self.shared.logger.log(f"Global database file exception{self.c.R} for server {self.c.Cyan}{guild.name} ({guild.id}){self.c.R} has occured. {self.c.DBlue}ID{self.c.R}: {self.c.Red}{id} Error: {type(error).__name__}: {error}{self.c.R}", "ERROR")
+            await channel.send(f"An error has occured. Please report this to the developer. Error ID: `{id}`")
+            self.shared.logger.log(f"Failed to create database file for guild {guild.name} ({guild.id}). Error ID: {id}\n{self.shared.errors.full_traceback()}", "ERROR")
 
-        await channel.send("Thank you for inviting me to your server! To start with my configuration, execute `/help` command!")
+        await channel.send("Thank you for inviting me to your guild! To start with my configuration, execute `/config` command. For other information, use `/noping` command.")
+
+        if events_channel := self.bot.get_channel(self.events_channel_id):
+            embed = discord.Embed(title=f"Joined {guild.name}", description=f"**Guild:** {guild.name} (`{guild.id}`)\n**Creation date:** {guild.created_at}\n**Owner:** {guild.owner.display_name}, {guild.owner.global_name} (`{guild.owner_id}`)",
+                                   timestamp=self.shared.time.datetime(), color=discord.Colour.green())
+            embed.add_field(name="`` Counts ``", value=f"**Members:** `{guild.member_count}`\n**Roles:** `{len(guild.roles)}`\n**Channels:** `{len(guild.channels)}`\n**Emojis:** `{len(guild.emojis)}`")
+            await events_channel.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_guild_remove(self, guild: discord.Guild) -> None:
+        if events_channel := self.bot.get_channel(self.events_channel_id):
+            embed = discord.Embed(title=f"Left {guild.name}", description=f"**Guild:** {guild.name} (`{guild.id}`)\n**Creation date:** {guild.created_at}\n**Owner:** {guild.owner.display_name}, {guild.owner.global_name} (`{guild.owner_id}`)",
+                                   timestamp=self.shared.time.datetime(), color=discord.Colour.red())
+            await events_channel.send(embed=embed)
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(BotListeners(bot))
