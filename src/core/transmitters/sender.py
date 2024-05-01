@@ -6,19 +6,23 @@ class Sender:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
 
-        self.events: list[list[dict[typing.Any, dict[str, typing.Any]]]] = []
+        self.events: list[con.Event] = []
         self.rate_limited: dict[int, float] = {}
 
-    def resolver(self, data: list[dict[typing.Any, dict[str, typing.Any]]] | None) -> None:
-        if data and isinstance(data, list):
-            self.events.append(data)
-            self.shared.logger.log(f"@Sender.resolver > Added events to the sender queue list", "NP_DEBUG")
+    def resolver(self, e: list[con.Event] | con.Event) -> None:
+        if isinstance(e, con.Event):
+            self.events.append()
+        
+        if isinstance(e, list):
+            for event in e:
+                if isinstance(event, con.Event):
+                    self.events.append(event)
 
     async def countdown(self, id: int) -> None:
-        self.shared.logger.log(f"@Sender.countdown > Started countdown for {id}. Time: {self.rate_limited[id]} seconds.", "NP_DEBUG")
+        self.shared.logger.log(f"@Sender.countdown > Started countdown for {id}. Time: {self.rate_limited[id]} seconds.", "TESTING")
         while self.rate_limited[id] <= 0:
             await asyncio.sleep(1)
-            self.rate_limit_handler[id] -= 1
+            self.rate_limited[id] -= 1
         
         self.rate_limited.pop(id)
         self.shared.logger.log(f"@Sender.countdown > Removed {id} from ratelimit.", "NP_DEBUG")
@@ -46,43 +50,40 @@ class Sender:
         except Exception as error:
             self.shared.logger.log(f"@Sender.rate_limit_handler: {type(error).__name__}: {error}", "ERROR")
 
-
     async def start(self) -> None:
         while True:
             while self.events:
-                event_group: list[dict[typing.Any, dict[str, typing.Any]]] = self.events[0]
-                
-                for event in event_group:
-                    try:
-                        event_obj: str = tuple(event.keys())[0]
-                        event_data: dict = event[event_obj]
+                event: con.Event = self.events[0]
 
-                        if getattr(event_obj, "id") in self.rate_limited:
-                            self.shared.logger.log(f"@Sender.start > Requested event endpoint under rate limit, adding back to queue.", "NP_DEBUG")
-                            self.events.append([{event_obj: event_data}])
-                        else:
-                            function: typing.Callable = getattr(event_obj, event_data.get("action"))
-                            if not event_data.get("kwargs"):
-                                event_data["kwargs"] = {}
+                try:
+                    event_data: dict = event.event_data
 
-                            if not event_data.get("args"):
-                                event_data["args"] = ()
+                    if getattr(event.event_obj, "id", None) in self.rate_limited:
+                        self.shared.logger.log(f"@Sender.start > Requested event endpoint under rate limit, adding back to queue.", "NP_DEBUG")
+                        self.events.append(event)
+                    else:
+                        if not event_data.get("kwargs"):
+                            event_data["kwargs"] = {}
 
-                            self.shared.logger.log(f"@Sender.start > Executing API event.", "NP_DEBUG")
-                            await function(*event_data.get("args"), **event_data.get("kwargs"))
-                    
-                    except Exception as error:
-                        if isinstance(error, discord.HTTPException):
-                            if await self.rate_limit_handler(error, event_obj):
-                                self.shared.logger.log(f"@Sender.start > Under rate limit. Adding back to queue.", "NP_DEBUG")
-                                self.events.append([{event_obj: event_data}])
+                        if not event_data.get("args"):
+                            event_data["args"] = ()
+
+                        self.shared.logger.log(f"@Sender.start > Executing API event.", "NP_DEBUG")
+                        if function := getattr(event.event_obj, event.action, None):
+                            if event._async:
+                                await function(*event_data.get("args"), **event_data.get("kwargs"))
                             else:
-                                self.shared.logger.log(f"@Sender.execution.discord.HTTPException: {type(error).__name__}: {error}", "ERROR")
+                                function(*event_data.get("args"), **event_data.get("kwargs"))
+                
+                except Exception as error:
+                    if isinstance(error, discord.HTTPException):
+                        if await self.rate_limit_handler(error, event.event_obj):
+                            self.shared.logger.log(f"@Sender.start > Under rate limit. Adding back to queue.", "NP_DEBUG")
+                            self.events.append(event)
                         else:
-                            self.shared.logger.log(f"@Sender.execution: {type(error).__name__}: {error}", "ERROR")
+                            self.shared.logger.log(f"@Sender.execution.discord.HTTPException: {self.shared.errors.full_traceback()}", "ERROR")
+                    else:
+                        self.shared.logger.log(f"@Sender.execution: {self.shared.errors.full_traceback()}", "ERROR")
 
-                self.events.remove(event_group)
-
+                self.events.remove(event)
             await asyncio.sleep(0.5)
-
-#NOTE: test ratelimit handler
