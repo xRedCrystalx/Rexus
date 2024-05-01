@@ -12,9 +12,11 @@ class ExecReport:
 
     async def send(self, embed: discord.Embed, guild: bool = False) -> None:
         if guild:
-            await self.shared.bot.get_channel(1084932863314624662).send(embed=embed)
+            if sys_channel := self.shared.bot.get_channel(1234544560852697209):
+                await sys_channel.send(embed=embed)
         else:
-            await self.shared.bot.get_user(333588605748510721).send(embed=embed)
+            if red_dm := self.shared.bot.get_user(333588605748510721):
+                await red_dm.send(embed=embed)
 
     def report(self, data: dict[str, typing.Any]) -> None:
         embed: discord.Embed = self._create_report(data)
