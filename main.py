@@ -29,23 +29,22 @@ class MyBot(commands.AutoShardedBot):
 {self.c.Gray}---------------------------------------------------{self.c.R}""")
         print(f"Found {self.c.Magenta}{len(os.listdir(f"{self.shared.path}/databases/servers"))}{self.c.R} server databases.")
         print(f"Found {self.c.Magenta}{len(os.listdir(f"{self.shared.path}/databases/users"))}{self.c.R} user databases.")
-
-        print(f"{self.c.Gray}---------------------------------------------------\n{self.c.R}[{self.c.Green}+{self.c.R}]    Loading Global Extensions...")
+        print(f"{self.c.Gray}---------------------------------------------------{self.c.R}")
 
         cogPaths: tuple[str, ...] = ("src/core/listeners", "src/core/commands")
         for path in cogPaths:
             print(f"{self.c.Green}+{self.c.R} Loading {path}..")
             counter = 0
-            for cog in (cogList := glob.glob(f"{path}/**/*.py" if self.shared.OS == "Windows" else f"*/{path}/**/*.py", recursive=True)):
+            for cog in (cogList := [*glob.glob(f"{path}/*.py"), *glob.glob(f"{path}/*/*.py")]):
                 try:
                     await self.load_extension(cog.replace("\\", ".").replace("/", ".").removesuffix(".py"))
                     counter += 1
-                except Exception as error:
-                    print(f"{self.c.Red}Failed to load {cog}: {type(error).__name__}; {error}{self.c.R}")
+                except Exception:
+                    print(f"{self.c.Red}Failed to load {cog}:\n{self.shared.errors.full_traceback(False)}{self.c.R}")
             
             print(f"{self.c.Cyan}i{self.c.R} Successfully loaded {self.c.Cyan}{counter}/{len(cogList)}{self.c.R} extensions.")
         
-        print(f"{self.c.Gray}---------------------------------------------------\n{self.c.R}[{self.c.Green}+{self.c.R}]    Syncing...")
+        print(f"{self.c.Gray}---------------------------------------------------{self.c.R}")
         if not (synced := await self.tree.sync()):
             print(f"{self.c.Red}Syncing failed.{self.c.R}")
         else:
@@ -62,4 +61,4 @@ class MyBot(commands.AutoShardedBot):
         await self.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.playing, name="V3 out!"))
 
 if __name__ == "__main__":
-    MyBot().run("SECRET-TOKEN", reconnect=True, log_handler=None)
+    MyBot().run("SECRET_TOKEN", reconnect=True, log_handler=None)
