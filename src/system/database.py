@@ -6,40 +6,43 @@ class Database:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
         self.config_path: str = f"{self.shared.path}/src/config.json"
-        self.databases_path: str = self.shared.path + "/databases/{type}/{id}.json"
+        self.databases_path: str = self.shared.path+"/databases/{type}/{id}.json"
+        self.template_path: str = self.shared.path+"/databases/{type}.json"
 
-    def load_data(self, id: int | None = None, db: str = None) -> dict[str, typing.Any]:
-        if id:
-            try:
-                with open(self.databases_path.format(type="users" if str(db).upper() in ["USERS", "USER", "MEMBER", "MEMBERS"] else "servers", id=id), "r", encoding="utf-8") as file:
-                    return json.load(file)
-            
-            except FileNotFoundError:
-                self.create_database(id, db)
-            except Exception as error:
-                self.shared.logger.log(f"@databaseHandler.load_data: Error trying to load data for {id}. {type(error).__name__}: {error}", "ERROR")
-        else:
-            try:
-                with open(self.config_path, "r", encoding="utf-8") as file:
-                    return json.load(file)
-            except Exception as error:
-                self.shared.logger.log(f"@databaseHandler.load_data: Error trying to load bot's config. {type(error).__name__}: {error}", "ERROR")
-
-    def save_data(self, id: int, update_data: dict, db: str = None) -> None:
-        with open(self.databases_path.format(type="users" if str(db).upper() in ["USERS", "USER", "MEMBER", "MEMBERS"] else "servers", id=id), "w", encoding="utf-8") as old_data:
-            try:
-                json.dump(update_data, old_data, indent=4)
-            except Exception as error:
-                self.shared.logger.log(f"@databaseHandler.save_data: Error trying to save data for {id}. {type(error).__name__}: {error}", "ERROR")
-
-    def create_database(self, id: str | int, option: str) -> None:
+    def _open_file(self, path: str, mode: str = "r") -> dict:
         try:
-            with open(self.databases_path.format(type="users" if str(option).upper() in ["USERS", "USER", "MEMBER", "MEMBERS"] else "servers", id=id), "w", encoding="utf-8") as new_file:
-                ...
-        
-        except Exception as error:
-            self.shared.logger.log(f"@databaseHandler.create_database: Error trying to save data for {id}. {type(error).__name__}: {error}", "ERROR")
+            with open(path, mode, encoding="utf-8") as file:
+                return json.load(file)
+        except Exception:
+            self.shared.logger.log(f"@databaseHandler._open_file: Error trying to load data for `{path}`.\n{self.shared.errors.full_traceback()}", "ERROR")
 
+    def _name_resolver(self, name: str) -> str:
+        return "users" if str(name).upper() in ["USERS", "USER", "MEMBER", "MEMBERS"] else "guilds"
+    
+    def load_data(self, id: int | None = None, db: str = "guilds") -> dict[str, typing.Any]:
+        if id:
+            if not (database := self._open_file(self.databases_path.format(type=self._name_resolver(db), id=id))):
+                database: dict[str, typing.Any] = self.create_database(id, db)
+            return database
+        else:
+            return self._open_file(self.config_path)
+
+    def save_data(self, id: int, update_data: dict, db: str = "guilds") -> None:
+        try:
+            with open(self.databases_path.format(type=self._name_resolver(db), id=id), "w", encoding="utf-8") as old_data:
+                json.dump(update_data, old_data, indent=4)
+        except Exception as error:
+            self.shared.logger.log(f"@databaseHandler.save_data: Error trying to save data for {id}.\n{self.shared.errors.full_traceback()}", "ERROR")
+
+    def create_database(self, id: str | int, option: str = "guilds") -> dict[str, typing.Any]:
+        try:
+            template: dict = self._open_file(self.template_path.format(type="user_template" if option == "user" else "guild_template"))
+            
+            with open(self.template_path.format(type=self._name_resolver(option), id=id), "w", encoding="utf-8") as new_file:
+                json.dump(template, new_file, indent=4)
+        
+        except Exception:
+            self.shared.logger.log(f"@databaseHandler.create_database: Error trying to save data for {id}.\n{self.shared.errors.full_traceback()}", "ERROR")
 
     def add_value(self, key: str, value_type: typing.Literal["str", "int", "bool", "list", "dict", "none"], path: str | None = None, db_id: int | None = None) -> bool:
         values: dict[str, typing.Any] = {
