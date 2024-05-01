@@ -4,7 +4,7 @@ import src.connector as con
 from discord.ui import View
 
 class ViewHelper(View):
-    def __init__(self, timeout: float | None = None) -> None:
+    def __init__(self, timeout: float | None = 60) -> None:
         super().__init__(timeout=timeout)
         
         self.shared: con.Shared = con.shared

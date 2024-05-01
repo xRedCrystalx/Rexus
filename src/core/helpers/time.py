@@ -23,9 +23,9 @@ class TimeHelper:
     def seconds_to_string(self, seconds: int) -> str:
         components: list[str] = []
 
-        for unit, value in self.units.items()[::-1]:
-            if seconds >= value:
-                count, seconds = divmod(seconds, value)
+        for unit in reversed(self.units.keys()):
+            if seconds >= self.units[unit]:
+                count, seconds = divmod(seconds, self.units[unit])
                 components.append(f"{count} {unit}{"s" if count != 1 else ""}")
 
         return ", ".join(components) if components else "0 seconds"
@@ -44,7 +44,7 @@ class TimeHelper:
     def current_timestamp(self) -> int:
         return int(time.time())
     
-    def datetime(self, option: typing.Literal["UTC"] = None) -> datetime.datetime:
+    def datetime(self, option: typing.Literal["UTC"] | None = None) -> datetime.datetime:
         if option == "UTC":
             return datetime.datetime.now(datetime.UTC)
 

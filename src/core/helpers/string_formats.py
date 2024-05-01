@@ -7,17 +7,19 @@ class StringFormats:
         self.shared: con.Shared = con.shared
 
     def boolean_format(self, boolean: bool, option: typing.Literal["switch", "y/n"] = "switch")-> str:
+        self.shared.logger.log(f"@StringFormats.boolean_format > kwargs: boolean: {boolean}, option: {option}", "NP_DEBUG")
         if option == "y/n":
             return "Yes" if boolean else "No"
         elif option == "switch":
             return "Enabled" if boolean else "Disabled"
 
     def id_format(self, id: int, option: typing.Literal["channel", "role", "member"]) -> str:
+        self.shared.logger.log(f"@StringFormats.id_format > kwargs: id: {id}, option: {option} ", "NP_DEBUG")
         try:
             id = int(id)
         except: pass
 
-        return "`None`" if not id else f"`{id}`" if not isinstance(id, int) else f"<#{id}>" if option == "channel" else f"<@&{id}>" if option == "role" else f"<@!{id}>" if option == "user" else "Error"
+        return f"`{id}`" if not isinstance(id, int) else f"<#{id}>" if option == "channel" else f"<@&{id}>" if option == "role" else f"<@!{id}>" if option == "user" else "Error"
 
     def resolve_id(self, id: int | str, guild: discord.Guild | int, var: str = None) -> discord.abc.GuildChannel | discord.User | discord.Member | discord.Role:
         def obj(ID: int, guild: discord.Guild) -> object:
@@ -29,13 +31,14 @@ class StringFormats:
                 elif member := guild.get_member(ID):
                     return member
             except Exception as error:
-                self.shared.logger.log( f"@ConfigPages.resolve_id.obj > {type(error).__name__}: {error}", "ERROR")
+                self.shared.logger.log( f"@ConfigPages.resolve_id.obj > {self.shared.errors.full_traceback()}", "ERROR")
 
         try:
+            self.shared.logger.log(f"@StringFormats.resolve_id > kwargs: id: {id}, guild: {guild}, var: {var}", "NP_DEBUG")
             if isinstance(guild, discord.Guild) or (guild := self.shared.bot.get_guild(int(guild))):
                 discord_object = obj(int(id), guild)
-                print(id)
-                
+                self.shared.logger.log(f"@StringFormats.resolve_id > Returned object: {discord_object}", "NP_DEBUG")
+
                 if not var:
                     return discord_object
                 else:
@@ -45,21 +48,18 @@ class StringFormats:
             return f"`{id}`"
         
         except Exception as error:
-            self.shared.logger.log( f"@ConfigPages.resolve_id > {type(error).__name__}: {error}", "ERROR")
+            self.shared.logger.log( f"@ConfigPages.resolve_id > {self.shared.errors.full_traceback()}", "ERROR")
 
     def list_format(self, value: list, sep: typing.Literal["comma", "point"] = "point") -> str | None:
-        try:
-            if isinstance(value, (tuple, list)):
-                if sep == "comma":
-                    return ", ".join(map(str, value))
-                elif sep == "point":
-                    return "\n".join([f"- {item}" for item in value])
+        self.shared.logger.log(f"@StringFormats.list_format > kwargs: value: {value}, sep: {sep} ", "NP_DEBUG")
+        if isinstance(value, (tuple, list)):
+            if sep == "comma":
+                return ", ".join(map(str, value))
+            elif sep == "point":
+                return "\n".join([f"- {item}" for item in value])
 
-        except Exception as error:
-            self.shared.logger.log( f"@StringFormats.list_format > {type(error).__name__}: {error}", "ERROR")
-        return
-    
     def discord_format(self, var: str, format: str = "CODE") -> str:
+        self.shared.logger.log(f"@StringFormats.discord_format > kwargs: var: {var}, format: {format}", "NP_DEBUG")
         if format == "CODE":
             return f"`{var}`"
         elif format == "BOLD":
@@ -72,6 +72,7 @@ class StringFormats:
             return var
 
     def completion_bar(self, total: int, completed: int, _len: int = 15) -> str:
+        self.shared.logger.log(f"@StringFormats.completion_bar > kwargs: total: {total}, completed: {completed}, _len: {_len}", "NP_DEBUG")
         percentage: float = (completed / total) * 100
         completed_bar = int(_len * percentage / 100)
         remaining_bar: int = _len - completed_bar
@@ -87,6 +88,7 @@ class StringFormats:
 
     def format(self, string: str, db: dict) -> str:
         def handle_functions(value: str, funcs: str) -> typing.Any:
+            self.shared.logger.log(f"@StringFormats.format.handle_functions > kwargs: value: {value}, funcs: {value}", "NP_DEBUG")
             try:
                 functions: list[tuple[str, dict[str, typing.Any]]] = []
 
@@ -108,7 +110,7 @@ class StringFormats:
                 return value
 
             except Exception as error:
-                self.shared.logger.log(f"@StringFormats.format.handle_functions > {type(error).__name__}: {error}", "ERROR")
+                self.shared.logger.log(f"@StringFormats.format.handle_functions > {self.shared.errors.full_traceback()}", "ERROR")
             return 
         
         try:
@@ -132,7 +134,10 @@ class StringFormats:
                 try:
                     value: typing.Any =  ast.literal_eval(("{"+value_path+"}").format(**db))
                 except:
-                    value: str = ("{"+value_path+"}").format(**db)
+                    try:
+                        value: str = ("{"+value_path+"}").format(**db)
+                    except Exception:
+                        value = "`None`"
 
                 self.shared.logger.log(f"@StringFormats.format > Got {placeholder}'s value {value}.", "NP_DEBUG")
                 
@@ -144,7 +149,8 @@ class StringFormats:
                     values = tuple(value.values())
 
                     if not keys or not values:
-                        self.shared.logger.log(f"@StringFormats.format > Missing keys or values, ignoring.", "NP_DEBUG")
+                        self.shared.logger.log(f"@StringFormats.format > Missing keys or values, ignoring.", "TESTING")
+                        string = string.replace(placeholder, "")
                         continue
 
                     # getting functions
