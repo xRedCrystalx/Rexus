@@ -6,7 +6,7 @@ from src.core.helpers.views import ViewHelper
 from src.core.helpers.modals import ModalHelper
 
 class BaseConfigCMDView(ViewHelper):
-    def __init__(self, current_position: str, guild_id: int, timeout: float | None = None) -> None:
+    def __init__(self, current_position: str, guild_id: int, timeout: float | None = 60 * 60) -> None:
         super().__init__(timeout=timeout)
         self.shared: con.Shared = con.shared
         self._handle_imports(guild_id)
@@ -32,15 +32,11 @@ class BaseConfigCMDView(ViewHelper):
         self.shared.logger.log(f"@AdvancedPaginator._handle_imports > Importing handlers.", "NP_DEBUG")
         from .pages import HelpPages, ConfigPages
         from .configurator import Configurator
-
-        try:
-            self.help_obj: HelpPages = HelpPages()
-            self.config_obj: ConfigPages = ConfigPages()
-            self.configurator: Configurator = Configurator(guild_id)
-            self.shared.logger.log(f"@AdvancedPaginator._handle_imports > Imported and executed handlers..", "NP_DEBUG")
-
-        except Exception as error:
-            self.shared.logger.log(f"@AdvancedPaginator._handle_imports > {type(error).__name__}: {error}", "ERROR")
+        
+        self.help_obj: HelpPages = HelpPages(guild_id)
+        self.config_obj: ConfigPages = ConfigPages(guild_id)
+        self.configurator: Configurator = Configurator(guild_id)
+        self.shared.logger.log(f"@AdvancedPaginator._handle_imports > Imported and executed handlers..", "NP_DEBUG")
 
     def create_back_button(self, item: bool = False) -> typing.Self | discord.Button:
         button = discord.ui.Button(label="↩", custom_id="PAGINATOR:RETURN", style=discord.ButtonStyle.red)
@@ -58,9 +54,9 @@ class BaseConfigCMDView(ViewHelper):
         return self
 
     async def update_message(self, interaction: discord.Interaction, data: dict[str, typing.Any]) -> None:
-        self.shared.logger.log(f"@AdvancedPaginator.update_message > Updating message...", "NP_DEBUG")
+        self.shared.logger.log(f"@BaseConfigCMDView.update_message > Updating message...", "NP_DEBUG")
         if interaction.response.is_done():
-            await interaction.followup.send(**data)
+            return await interaction.edit_original_response(**data)
 
         await interaction.response.edit_message(**data)
 
@@ -73,7 +69,9 @@ class BaseConfigCMDView(ViewHelper):
         data: dict = await modal.clean_data()
         
         if data.get("error") or not data:
-            return
+            raise ValueError("Empty modal response or error.")
+        
+        self.interaction = data.get("interaction")
         return data
 
     async def change_page(self, custom_id: str) -> None:
@@ -135,6 +133,3 @@ class BaseConfigCMDView(ViewHelper):
         error_embed.description = error_embed.description.format(error=error_id)
 
         await self.update_message(interaction, {"embed": error_embed, "view": self.clear_items()})
-
-async def setup(bot) -> None:
-    pass

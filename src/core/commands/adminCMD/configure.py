@@ -20,8 +20,8 @@ class ConfigureCommand(commands.Cog):
         app_commands.Choice(name="Automod Response", value="automod"),
         app_commands.Choice(name="Link Protection", value="link"),
         app_commands.Choice(name="Ping Protection", value="ping"),
-        app_commands.Choice(name="Auto Delete", value="autodelete"),
-        app_commands.Choice(name="Auto Slowmode", value="autoslowmode"),
+        app_commands.Choice(name="Auto Delete", value="auto_delete"),
+        app_commands.Choice(name="Auto Slowmode", value="auto_slowmode"),
         app_commands.Choice(name="Reaction Filter", value="reaction"),
         app_commands.Choice(name="Quote of the day", value="QOFTD")
     ])
@@ -39,12 +39,12 @@ class ConfigureCommand(commands.Cog):
 
         if (allowAdminEditing and interaction.user.guild_permissions.administrator) or (interaction.user.id in bot_db["owners"]) or (interaction.user == interaction.guild.owner):
             self.reload()
-            paginator = self.advancedPaginator(current_position=plugin.value if plugin else None)
+            paginator = self.baseConfigCMDView(current_position=plugin.value if plugin else None, guild_id=interaction.guild.id)
             self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Created base paginator system.", "NP_DEBUG")
             
             if plugin:
                 # plugin specific config
-                await interaction.response.send_message(embed=paginator.config_obj.create_embed(guild_db.get(plugin.value), name=plugin.value, interaction=interaction, blueprint_embed=paginator.global_config.get(plugin.value)["config"]), view=paginator.create_paginator_buttons(), ephemeral=True)
+                await interaction.response.send_message(embed=paginator.config_obj.create_embed(guild_db.get(plugin.value), name=plugin.value, interaction=interaction, blueprint_embed=getattr(paginator.config_obj, plugin.value, None)), view=paginator.create_paginator_buttons(), ephemeral=True)
                 self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Executing plugin specific config.", "NP_DEBUG")
             else:
                 # global config
@@ -59,8 +59,8 @@ class ConfigureCommand(commands.Cog):
             if f"src.core.commands.adminCMD.config.{imp}" in sys.modules:
                 del sys.modules[f"src.core.commands.adminCMD.config.{imp}"]
 
-        from .config.base_handler import AdvancedPaginator
-        self.advancedPaginator = AdvancedPaginator
+        from .config.base_handler import BaseConfigCMDView
+        self.baseConfigCMDView = BaseConfigCMDView
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(ConfigureCommand(bot))

@@ -2,24 +2,29 @@ import sys, discord, typing, ast
 sys.dont_write_bytecode = True
 import src.connector as con
 
-from discord.ui import RoleSelect, ChannelSelect, UserSelect, Select, MentionableSelect, Button
+from discord.ui import RoleSelect, ChannelSelect, UserSelect, Select, MentionableSelect, Button, TextInput
 
 if typing.TYPE_CHECKING:
-    from .base_handler import AdvancedPaginator
+    from .base_handler import BaseConfigCMDView
 
 """
 embed = dict[str, str]
-view = list[dict[discord_items] | str[discord_items]]
-db = list[str, Any, str | None, str] -> [0]: path, [1]: value > "SELF:{int|*}", [2]: func, [3]: type
+view = list[dict[config_discord_items] | str[discord_items]]
 
+db = list[str, Any, str | None, str] -> [0]: path or local.[path], [1]: value > "SELF:{int|*}", [2]: func, [3]: type
+["local.staff", "SELF:1", None, None] > value change
+["local.staff", "SELF:1", None, "test"] > key = [1], value = local_db["pre-sets"]["test"]
 
-local_db -> FULL DICT REQUIRED AT THE START
+generator = name, value -> placeholder `key`, `value` +optional path
+modal = dict[str, str | list[TextInput]] -> custom_id: "ID:{path.to.key} | SELF"
+local_db -> STATIC - perm
 """
 
 
 class Configurator:
-    def __init__(self) -> None:
+    def __init__(self, guild_id: int) -> None:
         self.shared: con.Shared = con.shared
+        self.reset_configurator()
 
         self.FALLBACK: dict = dict(title="Configuration Wizard 🪄", description="This plugin does not have any configurations! ✨", color=discord.Colour.dark_embed())
         self.MAIN_SCREEN: dict = dict(title="Configuration Wizard 🪄", description="Choose an option from the buttons below and I will help you with the request! ✨\n\n**PS:**\n Use `Enabled/Disabled` button for fast plugin switch! 🌠", color=discord.Colour.dark_embed())
@@ -40,58 +45,58 @@ class Configurator:
                         discord.SelectOption(label="Admin chat", value="admin_chat", description="Set Admin's channel, this is REQUIRED.")],
                         "placeholder": "Choose selection (you might need to scroll)"}}, "btn_back"],
                     "status": {
-                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Bot!**\n**Current:** {status:boolean_format?option='switch'&discord_format}"},
+                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Bot!**\n**Current:** {general[status]:boolean_format?option='switch'&discord_format}"},
                         "view": ["btn_enable", "btn_disable", "btn_back"],
                         "btn_enable": {
-                            "db": ["general.status", True, None],
+                            "db": [["general", "status"], True, None, None],
                             "return": 2
                         },
                         "btn_disable": {
-                            "db": ["general.status", False, None],
+                            "db": [["general", "status"], False, None, None],
                             "return": 2
                         }
                     },
                     "allow_admin_editing": {
-                        "embed": {"description": "Click on the buttons below to `Allow/Disallow` **Admin Editing**\n**Current:** {allowAdminEditing:boolean_format?option='y/n'&discord_format}"},
+                        "embed": {"description": "Click on the buttons below to `Allow/Disallow` **Admin Editing**\n**Current:** {general[allowAdminEditing]:boolean_format?option='y/n'&discord_format}"},
                         "view": ["btn_enable", "btn_disable", "btn_back"],
                         "btn_enable": {
-                            "db": ["general.allowAdminEditing", True, None],
+                            "db": [["general", "allowAdminEditing"], True, None, None],
                             "return": 2
                         },
                         "btn_disable": {
-                            "db": ["general.allowAdminEditing", False, None],
+                            "db": [["general", "allowAdminEditing"], False, None, None],
                             "return": 2
                         }
                     },
                     "staff_role": {
-                        "embed": {"description": "Choose **Role** that will be used as **Staff/Mod Role**.\n**Current:** {staffRole:id_format?option='role'}"},
+                        "embed": {"description": "Choose **Role** that will be used as **Staff/Mod Role**.\n**Current:** {general[staffRole]:id_format?option='role'}"},
                         "view": ["slc_role", "btn_back"],
                         "slc_role": {
-                            "db": ["general.staffRole", "SELF:1", None],
+                            "db": [["general", "staffRole"], "SELF:1", None, None],
                             "return": 2
                         }
                     },
                     "staff_chat": {
-                        "embed": {"description": "Choose **Text Channel** that will be used as **Staff/Mod Channel**.\n**Current:** {staffChannel:id_format?option='channel'}"},
+                        "embed": {"description": "Choose **Text Channel** that will be used as **Staff/Mod Channel**.\n**Current:** {general[staffChannel]:id_format?option='channel'}"},
                         "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
                         "slc_channel": {
-                            "db": ["general.staffChannel", "SELF:1", None],
+                            "db": [["general", "staffChannel"], "SELF:1", None, None],
                             "return": 2
                         }
                     },
                     "admin_role": {
-                        "embed": {"description": "Choose **Role** that will be used as **Admin Role**.\n**Current:** {adminRole:id_format?option='role'}"},
+                        "embed": {"description": "Choose **Role** that will be used as **Admin Role**.\n**Current:** {general[adminRole]:id_format?option='role'}"},
                         "view": ["slc_role", "btn_back"],
                         "slc_role": {
-                            "db": ["general.adminRole", "SELF:1", None],
+                            "db": [["general", "adminRole"], "SELF:1", None, None],
                             "return": 2
                         }
                     },
                     "admin_chat": {
-                        "embed": {"description": "Choose **Text Channel** that will be used as **Admin Channel**.\n**Current:** {adminChannel:id_format?option='channel'}"},
+                        "embed": {"description": "Choose **Text Channel** that will be used as **Admin Channel**.\n**Current:** {general[adminChannel]:id_format?option='channel'}"},
                         "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
                         "slc_channel": {
-                            "db": ["general.adminChannel", "SELF:1", None],
+                            "db": [["general", "adminChannel"], "SELF:1", None, None],
                             "return": 2
                         }
                     }
@@ -106,22 +111,22 @@ class Configurator:
                         discord.SelectOption(label="Status", value="status", description="Enable/Disable plugin"), 
                         discord.SelectOption(label="Logging Channel", description="Set plugin's logging channel.", value="log_channel")]}}, "btn_back"],
                     "status": {
-                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Alt detection!**\n**Current:** {status:boolean_format?option='switch'&discord_format}"},
+                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Alt detection!**\n**Current:** {alt[status]:boolean_format?option='switch'&discord_format}"},
                         "view": ["btn_enable", "btn_disable", "btn_back"],
                         "btn_enable": {
-                            "db": ["alt.status", True, None],
+                            "db": [["alt", "status"], True, None, None],
                             "return": 2
                         },
                         "btn_disable": {
-                            "db": ["alt.status", False, None],
+                            "db": [["alt", "status"], False, None, None],
                             "return": 2
                         }
                     },
                     "log_channel": {
-                        "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {log_channel:id_format?option='channel'}"},
+                        "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {alt[log_channel]:id_format?option='channel'}"},
                         "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
                         "slc_channel": {
-                            "db": ["alt.log_channel", "SELF:1", None],
+                            "db": [["alt", "log_channel"], "SELF:1", None, None],
                             "return": 2
                         }
                     }
@@ -136,22 +141,22 @@ class Configurator:
                         discord.SelectOption(label="Status", value="status", description="Enable/Disable plugin"), 
                         discord.SelectOption(label="Logging Channel", value="log_channel", description="Set plugin's logging channel.")]}}, "btn_back"],
                     "status": {
-                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Impersonator detection!**\n**Current:** {status:boolean_format?option='switch'&discord_format}"},
+                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Impersonator detection!**\n**Current:** {imper[status]:boolean_format?option='switch'&discord_format}"},
                         "view": ["btn_enable", "btn_disable", "btn_back"],
                         "btn_enable": {
-                            "db": ["imper.status", True, None],
+                            "db": [["imper", "status"], True, None, None],
                             "return": 2
                         },
                         "btn_disable": {
-                            "db": ["imper.status", False, None],
+                            "db": [["imper", "status"], False, None, None],
                             "return": 2
                         }
                     },
                     "log_channel": {
-                        "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {log_channel:id_format?option='channel'}"},
+                        "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {imper[log_channel]:id_format?option='channel'}"},
                         "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
                         "slc_channel": {
-                            "db": ("imper.log_channel", "SELF:1", None),
+                            "db": [["imper", "log_channel"], "SELF:1", None, None],
                             "return": 2
                         }
                     }
@@ -166,34 +171,34 @@ class Configurator:
                         discord.SelectOption(label="Status", value="status", description="Enable/Disable plugin"), 
                         discord.SelectOption(label="Respond channels", value="respond", description="Channels where the AI will respond in.")]}}, "btn_back"],
                     "status": {
-                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **AI!**\n**Current:** {status:boolean_format?option='switch'&discord_format}"},
+                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **AI!**\n**Current:** {general[status]:boolean_format?option='switch'&discord_format}"},
                         "view": ["btn_enable", "btn_disable", "btn_back"],
                         "btn_enable": {
-                            "db": ["ai.status", True, None],
+                            "db": [["ai", "status"], True, None, None],
                             "return": 2
                         },
                         "btn_disable": {
-                            "db": ["ai.status", False, None],
+                            "db": [["ai", "status"], False, None, None],
                             "return": 2
                         }
                     },
                     "respond": {
-                        "embed": {"description": "Choose action setting from the buttons."},
+                        "embed": {"description": "Choose action setting from the buttons down below."},
                         "view": ["btn_add", "btn_remove", "btn_back"],
                         "btn_add": {
-                            "embed": {"description": "Choose **Text Channel** that you want to add to the list.\n**Current:**\n{talkChannels:id_format?option='channel'&list_format}"},
+                            "embed": {"description": "Choose **Text Channel** that you want to add to the list.\n**Current:**\n{ai[talkChannels]:id_format?option='channel'&list_format}"},
                             "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
                             "slc_channel": {
-                                "db": ["ai.talkChannels", "SELF:1", "append"],
-                                "return": 2
+                                "db": [["ai", "talkChannels"], "SELF:1", "append", None],
+                                "return": 1
                             }
                         },
                         "btn_remove": {
-                            "embed": {"description": "Choose **Text Channel** that you want to remove from the list.\n**Current:**\n{talkChannels:id_format?option='channel'&list_format}"},
+                            "embed": {"description": "Choose **Text Channel** that you want to remove from the list.\n**Current:**\n{ai[talkChannels]:id_format?option='channel'&list_format}"},
                             "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
                             "slc_channel": {
-                                "db": ["ai.talkChannels", "SELF:1", "remove"],
-                                "return": 2
+                                "db": [["ai", "talkChannels"], "SELF:1", "remove", None],
+                                "return": 1
                             }
                         }
                     }
@@ -211,58 +216,58 @@ class Configurator:
                         discord.SelectOption(label="Allow Discord Gifs", value="dc_gifts", description="Allow/Disallow discord gifting."), 
                         discord.SelectOption(label="Allow Social Media Links", value="socials", description="Allow/Disallow Youtube, Twitch, X etc. links")]}}, "btn_back"],
                     "status": {
-                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Link Protection!**\n**Current:** {status:boolean_format?option='switch'&discord_format}"},
+                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Link Protection!**\n**Current:** {link[status]:boolean_format?option='switch'&discord_format}"},
                         "view": ["btn_enable", "btn_disable", "btn_back"],
                         "btn_enable": {
-                            "db": ["link.status", True, None],
+                            "db": [["link", "status"], True, None, None],
                             "return": 2
                         },
                         "btn_disable": {
-                            "db": ["link.status", False, None],
+                            "db": [["link", "status"], False, None, None],
                             "return": 2
                         }
                     },
                     "log_channel": {
-                        "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {log_channel:id_format?option='channel'}"},
+                        "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {link[log_channel]:id_format?option='channel'}"},
                         "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
                         "slc_channel": {
-                            "db": ("link.log_channel", "SELF:1", None),
+                            "db": [["link", "log_channel"], "SELF:1", None, None],
                             "return": 2
                         }
                     },
                     "dc_invites": {
-                        "embed": {"description": "Click on the buttons below to `Allow/Disallow` **Discord Invites**\n**Current:** {options[allowDiscordInvites]:boolean_format?option='switch'&discord_format}"},
+                        "embed": {"description": "Click on the buttons below to `Allow/Disallow` **Discord Invite Links**\n**Current:** {link[options][allowDiscordInvites]:boolean_format?option='switch'&discord_format}"},
                         "view": ["btn_enable", "btn_disable", "btn_back"],
                         "btn_enable": {
-                            "db": ["link.options.allowDiscordInvites", True, None],
+                            "db": [["link", "options", "allowDiscordInvites"], True, None, None],
                             "return": 2
                         },
                         "btn_disable": {
-                            "db": ["link.options.allowDiscordInvites", False, None],
+                            "db": [["link", "options", "allowDiscordInvites"], False, None, None],
                             "return": 2
                         }
                     },
                     "dc_gifts": {
-                        "embed": {"description": "Click on the buttons below to `Allow/Disallow` **Discord Gifts**\n**Current:** {options[allowNitroGifts]:boolean_format?option='switch'&discord_format}"},
+                        "embed": {"description": "Click on the buttons below to `Allow/Disallow` **Discord Gift Links**\n**Current:** {link[options][allowNitroGifts]:boolean_format?option='switch'&discord_format}"},
                         "view": ["btn_enable", "btn_disable", "btn_back"],
                         "btn_enable": {
-                            "db": ["link.options.allowNitroGifts", True, None],
+                            "db": [["link", "options", "allowNitroGifts"], True, None, None],
                             "return": 2
                         },
                         "btn_disable": {
-                            "db": ["link.options.allowNitroGifts", False, None],
+                            "db": [["link", "options", "allowNitroGifts"], False, None, None],
                             "return": 2
                         }
                     },
                     "socials": {
-                        "embed": {"description": "Click on the buttons below to `Allow/Disallow` **Social Accounts**\n**Current:** {options[allowSocialLinks]:boolean_format?option='switch'&discord_format}"},
+                        "embed": {"description": "Click on the buttons below to `Allow/Disallow` **Social Account Links**\n**Current:** {link[options][allowSocialLinks]:boolean_format?option='switch'&discord_format}"},
                         "view": ["btn_enable", "btn_disable", "btn_back"],
                         "btn_enable": {
-                            "db": ["link.options.allowSocialLinks", True, None],
+                            "db": [["link", "options", "allowSocialLinks"], True, None, None],
                             "return": 2
                         },
                         "btn_disable": {
-                            "db": ["link.options.allowSocialLinks", False, None],
+                            "db": [["link", "options", "allowSocialLinks"], False, None, None],
                             "return": 2
                         }
                     }
@@ -279,26 +284,26 @@ class Configurator:
                         discord.SelectOption(label="Ignored Channels", value="channels", description="Edit ignored channels list."), 
                         discord.SelectOption(label="Rules/Settings", value="rules", description="Create, remove, update rules.")]}}, "btn_back"],
                     "status": {
-                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Ping Protection!**\n**Current:** {status:boolean_format?option='switch'&discord_format}"},
+                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Ping Protection!**\n**Current:** {ping[status]:boolean_format?option='switch'&discord_format}"},
                         "view": ["btn_enable", "btn_disable", "btn_back"],
                         "btn_enable": {
-                            "db": ["ping.status", True, None],
+                            "db": [["ping", "status"], True, None, None],
                             "return": 2
                         },
                         "btn_disable": {
-                            "db": ["ping.status", False, None],
+                            "db": [["ping", "status"], False, None, None],
                             "return": 2
                         }
                     },
                     "reply": {
-                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Reply Ping Detection**\n**Current:** {detectReplyPings:boolean_format?option='switch'&discord_format}"},
+                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Reply Ping Detection**\n**Current:** {ping[detectReplyPings]:boolean_format?option='switch'&discord_format}"},
                         "view": ["btn_enable", "btn_disable", "btn_back"],
                         "btn_enable": {
-                            "db": ["ping.detectReplyPings", True, None],
+                            "db": [["ping", "detectReplyPings"], True, None, None],
                             "return": 2
                         },
                         "btn_disable": {
-                            "db": ["ping.detectReplyPings", False, None],
+                            "db": [["ping", "detectReplyPings"], False, None, None],
                             "return": 2
                         }
                     },
@@ -306,114 +311,406 @@ class Configurator:
                         "embed": {"description": "Choose action setting from the buttons."},
                         "view": ["btn_add", "btn_remove", "btn_back"],
                         "btn_add": {
-                            "embed": {"description": "Choose **Text Channel** that you want to add to the list.\n**Current:**\n{ignoredChannels:id_format?option='channel'&list_format}"},
+                            "embed": {"description": "Choose **Text Channel** that you want to add to the list.\n**Current:**\n{ping[ignoredChannels]:id_format?option='channel'&list_format}"},
                             "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
                             "slc_channel": {
-                                "db": ["ping.ignoredChannels", "SELF:1", "append"],
+                                "db": [["ping", "ignoredChannels"], "SELF:1", "append", None],
                                 "return": 1
                             }
                         },
                         "btn_remove": {
-                            "embed": {"description": "Choose **Text Channel** that you want to remove from the list.\n**Current:**\n{ignoredChannels:id_format?option='channel'&list_format}"},
+                            "embed": {"description": "Choose **Text Channel** that you want to remove from the list.\n**Current:**\n{ping[ignoredChannels]:id_format?option='channel'&list_format}"},
                             "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
                             "slc_channel": {
-                                "db": ["ping.ignoredChannels", "SELF:1", "remove"],
+                                "db": [["ping", "ignoredChannels"], "SELF:1", "remove", None],
                                 "return": 1
                             }
                         }
                     },
                     "rules": {
                         "embed": {"description": "Choose a rule from the list or create a new one."},
-                        "view": [{"name": "slc_select", "generate": {"path": "ping.rules", "type": discord.SelectOption, "example": dict(label="PLACEHOLDER", value="PLACEHOLDER"), "key": "options"}}, "btn_back"],
-                        "*": {
-                            "embed": {"description": "Is this the right rule? Click **edit** if so!"},
-                            "view": ["btn_edit", "btn_back"]
+                        "view": ["btn_create", "btn_remove", {"name": "slc_select", "generate": {"path": ["ping", "rules"], "type": discord.SelectOption, "example": dict(label="{key}", value="{key}"), "key": "options"}}, "btn_back"],
+                        "btn_create": {
+                            "modal": {"title": "Creating: Ping protection rule", "custom_id": "mdl_create_ping_rule", "text_inputs": [TextInput(label="Name of the rule:", custom_id="txt_ping", max_length=15)]},
+                            "mdl_create_ping_rule": {
+                                "txt_ping": {
+                                    "db": [["ping", "rules"], "SELF:1", None, "pingCreate"],
+                                    "return": 3
+                                }
+                            }  
                         },
+                        "*": {
+                            "db_path": ["ping", "rules", "SELF:1"],
+                            "embed": {"description": "## Editing rule:\n\n**Role:**           {@LOCAL[role]:id_format?option='role'}\n**Bypass role:**    {@LOCAL[bypass]:id_format?option='role'}\n**Ping staff:**     {@LOCAL[ping]:boolean_format?option='y/n'&discord_format}\n**Log message:**    {@LOCAL[log]:boolean_format?option='y/n'&discord_format}\n**Log channel:**    {@LOCAL[logChannel]:id_format?option='channel'}\n**Delete message:** {@LOCAL[delete]:boolean_format?option='y/n'&discord_format}"},
+                            "view": [{"type": Button, "kwargs": dict(custom_id="CONFIG:btn_prt_role", label="Protected Role", style=discord.ButtonStyle.green)},
+                                     {"type": Button, "kwargs": dict(custom_id="CONFIG:btn_bypass_role", label="Bypass Role", style=discord.ButtonStyle.blurple)},
+                                     {"type": Button, "kwargs": dict(custom_id="CONFIG:btn_mention", label="Ping Staff", style=discord.ButtonStyle.gray)},
+                                     {"type": Button, "kwargs": dict(custom_id="CONFIG:btn_log_channel", label="Log Channel", style=discord.ButtonStyle.blurple)},
+                                     {"type": Button, "kwargs": dict(custom_id="CONFIG:btn_log", label="Log Event", style=discord.ButtonStyle.gray)},
+                                     {"type": Button, "kwargs": dict(custom_id="CONFIG:btn_delete", label="Delete Message", style=discord.ButtonStyle.red)}, "btn_back"],
+                            
+                            "btn_prt_role": {
+                                    "embed": {"description": "Choose **one Role** that will this rule **protect**.\n**Current:** {@LOCAL[role]:id_format?option='channel'}"},
+                                    "view": ["slc_role", "btn_back"],
+                                    "slc_role": {
+                                        "db": [["local", "role"], "SELF:1", None, None],
+                                        "return": 2
+                                    }
+                                },
+                            "btn_bypass_role": {
+                                    "embed": {"description": "Choose **one Role** that will **bypass** this rule.\n**Current:** {@LOCAL[bypass]:id_format?option='role'}"},
+                                    "view": ["slc_role", "btn_back"],
+                                    "slc_role": {
+                                        "db": [["local", "bypass"], "SELF:1", None, None],
+                                        "return": 2
+                                    }
+                                },
+                            "btn_mention": {
+                                    "embed": {"description": "Click on the buttons below to `Enable/Disable` **staff ping**.\n**Current:** {@LOCAL[ping]:boolean_format?option='switch'&discord_format}"},
+                                    "view": ["btn_enable", "btn_disable", "btn_back"],
+                                    "btn_enable": {
+                                        "db": [["local", "ping"], True, None, None],
+                                        "return": 2
+                                    },
+                                    "btn_disable": {
+                                        "db": [["local", "ping"], False, None, None],
+                                        "return": 2
+                                    }
+                                },
+                            "btn_log_channel": {
+                                    "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {@LOCAL[logChannel]:id_format?option='channel'}"},
+                                    "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                                    "slc_channel": {
+                                        "db": [["local", "logChannel"], "SELF:1", None, None],
+                                        "return": 2
+                                    }
+                                },
+                            "btn_log": {
+                                    "embed": {"description": "Click on the buttons below to `Enable/Disable` **logging**.\n**Current:** {@LOCAL[log]:boolean_format?option='switch'&discord_format}"},
+                                    "view": ["btn_enable", "btn_disable", "btn_back"],
+                                    "btn_enable": {
+                                        "db": [["local", "log"], True, None, None],
+                                        "return": 2
+                                    },
+                                    "btn_disable": {
+                                        "db": [["local", "log"], False, None, None],
+                                        "return": 2
+                                    }
+                                },
+                            "btn_delete": {
+                                    "embed": {"description": "Click on the buttons below to `Enable/Disable` **message deleting.**\n**Current:** {@LOCAL[delete]:boolean_format?option='switch'&discord_format}"},
+                                    "view": ["btn_enable", "btn_disable", "btn_back"],
+                                    "btn_enable": {
+                                        "db": [["local", "delete"], True, None, None],
+                                        "return": 2
+                                    },
+                                    "btn_disable": {
+                                        "db": [["local", "delete"], False, None, None],
+                                        "return": 2
+                                    }
+                                }
+                        },
+                        "btn_remove": {
+                            "embed": {"description": "Choose a **Rule** that you want to delete."},
+                            "view": [{"name": "slc_select", "generate": {"path": ["ping", "rules"], "type": discord.SelectOption, "example": dict(label="{key}", value="{key}"), "key": "options"}}, "btn_back"],
+                            "*": {
+                                "db": [["ping", "rules"], "SELF:1", "pop", None],
+                                "return": 1
+                            }
+                        }
                     }
                 }
 
             },
             "auto_delete" : {
-                "view" : ["switch", "create", "edit", "remove", "return"]
+                "embed": self.MAIN_SCREEN,
+                "view" : ["btn_switch", "btn_edit", "return"],
+                "btn_edit": {
+                    "embed": {"description": "Choose plugin setting from the list to continue."},
+                    "view": [{"name": "slc_select", "kwargs" : {"options" : [
+                        discord.SelectOption(label="Status", value="status", description="Enable/Disable plugin"), 
+                        discord.SelectOption(label="Monitored channels", description="Monitored channels settings.", value="monitored")]}}, "btn_back"],
+                    "status": {
+                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Auto Delete!**\n**Current:** {auto_delete[status]:boolean_format?option='switch'&discord_format}"},
+                        "view": ["btn_enable", "btn_disable", "btn_back"],
+                        "btn_enable": {
+                            "db": [["auto_delete", "status"], True, None, None],
+                            "return": 2
+                        },
+                        "btn_disable": {
+                            "db": [["auto_delete", "status"], False, None, None],
+                            "return": 2
+                        }
+                    },
+                    "monitored": {
+                        "embed": {"description": "Choose **Text channel** to edit auto delete time or use buttons to `create/remove` rules.\n**Current:**\n{auto_delete[monitored]:id_format?option='channel'|time_converter&discord_format>list_format}"},
+                        "view": ["btn_create", "btn_remove", {"name": "slc_select", "generate": {"path": ["auto_delete", "monitored"], "type": discord.SelectOption, "example": dict(label="{key:resolve_id?guild=%d,var='name'}" % guild_id, value="{key}"), "key": "options"}}, "btn_back"],
+                        "*": {
+                            "db_path": ["auto_delete", "monitored", "SELF:1"],
+                            "modal": {"title": "Updating: Rule time.", "custom_id": "mdl_create", "text_inputs": [TextInput(label="Time (number only) in seconds:", custom_id="txt_autoDelete", max_length=5)]},
+                            "mdl_create": {
+                                "txt_autoDelete": {
+                                    "db": [["local"], "SELF:1", None, None],
+                                    "return": 3
+                                }                                    
+                            }
+                        },
+                        "btn_create": {
+                            "embed": {"description": "Choose **Text Channel** that you want to add to the list.\n**Current:**\n{auto_delete[monitored]:id_format?option='channel'|time_converter&discord_format>list_format}"},
+                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                            "*": {
+                                "db": [["auto_delete", "monitored"], "SELF:1", None, "autoDelete"],
+                                "return": 1
+                            }
+                        },
+                        "btn_remove": {
+                            "embed": {"description": "Choose a **Rule** that you want to delete.\n**Current:**\n{auto_delete[monitored]:id_format?option='channel'|time_converter&discord_format>list_format}"},
+                            "view": [{"name": "slc_select", "generate": {"path": ["auto_delete", "monitored"], "type": discord.SelectOption, "example": dict(label="{key:resolve_id?guild=%d,var='name'}" % guild_id, value="{key}"), "key": "options"}}, "btn_back"],
+                            "*": {
+                                "db": [["auto_delete", "monitored"], "SELF:1", "pop", None],
+                                "return": 1
+                            }
+                        }
+                    }
+                }
             },
             "auto_slowmode" : {
-                "view" : ["switch", "create", "edit", "remove", "return"]
-            },
+                "embed": self.MAIN_SCREEN,
+                "view" : ["btn_switch", "btn_edit", "return"],
+                "btn_edit": {
+                    "embed": {"description": "Choose plugin setting from the list to continue."},
+                    "view": [{"name": "slc_select", "kwargs" : {"options" : [
+                        discord.SelectOption(label="Status", value="status", description="Enable/Disable plugin"), 
+                        discord.SelectOption(label="Monitored channels", description="Monitored channels settings.", value="monitored")]}}, "btn_back"],
+                    "status": {
+                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Auto Slowmode!**\n**Current:** {auto_slowmode[status]:boolean_format?option='switch'&discord_format}"},
+                        "view": ["btn_enable", "btn_disable", "btn_back"],
+                        "btn_enable": {
+                            "db": [["auto_slowmode", "status"], True, None, None],
+                            "return": 2
+                        },
+                        "btn_disable": {
+                            "db": [["auto_slowmode", "status"], False, None, None],
+                            "return": 2
+                        }
+                    },
+                    "monitored": {
+                        "embed": {"description": "Choose **Text channel** to edit auto slowmode time or use buttons to `create/remove` rules.\n**Current:**\n{auto_slowmode[monitored]:id_format?option='channel'|time_converter&discord_format>list_format}"},
+                        "view": ["btn_create", "btn_remove", {"name": "slc_select", "generate": {"path": ["auto_slowmode", "monitored"], "type": discord.SelectOption, "example": dict(label="{key:resolve_id?guild=%d,var='name'}" % guild_id, value="{key}"), "key": "options"}}, "btn_back"],
+                        "*": {
+                        "db_path": ["auto_slowmode", "monitored", "SELF:1"],
+                            "modal": {"title": "Updating: Default chat slowmode time.", "custom_id": "mdl_create", "text_inputs": [TextInput(label="Time (number only) in seconds:", custom_id="txt_autoSlowmode", max_length=5)]},
+                            "mdl_create": {
+                                "txt_autoSlowmode": {
+                                    "db": [["local"], "SELF:1", None, None],
+                                    "return": 3
+                                }                                    
+                            }
+                        },
+                        "btn_create": {
+                            "embed": {"description": "Choose **Text Channel** that you want to add to the list.\n**Current:**\n{auto_slowmode[monitored]:id_format?option='channel'|time_converter&discord_format>list_format}"},
+                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                            "*": {
+                                "db": [["auto_slowmode", "monitored"], "SELF:1", None, "autoSlowmode"],
+                                "return": 1
+                            }
+                        },
+                        "btn_remove": {
+                            "embed": {"description": "Choose a **Rule** that you want to delete.\n**Current:**\n{auto_slowmode[monitored]:id_format?option='channel'|time_converter&discord_format>list_format}"},
+                            "view": [{"name": "slc_select", "generate": {"path": ["auto_slowmode", "monitored"], "type": discord.SelectOption, "example": dict(label="{key:resolve_id?guild=%d,var='name'}" % guild_id, value="{key}"), "key": "options"}}, "btn_back"],
+                            "*": {
+                                "db": [["auto_slowmode", "monitored"], "SELF:1", "pop", None],
+                                "return": 1
+                            }
+                        }
+                    }
+                }
+            }
         }
-        
-        self.config_history: list[dict] = [self.config]
-        self.current_config: dict = self.config
-        self.footer_data: bool | None = None
-        self.local_db: dict[str, typing.Any] = {}
 
-    # moves back and forth in the config dict tree
-    def navigate(self, key: str = None) -> dict:
-        if key:
-            if cnf := self.config_history[-1].get(key):
-                self.config_history.append(cnf)
-                self.current_config = cnf
-                return self.current_config
 
-        else:
-            self.config_history.pop()
-            self.current_config = self.config_history[-1]
-            return self.current_config
+    # method that moves inside the config and databases (dicts)
+    def db_traversal(self, dictionary: dict[str, typing.Any], path: str | list[str], _slice: slice = slice(None, None), _sep: str = ".") -> dict[str, typing.Any]:
+        current_db: dict[str, typing.Any] = dictionary
+        path = path.split(_sep) if isinstance(path, str) else path
 
-    #  resets everything - less bugs when switching options/switches
+        for key in path[_slice]:
+            if key in current_db:
+                current_db = current_db[key]
+            else:
+                raise MemoryError(f"Failed to reach value specified: `{key}` on `{path}`")
+        return current_db
+
+    # handler for SELF:[INT&*] argument
+    def list_slicing(self, iterable: list | tuple, argument: str) -> list | typing.Any:
+        if not isinstance(iterable, (list, tuple)):
+            return iterable
+        return iterable if argument.endswith(":*") else index_numbers if len(index_numbers := iterable[:int(argument.split(":")[-1])]) > 1 else index_numbers[0]
+
+    # resets the local database (module switching)
     def reset_configurator(self) -> None:
-        self.config_history = [self.config]
-        self.current_config = self.config
+        self.local_db: dict[str, list[str] | str | dict[str, typing.Any]] = {
+            "local_path": [],
+            "db_path": [],
+            "footer": None,
+            "db": None,
+            "pre-sets": {
+                "pingCreate": {"role": None, "ping": False, "log": False, "logChannel": None, "delete": False, "bypass": None},
+                "autoDelete": 0,
+                "autoSlowmode": 0               
+            }
+        }
+        self.shared.logger.log(f"@Configurator.reset_configurator > Reset configurator", "TESTING")
+    
+    # navigation for interaction
+    def navigate(self, custom_id: str, value: str = None) -> dict:
+        if not custom_id:
+            self.shared.logger.log(f"@Configurator.navigate > Going back", "TESTING")
+            self.local_db["local_path"].pop(-1)
 
-    # formats embed
-    def format_embed(self, embed_data: dict[str, typing.Any], footer_data: bool = False) -> discord.Embed:
-        try:
-            # base embed
-            BASE_EMBED: dict = dict(title="Configuration Wizard 🪄", timestamp=self.shared._datetime(), color=discord.Colour.dark_embed())
-            
-            # embed creation and updating
-            if isinstance(embed_data, dict):
-                dict_embed: dict[str, typing.Any] = {**BASE_EMBED, **embed_data}
-                for k,v in dict_embed.items():
-                    if isinstance(v, str):
-                        dict_embed[k] = self.shared.string_formats.format(v, self.guild_db.get(self.option))
+        current_config: dict[str, typing.Any] = self.db_traversal(self.config, self.local_db["local_path"])
 
-                EMBED: discord.Embed = discord.Embed(**dict_embed)
+        if custom_id:
+            if custom_id and current_config.get(custom_id):
+                segment: str = custom_id
+            elif value and current_config.get(str(value)):
+                segment: str = str(value)
+            elif current_config.get("*"):
+                segment: str = "*"
             else:
-                self.shared.logger.log(f"@Configurator.format_embed > Wrong datatype for `embed_data`. Required `dict`, got {type(embed_data)}.", "ERROR")
-                return
-            
-            if footer_data:
-                EMBED.set_footer(text="✅ Sucessfully applied configuration settings." if self.footer_data else "❌ Failed to apply configuration settings.")
-            else:
-                EMBED.set_footer(text=f"Configuration for {self.view.global_config.get(self.option)["name"]}")
-            
-            return EMBED
-        except Exception as error:
-            self.shared.logger.log(f"@Configurator.format_embed > {type(error).__name__}: {error}", "ERROR")
+                raise LookupError(f"Could not navigate the interaction in config. {custom_id}: {value} >> Current keys: {list(current_config.keys())}")
 
-    # generates discord view items for dynamic configurator updates
-    def item_generator(self, config: dict[str, typing.Any]) -> list:
-        if isinstance(config, dict):
-            keys: list[str] = config.get("path").split(".")
-            database: dict[str, str | dict[str, str | int] | int] = self.guild_db
-            for key in keys:
-                if key in database:
-                    database = database[key]
-                else:
-                    raise MemoryError(f"Failed to reach value specified: {config.get("path")}")
+            self.local_db["local_path"].append(segment)
+            current_config = current_config[segment]
+            
+            self.shared.logger.log(f"@Configurator.navigate > Got segment: {segment}", "TESTING")
+
+        # local database path        
+        if (old_path := self.local_db["db"]) and not custom_id:
+            [self.local_db["db_path"].pop() for _ in range(len(old_path))] # idk if okay <<    
+            
+        self.local_db["db"] = None
+
+        if db_path := current_config.get("db_path"):
+            path: list[str] = [self.list_slicing(value, segment) if ":" in segment else segment for segment in db_path]  
+
+            if custom_id:
+                self.local_db["db_path"].extend(path)
+            self.local_db["db"] = path
+
+        # database execution
+        if db_config := current_config.get("db"):
+            self.handle_db(custom_id, db_config, extra=value)
+
+        return current_config
+
+    # formats embed - supported placeholders and merging
+    def format_embed(self, embed_data: dict[str, typing.Any]) -> discord.Embed:
+        BASE_EMBED: dict = dict(title="Configuration Wizard 🪄", timestamp=self.shared.time.datetime(), color=discord.Colour.dark_embed())
+        
+        if isinstance(embed_data, dict):
+            dict_embed: dict[str, typing.Any] = BASE_EMBED | embed_data # merging 2 dicts
+        else:
+            dict_embed = BASE_EMBED
+            
+        for key, value in dict_embed.items():
+            if isinstance(value, str):
+                if len(db_path := self.local_db["db_path"]) >= 2:
+                    # replaces @LOCAL with the database path
+                    value: str = value.replace("@LOCAL", f"{db_path[0]}{"".join([f"[{x}]" for x in db_path[1:]])}")
+
+                dict_embed[key] = self.shared.string_formats.format(value, self.guild_db)
+        
+        EMBED: discord.Embed = discord.Embed(**dict_embed)
+        self.shared.logger.log(f"@Configurator.format_embed > Formatted embed.", "TESTING")
+
+        if footer := self.local_db["footer"]:
+            EMBED.set_footer(text=footer)
+            self.local_db["footer"] = None
+        else:
+            EMBED.set_footer(text=f"Configuration for {self.view.global_config.get(self.option)}")
+        return EMBED   
+
+    # logic that handles saving to database
+    def handle_db(self, item_id: str, database_config: dict[str, typing.Any], extra: typing.Any = None) -> None:
+        self.shared.logger.log(f"@Configurator.handle_db > Got db request: ID: {item_id}", "TESTING")
+        
+        def save_to_database(path: list[str], value: typing.Any, func: str = None, search: str = None) -> None:
+            keys: list[str] = [*self.local_db["db_path"], *path[1:]] if path[0].startswith("local") else path
+            last_key: str = keys[-1]
+            
+            database: dict[str, str | dict[str, str | int] | int] = self.db_traversal(self.guild_db, keys, slice(None, -1))
+            
+            if search:
+                #print(last_key, value)
+                if isinstance(database[last_key], dict) and (new_value := self.local_db["pre-sets"].get(search, "UNKNOWN")) != "UNKNOWN":
+                    database[last_key][str(value)] = new_value
+
+            # db value check for method execution:
+            elif isinstance(database[last_key], (list, dict)) and func:
+                data: dict[str, typing.Any] | list[typing.Any] = database[last_key]
+
+                if callable := getattr(data, func, None):
+                    self.shared.logger.log(f"@Configurator.handle_db.save_to_database > Func: {callable}, value: {value}, db: {data}", "TESTING")
+                    try: 
+                        callable(value) if callable.__name__ not in ["pop"] else callable(str(value))
+                    except: pass
+
+                if isinstance(data, list):
+                    data = list(set(data)) # remove duplicates - hacky but idc
+
+                database[last_key] = data            
+            else:
+                database[last_key] = value
+
+            self.shared.db.save_data(self.interaction.guild.id, self.guild_db)
+            self.local_db["footer"] = "✅ Sucessfully applied configuration settings."
+
+        # ---------------------------------------------------------------------------------------------------
+        interaction_data: dict[str, str | list[str] | dict[str, typing.Any]] =  dict(self.interaction.data)
+
+        if item_id.startswith("btn_"):
+            values: typing.Any = database_config[1]
+
+        elif item_id.startswith("slc_"):
+            all_values: list[int | str] = []
+            for value in interaction_data.get("values"):
+                try:
+                    all_values.append(ast.literal_eval(value))
+                except:
+                    all_values.append(value)
+            values: list[typing.Any] = self.list_slicing(all_values, database_config[1]) if isinstance(database_config[1], str) else database_config[1]
+
+        elif item_id.startswith("txt_"):
+            if extra is not None:
+                values: typing.Any = extra
+            else:
+                raise ValueError("Recieved `None` as value.")
+
+        # modal arguments are being handled @ modal_interaction
+
+        self.shared.logger.log(f"@Configurator.handle_db > Save arguments: {database_config}", "TESTING")
+        return save_to_database(path=database_config[0], value=values, func=database_config[2], search=database_config[3])
+
+    #NOTE: look at it later - new syntax possibly?
+    def item_generator(self, item_config: dict[str, typing.Any]) -> list:
+        self.shared.logger.log(f"@Configurator.item_generator > Generating items..", "TESTING")
+        if isinstance(item_config, dict):
+            database: dict[str, str | dict[str, str | int] | int] = self.db_traversal(self.guild_db, path=item_config.get("path"))
 
             if isinstance(database, dict):
                 items: list[discord.ui.Item] = []
                 for item in database.keys():
-                    items.append(config["type"](**{k: v.replace("PLACEHOLDER", item) for k,v in config["example"].items()}))
+                    items.append(item_config["type"](**{k: self.shared.string_formats.format(v, {"key": item, "value": database[item]}) for k,v in item_config["example"].items()}))
                 return items
             else:
                 raise ValueError(f"Wanted `dict`, got {type(database)}")
         else:
-            raise ValueError(f"Requested `dict`, got {type(config)}")
+            raise ValueError(f"Requested `dict`, got {type(item_config)}")
 
-    # checks for "view" key and iterates and appends pre-created view items
-    def handle_view(self):
+    # checks for "view" key, iterates and appends pre-created view items
+    def handle_view(self, current_config: dict[str, typing.Any]):
+        self.shared.logger.log(f"@Configurator.handle_view > Creating view.", "TESTING")
         discord_items: dict[str, tuple[typing.Callable, dict[str, typing.Any]]] = {
             "btn_create": (Button, dict(label="Create", custom_id="CONFIG:btn_create", style=discord.ButtonStyle.green)),
             "btn_edit": (Button, dict(label="Edit", custom_id="CONFIG:btn_edit", style=discord.ButtonStyle.gray)),
@@ -423,7 +720,6 @@ class Configurator:
             "btn_enable": (Button, dict(label="Enable", custom_id="CONFIG:btn_enable", style=discord.ButtonStyle.green)),
             "btn_disable": (Button, dict(label="Disable", custom_id="CONFIG:btn_disable", style=discord.ButtonStyle.red)),
             "btn_add": (Button, dict(label="Add", custom_id="CONFIG:btn_add", style=discord.ButtonStyle.green)),
-            "btn_remove": (Button, dict(label="Remove", custom_id="CONFIG:btn_remove", style=discord.ButtonStyle.red)),
 
             "slc_role": (RoleSelect, dict(custom_id="CONFIG:slc_role")),
             "slc_channel": (ChannelSelect, dict(custom_id="CONFIG:slc_channel")),
@@ -435,22 +731,27 @@ class Configurator:
         }
         self.view.clear_items()
 
-        for item in self.current_config.get("view", ()):
+        for item in current_config.get("view", ()):
             object: typing.Callable | None
             kwargs: dict[str, typing.Any]
 
             if isinstance(item, dict):
                 object, kwargs = discord_items.get(item.get("name"), (None, {}))
-                
-                if example := item.get("generate"):
-                    kwargs.update({example.get("key"): self.item_generator(example)})
 
+                if example := item.get("generate"):
+                    if generated_items := self.item_generator(example):
+                        kwargs.update({example.get("key"): generated_items})
+                    else:
+                        continue
+               
                 if override := item.get("kwargs"):
                     kwargs.update(override)
-            
+
+                if not object:
+                    object = item.get("type")
+
             elif isinstance(item, str):
                 object, kwargs = discord_items.get(item, (None, None))
-            
             else:
                 raise ValueError("Not a `dict` or `str`. Bad config.")
             
@@ -459,381 +760,110 @@ class Configurator:
             try:
                 self.view.add_item(object(**kwargs))
             except: pass
-        
         return self.view
+    
+    # handles modal interactions
+    async def modal_interaction(self, current_config: dict[str, typing.Any]) -> None:
+        clean_data: dict[str, str | list[dict]] = await self.view.create_modal(**current_config.get("modal"))
+        self.shared.logger.log(f"@Configurator.modal_interaction > Got modal.", "TESTING")
 
-    # logic that handles saving to database
-    def handle_db(self, item_id: str, interaction: discord.Interaction) -> None:
-        def save_to_database(path: str, value: typing.Any, func: str = None) -> None:
-            if not path:
-                raise ValueError("Path provided equals None | configurator.py")
+        if not (current_config := self.navigate(clean_data.get("modal_id"))):
+            raise NotImplementedError("Failed to find screen for the next interaction (Modal)")
 
-            keys: list[str] = path.split(".")
-            database: dict[str, str | dict[str, str | int] | int] = self.guild_db
-            for key in keys[:-1]:
-                if key in database:
-                    database = database[key]
-                else:
-                    raise MemoryError(f"Failed to reach value specified: {path}")
+        for text_input in clean_data.get("components"):
+            custom_id: str = text_input.get("custom_id")
             
-            # db value:
-            if isinstance(database[keys[-1]], (list, dict)):
-                if func:
-                    data: dict[str, typing.Any] | list[typing.Any] = database[keys[-1]]
-                    
-                    try:
-                        getattr(data, func)(value)
-                    except: pass
-
-                    if isinstance(data, list):
-                        # remove duplicates - hacky but idc
-                        data = list(set(data))
-
-                    database[keys[-1]] = data            
-                else:
-                    raise AttributeError(f"Missing function type argument on {type(database[keys[-1]])} type. > Path: {path}")
-            else:
-                database[keys[-1]] = value
-
-            self.shared.db.save_data(interaction.guild.id, self.guild_db)
-            self.footer_data = True
-            return
-
-        interaction_data: dict[str, str | list[str] | dict[str, typing.Any]] =  dict(interaction.data)
-
-        if item_id.startswith("btn_"):
-            config_rule: tuple[typing.Any, str, str] = self.current_config.get("db")
-            value = config_rule[1]
-
-        elif item_id.startswith("slc_"):
-            config_rule: tuple[typing.Any, str, str] = self.current_config.get("db")
-
-            all_values: list[int | str] = [ast.literal_eval(value) for value in interaction_data.get("values")]
-            value: list[typing.Any] = all_values if config_rule[1] == "SELF:*" else index_numbers if len(index_numbers := all_values[:int(config_rule[1].split(":")[-1])]) > 1 else index_numbers[0]
+            try:
+                input_value: typing.Any = ast.literal_eval(text_input.get("value"))
+            except:
+                input_value: str = text_input.get("value")            
             
-        save_to_database(path=config_rule[0], value=value, func=config_rule[2])
+            if not (screen_config := self.navigate(custom_id, input_value)):
+                raise LookupError(f"Could not find required information for modal text input of: {custom_id}")    
+            
+            await self.create_new_screen(screen_config)
+        self.shared.logger.log(f"@Configurator.modal_interaction > Handled modal's text inputs.", "TESTING")
+
+    # creates new screen
+    async def create_new_screen(self, current_config: dict[str, typing.Any]) -> None:
+        if repeat_return := current_config.get("return"):
+            # returning x times (value of the return key)
+            for _ in range(repeat_return):
+                current_config = self.navigate(None)
+            self.shared.logger.log(f"@Configurator.create_new_screen > Returned {repeat_return} times.", "TESTING")
+
+        # handle modal display
+        if current_config.get("modal"):
+            self.shared.logger.log(f"@Configurator.create_new_screen > Sending modal.", "TESTING")
+            await self.modal_interaction(current_config)
+
+        # display logic -> find embed and view and display
+        elif (embed := current_config.get("embed")) and current_config.get("view"):
+            self.shared.logger.log(f"@Configurator.create_new_screen > Sending embed & view", "TESTING")
+            await self.view.update_message(self.interaction, dict(embed=self.format_embed(embed), view=self.handle_view(current_config)))
 
     # if option provided exists in config, display, otherwise display FALLBACK embed - no config for that option
-    async def handle_first_screen(self) -> None:
-        
-        if self.navigate(self.option):
-            await self.view.update_message(self.interaction, {"embed": self.format_embed(self.MAIN_SCREEN), "view": self.handle_view()})
+    async def first_screen(self) -> None:
+        if current_config := self.config.get(self.option, None):
+            self.local_db["local_path"].append(self.option)
+            await self.view.update_message(self.interaction, {"embed": self.format_embed(self.MAIN_SCREEN), "view": self.handle_view(current_config)})
         else:
             await self.view.update_message(self.interaction, {"embed": self.format_embed(self.FALLBACK), "view": self.view.clear_items().create_back_button()})
 
-    async def handle_interaction(self, custom_id: str, interaction: discord.Interaction, view) -> None:
+    # handles view interaction
+    async def handle_interaction(self, custom_id: str, view) -> None:
         #check for view and database
+        self.shared.logger.log(f"@Configurator.handle_interaction > Got new event with ID: {custom_id}.", "TESTING")
         if not view:
             raise ValueError("No view recieved.")
-        if not (guild_db := self.shared.db.load_data(interaction.guild.id)):
-            raise ValueError(f"No database data found, corrupted or missing database for: {interaction.guild.name} ({interaction.guild.id}) ?")
+        
+        self.view: BaseConfigCMDView = view        
+        self.interaction: discord.Interaction = self.view.interaction       
+        
+        if not (guild_db := self.shared.db.load_data(self.interaction.guild.id)):
+            raise ValueError(f"No database data found, corrupted or missing database for: {self.interaction.guild.name} ({self.interaction.guild.id}) ?")
 
         # setting global values per interaction
-        self.view: AdvancedPaginator = view
         self.option: str = self.view.current_position
         self.guild_db: dict[str, str | dict[str, str | int] | int] = guild_db
-        self.interaction: discord.Interaction[discord.Client] = interaction
 
         # start handler
         if custom_id.endswith(":START"):
+            self.shared.logger.log(f"@Configurator.handle_interaction > Executed start event.", "TESTING")
             self.reset_configurator()
-            await self.handle_first_screen()
+            await self.first_screen()
 
         # just switch handler
         elif custom_id.endswith(":btn_switch"):
+            self.shared.logger.log(f"@Configurator.handle_interaction > Executed switch event.", "TESTING")
             self.reset_configurator()
             self.guild_db[self.option]["status"] = not self.guild_db[self.option]["status"]
-            self.shared.db.save_data(interaction.guild.id, self.guild_db)
-            await self.handle_first_screen()
+            self.shared.db.save_data(self.interaction.guild.id, self.guild_db)
+            await self.first_screen()
 
         else:
             # actual logic and resloving
             item_id: str = custom_id.split(":")[-1]
-
+            
             # on btn_back, goes one navigation back
             if item_id == "btn_back":
-                self.navigate(None)
-            
-            #TODO: fix nonsense if we use custom select
-            elif item_id == "slc_select":
-                if not self.navigate(interaction.data.get("values")[0]):
-                    self.navigate("*")
+                self.shared.logger.log(f"@Configurator.handle_interaction > Executed back event.", "TESTING")
+                current_config: dict[str, typing.Any] = self.navigate(None)
 
-            # actual navigation
-            elif self.navigate(item_id):
-                # checks if the value exists for saving in local db
-                if self.current_config.get("db"):
-                    self.handle_db(item_id, interaction)
+            # handle selects
+            elif item_id.startswith("slc_"):
+                self.shared.logger.log(f"@Configurator.handle_interaction > Got select menu event.", "TESTING")
+                first_value: str = self.interaction.data.get("values")[0]
+                current_config: dict[str, typing.Any] = self.navigate(item_id, first_value)
+
+            # handle buttons
+            elif item_id.startswith("btn_"):
+                self.shared.logger.log(f"@Configurator.handle_interaction > Got button event.", "TESTING")
+                current_config: dict[str, typing.Any] = self.navigate(item_id)
             else:
                 raise NotImplementedError("Failed to navigate interaction in the config.")
 
-            old_cfg = self.current_config
-            # looking for "return" setting
-            if repeat_return := self.current_config.get("return"):
-                # returning x times (value of the return key)
-                for _ in range(repeat_return):
-                    self.navigate(None)
-
-            # display logic -> find embed and view and display
-            if self.current_config.get("embed") and self.current_config.get("view"):
-                await self.view.update_message(interaction, dict(embed=self.format_embed(self.current_config.get("embed"),  old_cfg.get("db")), view=self.handle_view()))
-            
-            # reset
-            self.footer_data = None
-
-"""
-{
-    "general": {
-        "allowAdminEditing": false,
-        "staffRole": 1002486727081992273,
-        "staffChannel": 1037720138335662141,
-        "adminRole": 996878384867065967,
-        "adminChannel": 1226136202864754779,
-        "language": "US/en",
-        "status": true
-    },
-    "cmd": {
-        "logCmdExecution": true,
-        "failedCmdExecution": true,
-        "cmdExecutionLogChannel": 1043532394042503198
-    },
-    "alt": {
-        "status": true,
-        "log_channel": 991436211807854642
-    },
-    "imper": {
-        "status": true,
-        "log_channel": 1015937645135790120
-    },
-    "ai": {
-        "status": true,
-        "log_channel": null,
-        "talkChannels": [
-            1032353612665466992,
-            1037720138335662141,
-            1043532394042503198
-        ]
-    },
-    "automod": {
-        "status": false,
-        "log_channel": 1015937645135790120,
-        "rules": {}
-    },
-    "link": {
-        "status": true,
-        "log_channel": 1015937645135790120,
-        "options": {
-            "allowDiscordInvites": false,
-            "allowSocialLinks": false,
-            "allowNitroGifts": false
-        }
-    },
-    "ping": {
-        "status": false,
-        "detectReplyPings": false,
-        "bypassRole": null,
-        "ignoredChannels": [],
-        "rules": {
-            "MemberProtection": {
-                "role": 996861513409249373,
-                "ping": false,
-                "logChannel": 1015937645135790120,
-                "log": true,
-                "delete": false
-            },
-            "StaffProtection": {
-                "role": 996878384867065967,
-                "ping": false,
-                "logChannel": 1015937645135790120,
-                "log": true,
-                "delete": false
-            },
-            "Bot": {
-                "role": "Every bot",
-                "ping": false,
-                "log": true,
-                "logChannel": 1015937645135790120,
-                "delete": false
-            }
-        }
-    },
-    "auto_delete": {
-        "status": true,
-        "log_channel": 1015937645135790120,
-        "monitored": {
-            "1015937738823970856": 313
-        }
-    },
-    "auto_slowmode": {
-        "status": true,
-        "log_channel": 1015937645135790120,
-        "monitored": {
-            "1032353612665466992": 31235,
-            "1015937645135790120": 145
-        }
-    },
-    "reaction": {
-        "status": true,
-        "log_channel": 1015937645135790120,
-        "reactionBanRole": 1203444406108295258
-    },
-    "QOFTD": {
-        "status": true,
-        "log_channel": 1032353612665466992
-    },
-    "fan_art": {
-        "status": false,
-        "log_channel": null,
-        "montired": []
-    },
-    "responder": {
-        "status": false
-    },
-    "leveling_system": {
-        "status": false,
-        "log_channel": null,
-        "levels": {
-            "message": false,
-            "voice": false,
-            "reaction": false
-        },
-        "rewards": {
-            "message": [],
-            "voice": [],
-            "reaction": []
-        },
-        "notifications": {
-            "dm": {
-                "send": false,
-                "ping": false,
-                "message": "Congrats {member}, you just advanced to {type} level {num}!"
-            },
-            "guild": {
-                "send": false,
-                "ping": false,
-                "message": "Congrats {member}, you just advanced to {type} level {num}!"
-            }
-        }
-    },
-    "Plugins": {
-        "AI": true,
-        "Alt": false,
-        "Impersonator": false,
-        "Link": true,
-        "Reaction": false,
-        "AutoMod": false,
-        "Ping": true,
-        "AutoDelete": true,
-        "LevelingSystem": false,
-        "Responder": true,
-        "AutoSlowmode": false,
-        "FanArt": false,
-        "ReactionFilter": true,
-        "Achievements": false,
-        "QOFTD": true
-    },
-    "Logging": {
-        "Alt": null,
-        "Impersonator": null,
-        "Link": 1015937645135790120,
-        "AutoSlowmode": null,
-        "AutoDelete": 1015937645135790120,
-        "LevelingSystem": null,
-        "ReactionFilter": 1015937645135790120,
-        "Achievements": null,
-        "QOFTD": 1032353612665466992
-    },
-    "PingProtection": {
-        "BypassRole": null,
-        "IgnoreChannels": [],
-        "DetectReplyPings": false,
-        "MemberProtection": {
-            "Role": null,
-            "Ping": false,
-            "Log": false,
-            "Delete": false,
-            "LogChannel": null
-        },
-        "StaffProtection": {
-            "Role": null,
-            "Ping": false,
-            "Log": false,
-            "Delete": false,
-            "LogChannel": null
-        },
-        "YouTuberProtection": {
-            "Role": null,
-            "Ping": false,
-            "Log": null,
-            "Delete": false,
-            "LogChannel": null
-        },
-        "Everyone/Here": {
-            "Ping": false,
-            "Log": false,
-            "Delete": false,
-            "LogChannel": null
-        },
-        "Bot": {
-            "Ping": false,
-            "Log": true,
-            "Delete": true,
-            "LogChannel": 1015937645135790120
-        }
-    },
-    "ServerInfo": {
-        "StaffRole": null,
-        "StaffChannel": null,
-        "LogChannel": null
-    },
-    "AutoSlowmode": [],
-    "AutoMod": {},
-    "AutoDelete": {
-        "1015937738823970856": 5
-    },
-    "AutoResponder": {
-        "-joinmm2": {
-            "startsWith": true,
-            "content": "**How do I play MM2 with Ant?**\n\n- When Ant is hosting a game of MM2, he'll post a join link in <#871141617170513950>. Click that link to join the game.\n- Try to be fast! The game fills up quickly!"
-        }
-    },
-    "FanArt": [
-        1037720138335662141
-    ],
-    "AI": 1095810937501532200,
-    "ReactionFilter": {
-        "role": 1203444406108295258
-    },
-    "LevelingSystem": {
-        "config": {
-            "levels": {
-                "message": false,
-                "voice": false,
-                "reaction": false,
-                "giveaway": false
-            },
-            "notifications": {
-                "dm": {
-                    "send": false,
-                    "ping": false,
-                    "message": "Congrats {member}, you just advanced to {type} level {num}!"
-                },
-                "guild": {
-                    "send": false,
-                    "ping": false,
-                    "message": "Congrats {member}, you just advanced to {type} level {num}!"
-                }
-            },
-            "rewards": {
-                "message": {},
-                "voice": {},
-                "reaction": {},
-                "giveaway": {}
-            },
-            "achievements": {},
-            "switch": ""
-        },
-        "members": {}
-    }
-}
-"""
+            await self.create_new_screen(current_config)
+        
+        self.shared.logger.log(f"@Configurator.handle_interaction > Local path: {self.local_db["local_path"]} DB path: {self.local_db["db_path"]}", "TESTING")
+  
