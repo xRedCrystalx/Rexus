@@ -162,9 +162,10 @@ cython_debug/
 # repo specific ignores
 Test/**
 logs/**
-databases/**
+databases/guilds
+databases/users
 secret.txt 
 
-databases/servers/server.json
+databases/guilds/server.json
 databases/users/user.json
 logs/logger@discord-system.log
