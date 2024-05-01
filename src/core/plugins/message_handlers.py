@@ -10,90 +10,81 @@ class MessageHandlers:
         self.shared: con.Shared = con.shared
         self.bot: commands.Bot = self.shared.bot
 
-        self.invite_link_pattern: re.Pattern[str] = re.compile(pattern=r"https://discord\.gg/[a-zA-Z0-9]+")
+        self.URL_pattern: re.Pattern[str] =  re.compile(r"\bhttps?://\S+\b")
+        self.social_media_domains: list[str] = ["youtube.com", "youtu.be", "facebook.com", "instagram.com", "twitter.com", "linkedin.com", "snapchat.com", "pinterest.com",
+                                                "reddit.com", "tiktok.com", "whatsapp.com", "skype.com", "telegram.org", "quora.com", "twitch.tv","soundcloud.com", "imgur.com", 
+                                                "netflix.com", "disneyplus.com", "spotify.com", "myspace.com", "flickr.com", "roblox.com", "garticphone.com"]
+
+        self.social_medias_pattern: re.Pattern[str] = re.compile(rf"https?://(?:www\.)?(?:{'|'.join(re.escape(domain) for domain in self.social_media_domains)})/[a-zA-Z0-9]+")
+        self.invite_link_pattern: re.Pattern[str] = re.compile(r"\b(?:https?://)?(?:www\.)?(?:discord\.(?:gg|com/invite)|discordapp\.com/invite)/[a-zA-Z0-9]+(?:\?[^\s&]+)?\b")
+        self.nitro_gift_pattern: re.Pattern[str] = re.compile(r"https?://(?:www\.)?discord\.gift/[a-zA-Z0-9]+")
+        
         self.link_db: dict[str, discord.Invite] = {}
-        self.names: list[str] = ["xnduiw", "clone", "alt", "criminalcode", "simon"]
 
-    async def fan_art(self, message: discord.Message, guild_db: dict[str, typing.Any], **OVERFLOW) -> dict[typing.Any, dict[str, typing.Any]] | None:
-        try:
-            if guild_db["fan_art"]["status"]:
-                if not isinstance(message.author, discord.User) and message.channel.id in guild_db["fan_art"]["monitored"]:
-                    images: list[discord.Attachment] = [attachment for attachment in message.attachments if attachment.content_type.startswith("image/") or attachment.content_type.startswith("video/")]
-                    if images:
-                        return [{message : {"action" : "create_thread", "kwargs" : {"name" : f"Fan art by {message.author.display_name} ({message.author.global_name})"}}}, 
-                                {message : {"action" : "add_reaction", "args" : ["❤️"]}}]
-                    else:
-                        return [{message : {"action" : "delete"}}]
-                    
+    async def responder(self, message: discord.Message, guild_db: dict[str, typing.Any], **OVERFLOW) -> None:
+        if guild_db["responder"]["status"]:
+            events: list[con.Event] = []
+            for phrase, data in guild_db["responder"]["responses"].items():
+                if data["startsWith"]:
+                    if message.content.startswith(phrase):
+                        events.append(con.Event(message.channel, "send", event_data={"kwargs": {"content": data["content"]}}))
+                else:
+                    if phrase in message.content:
+                        events.append(con.Event(message.channel, "send", event_data={"kwargs": {"content": data["content"]}}))
 
-        except Exception as error:
-            self.shared.logger.log(f"@MessageHandlers.fan_art: {type(error).__name__}: {error}", "ERROR")
+            self.shared.sender.resolver(events)
         return None
 
-    async def responder(self, message: discord.Message, guild_db: dict[str, typing.Any], **OVERFLOW) -> dict[typing.Any, dict[str, typing.Any]] | None:
-        try:
-            if guild_db["responder"]["status"]:
-                for phrase, data in guild_db["responder"]["options"].items():
-                    if data["startsWith"]:
-                        if message.content.startswith(phrase):
-                            return [{message.channel : {"action" : "send", "kwargs" : {"content" : data["content"]}}}]
-                    else:
-                        if phrase in message.content:
-                            return [{message.channel : {"action" : "send", "kwargs" : {"content" : data["content"]}}}]
+    async def simon_invite_link_detection(self, message: discord.Message = None, after: discord.Message = None, **OVERFLOW) -> None:
+        message: discord.Message = message or after
 
-        except Exception as error:
-            self.shared.logger.log(f"@MessageHandlers.responder: {type(error).__name__}: {error}", "ERROR")
-        return None
+        if links := self.invite_link_pattern.findall(string=message.content) and message.guild.id == 1175874833146450042:
+            for link in links:
+                if link not in self.link_db.keys():
+                    link_data: discord.Invite = await self.bot.fetch_invite(link)
+                    self.link_db[link] = link_data
 
-    async def simon_invite_link_detection(self, guild_db: dict[str, typing.Any], message: discord.Message = None, after: discord.Message = None, **OVERFLOW) -> dict[typing.Any, dict[str, typing.Any]] | None:
-        try:
-            message: discord.Message = message or after
+                invite_object: discord.Invite = self.link_db[link]
 
-            if links := self.invite_link_pattern.findall(string=message.content) and message.guild.id == 1175874833146450042:
-                for link in links:
-                    if link not in self.link_db.keys():
-                        link_data: discord.Invite = await self.bot.fetch_invite(link)
-                        self.link_db[link] = link_data
-
-                    invite_object: discord.Invite = self.link_db[link]
-
-                    if invite_object.guild.id == 1067152607459688549:
-                        await message.author.ban(delete_message_days=7, reason="Autoban - XNDUIW")
-
-                        embed: discord.Embed = discord.Embed(title="XNDUIW | CBE_Simon Protection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
-                        embed.set_thumbnail(url=message.author.display_avatar.url)
-                        embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
-                        embed.add_field(name="`` Rule ``", value=f"Detected invite link redirecting to Simon's server.", inline=True)
-                        embed.add_field(name="`` Message Content ``", value=message.content if len(message.content) < 1000 else message.content[:1000], inline=False)
-                        embed.set_footer(text="Member has been banned from the guild.")
-
-                        return [{message.guild.get_channel(1175874833146450042) : {"action" : "send", "kwargs" : {"embed" : embed}}}]
-
-        except Exception as error:
-            self.shared.logger.log(f"@MessageHandlers.simon_invite_link_detection: {type(error).__name__}: {error}", "ERROR")
-        return None
-
-    async def antilink(self, guild_db: dict[str, typing.Any], message: discord.Message = None, after: discord.Message = None, **OVERFLOW) -> dict[typing.Any, dict[str, typing.Any]] | None:
-        try:
-            message: discord.Message = message or after
-            if guild_db["link"]["status"] and (message.author.guild_permissions.administrator or guild_db["ServerInfo"]["StaffRole"] in [role.id for role in message.author.roles]): # not
-                if "http://" in message.content or "https://" in message.content and (channel_id := guild_db["Logging"]["Link"]):
-
-                    embed: discord.Embed=discord.Embed(title="Link Protection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+                if invite_object.guild.id == 1067152607459688549:
+                    embed: discord.Embed = discord.Embed(title="XNDUIW | CBE_Simon Protection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
                     embed.set_thumbnail(url=message.author.display_avatar.url)
-                    embed.add_field(name="`` Author ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
-                    embed.add_field(name="`` Message ``", value=f"<:msg_id:1203422168046768129>┇{message.author.id}\n<:text_c:1203423388320669716>┇{message.channel.name}\n<:ID:1203410054016139335>┇{message.channel.id}", inline=True)
+                    embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
+                    embed.add_field(name="`` Rule ``", value=f"Detected invite link redirecting to Simon's server.", inline=True)
+                    embed.add_field(name="`` Message Content ``", value=message.content if len(message.content) < 1000 else message.content[:1000], inline=False)
+                    embed.set_footer(text="Member has been banned from the guild.")
 
-                    if (msglen := len(message.content)) > 1000:
-                        embed.add_field(name="`` Message ``", value=f"{message.content[:msglen-1000]}...", inline=False)
-                    else:
-                        embed.add_field(name="`` Message ``", value=f"{message.content if msglen != 0 else 'Could not find the message content.'}", inline=False)
+                    self.shared.sender.resolver([
+                        con.Event(message.author, "ban", event_data={"kwargs": {"delete_message_days": 7, "reason": "Autoban - XNDUIW"}}),
+                        con.Event(message.guild.get_channel(1175874833146450042), "send", event_data={"kwargs": {"embed" : embed}})
+                    ])
 
-                    if channel := message.guild.get_channel(channel_id):
-                        return [{message.channel : {"action" : "send", "kwargs" : {"content" : f"{message.author.mention} do NOT send links!", "delete_after" : 5}}},
-                                {message : {"action" : "delete"}},
-                                {channel : {"action" : "send", "kwargs" : {"embed" : embed}}}]
+    async def antilink(self, guild_db: dict[str, typing.Any], message: discord.Message = None, after: discord.Message = None, **OVERFLOW) -> None:
+        message: discord.Message = message or after
 
-        except Exception as error:
-            self.shared.logger.log(f"@MessageHandlers.antilink: {type(error).__name__}: {error}", "ERROR")
-        return None
+        if guild_db["link"]["status"] and (message.author.guild_permissions.administrator): # not
+            if (links := self.URL_pattern.findall(message.clean_content))  and (channel_id := guild_db["link"]["log_channel"]):
+                options: dict[str, bool] = guild_db["link"]["options"]
+                pattern_list: list[re.Pattern] = [pattern 
+                                                  for setting, pattern in 
+                                                  zip(["allowDiscordInvites", "allowNitroGifts", "allowSocialLinks"], [self.invite_link_pattern, self.nitro_gift_pattern, self.social_medias_pattern]) 
+                                                  if options[setting]]
+
+                if all([any([re.match(pattern, link) for pattern in pattern_list]) for link in links]):
+                    return
+
+                embed: discord.Embed=discord.Embed(title="Link Protection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+                embed.set_thumbnail(url=message.author.display_avatar.url)
+                embed.add_field(name="`` Author ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
+                embed.add_field(name="`` Message ``", value=f"<:msg_id:1203422168046768129>┇{message.author.id}\n<:text_c:1203423388320669716>┇{message.channel.name}\n<:ID:1203410054016139335>┇{message.channel.id}", inline=True)
+
+                if (msglen := len(message.content)) > 1000:
+                    embed.add_field(name="`` Message ``", value=f"{message.content[:msglen-1000]}...", inline=False)
+                else:
+                    embed.add_field(name="`` Message ``", value=f"{message.content if msglen != 0 else 'Could not find the message content.'}", inline=False)
+
+                self.shared.sender.resolver([con.Event(message.channel, "send", event_data={"kwargs": {"content" : f"{message.author.mention} do NOT send links!", "delete_after": 5}}),
+                                             con.Event(message, "delete", {})])
+
+                if channel := message.guild.get_channel(channel_id):
+                    self.shared.sender.resolver(con.Event(channel, "send", event_data={"kwargs": {"embed": embed}}))

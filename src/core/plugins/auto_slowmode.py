@@ -54,7 +54,7 @@ class AutoSlowmode:
         self.shared.logger.log(f"@AutoSlowmode.slowmode > Got delay: {delay}.", "NP_DEBUG")
 
         if channel.slowmode_delay != delay and delay >= default_delay and guild_db["auto_slowmode"]["status"]:
-            self.shared.sender.resolver(con.Event(channel, "edit", event_data={"slowmode_delay": delay}))
+            self.shared.sender.resolver(con.Event(channel, "edit", event_data={"kwargs": {"slowmode_delay": delay}}))
 
             if (log_channel_id := guild_db["auto_slowmode"]["log_channel"]):
                 embed: discord.Embed = discord.Embed(title="Auto Slowmode", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
@@ -62,7 +62,7 @@ class AutoSlowmode:
                 embed.add_field(name="`` Change ``", value=f"**Slowmode delay:**\n`{self.shared.time.seconds_to_string(channel.slowmode_delay)}` ➔ `{self.shared.time.seconds_to_string(delay)}`", inline=True)
 
                 if (log_channel := channel.guild.get_channel(log_channel_id)):
-                    self.shared.sender.resolver(con.Event(log_channel, "send", event_data={"embed" : embed}))
+                    self.shared.sender.resolver(con.Event(log_channel, "send", event_data={"kwargs": {"embed" : embed}}))
 
     async def start(self) -> None:
         while True:

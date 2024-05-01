@@ -9,9 +9,9 @@ class QOFTD:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
         self.bot: commands.Bot = self.shared.bot
+
         self.job: schedule.Job = None
         self.current_msgs: dict[int, discord.Message] = {}
-
         self.quotes: list[str] = ["Would you allow someone to throw garbage over your head in return for a $100 reward?",
                               "What would you do when you reach your school or workplace and realize that you forgot to have a bath before coming?",
                               "Would you ever think of pranking your teacher/boss?",
@@ -130,11 +130,11 @@ class QOFTD:
             channel: discord.TextChannel = self.bot.get_channel(channel_id)
             if channel_id:
                 if self.current_msgs.get(channel_id):
-                    await self.shared.sender.resolver([{self.current_msgs[channel_id] : {"action" : "unpin"}}])
+                    await self.shared.sender.resolver(con.Event(self.current_msgs[channel_id], "unpin", event_data={}))
 
                 self.current_msgs[channel_id] = await channel.send(self.quotes[random.randint(0, len(self.quotes)-1)])
-                self.shared.sender.resolver([{self.current_msgs[channel_id] : {"action" : "pin"}}])
-        
+                self.shared.sender.resolver(con.Event(self.current_msgs[channel_id], "pin", event_data={}))
+
         except Exception as error:
             self.shared.logger.log(f"@QOFTD.handle_quote: {type(error).__name__}: {error}", "ERROR")
 
@@ -142,7 +142,7 @@ class QOFTD:
         try:
             for guild in self.bot.guilds:
                 db: dict[str, typing.Any] = self.shared.db.load_data(guild.id)
-                
+
                 if db["QOFTD"]["status"] and (channel_id := db["QOFTD"]["log_channel"]):
                     self.shared.loop.create_task(self.handle_quote(channel_id=channel_id))
 
@@ -152,7 +152,7 @@ class QOFTD:
     async def start(self) -> None:
         if self.job:
            schedule.cancel_job(self.job) 
-        
+
         self.job: schedule.Job = schedule.every().day.at("00:00").do(self.loader)
         while True:
             schedule.run_pending()

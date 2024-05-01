@@ -1,4 +1,4 @@
-import discord, requests, urllib.parse, sys, typing, random
+import discord, urllib.parse, sys, typing, random, aiohttp
 sys.dont_write_bytecode = True
 import src.connector as con
 
@@ -25,9 +25,11 @@ class AI:
     async def ask_ai(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message, **OVERFLOW) -> None: 
         if guild_db["ai"]["status"] and message.channel.id in guild_db["ai"]["talkChannels"]:
             if message.content.startswith("> "):
-                response: requests.Response = requests.get(f"http://api.brainshop.ai/get?bid=168684&key=lkrMGm9sSb22jqSG&uid={message.author.id}&msg={urllib.parse.quote(message.content[2:])}", headers=self.header)
+                async with aiohttp.ClientSession() as session:
+                    response: aiohttp.ClientResponse = await session.get(f"http://api.brainshop.ai/get?bid=168684&key=lkrMGm9sSb22jqSG&uid={message.author.id}&msg={urllib.parse.quote(message.content[2:])}", headers=self.header)
+                
                 try:
-                    JSONreply: dict[str, str] = response.json()
+                    JSONreply: dict[str, str] = await response.json()
                 except:
                     JSONreply: dict[str, str] = {"cnt" : "[INFO] Oh no, something went wrong! Corrupted response."}
 
@@ -41,9 +43,9 @@ class AI:
                     else:
                         filtered: str = text
 
-                    self.shared.sender.resolver(con.Event(message.channel, "send", event_data={"content": filtered}))
+                    self.shared.sender.resolver(con.Event(message.channel, "send", event_data={"kwargs": {"content": filtered}}))
 
             elif "<@980031906836009000>" in message.content or "noping" in message.content.lower() or "no ping" in message.content.lower():
                 embed: discord.Embed = discord.Embed(title="Hey there!", color=discord.Colour.dark_embed(), description="To talk to me, use `> ` infront of message!\nHere is an example: `> Hey, how are you!`")
-                self.shared.sender.resolver(con.Event(message.channel, "send", event_data={"embed": embed}))
+                self.shared.sender.resolver(con.Event(message.channel, "send", event_data={"kwargs": {"embed": embed}}))
         return None

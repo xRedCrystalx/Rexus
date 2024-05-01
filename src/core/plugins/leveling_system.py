@@ -214,4 +214,7 @@ for member in guild.members:
     if f"{member.id}.json" in user_dbs:
         self.shared.db.load_data(member.id, "USER")
 
+
+WORK IN PROGRESS
+
 """

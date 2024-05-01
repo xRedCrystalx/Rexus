@@ -24,7 +24,7 @@ class ImpersonatorDetection:
                 embed.add_field(name="`` Kick Message ``", value=f"```Impersonating a youtuber/celebrity/bot/staff. Come back when you've changed your name or you can request a nickname from staff.```", inline=False)
 
                 if channel := member.guild.get_channel(channel_id):
-                    self.shared.sender.resolver(con.Event(channel, "send", event_data={"embed": embed}))
+                    self.shared.sender.resolver(con.Event(channel, "send", event_data={"kwargs": {"embed": embed}}))
         return None
 
     async def detection_on_update(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], before: discord.Member, after: discord.Member, **OVERFLOW) -> None:
@@ -40,5 +40,5 @@ class ImpersonatorDetection:
                     embed.add_field(name="`` Reason ``", value=f"Member changed name to Celebrity/YouTuber/Bot/Staff name. name.\n\n```Impersonating a youtuber/celebrity/bot/staff. Come back when you've changed your name or you can request a nickname from staff.```", inline=False)
 
                     if channel := after.guild.get_channel(channel_id):
-                        self.shared.sender.resolver(con.Event(channel, "send", event_data={"embed": embed}))
+                        self.shared.sender.resolver(con.Event(channel, "send", event_data={"kwargs": {"embed": embed}}))
         return None
