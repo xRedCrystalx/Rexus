@@ -88,7 +88,7 @@ class ConfigPages:
     ai.add_field(name="`` Respond Channels ``", value="{talkChannels:id_format?option='channel'&list_format}")
     ai.set_thumbnail(url="https://i.ibb.co/Yb1QH1V/bot.png")
     
-    automod: Embed = Embed(title="AutoMod Response", description="Under development.\nUse `/automod load_rules` and `/automod create_response` commands.", color=discord.Colour.dark_embed())
+    automod: Embed = Embed(title="AutoMod Response", description="Under development.\nUse **</automod load_rules:1160680000970821645>** and **</automod create_response:1160680000970821645>** commands.", color=discord.Colour.dark_embed())
 
     link: Embed = Embed(title="Link Protection", description="<:bot:1226153730836140054>┇{status:boolean_format?option='switch'&discord_format}\n<:text_c:1203423388320669716>┇{log_channel:id_format?option='channel'}", color=discord.Colour.dark_embed())
     link.add_field(name="`` Options ``", value="**<:settings:1205253280741982259> Allow Discord Invites:** `{options[allowDiscordInvites]:boolean_format?option='y/n'&discord_format}`\n**<:settings:1205253280741982259> Allow Social Links:** `{options[allowSocialLinks]:boolean_format?option='y/n'&discord_format}`\n<:settings:1205253280741982259> **Allow Nitro Gifts:** `{options[allowNitroGifts]:boolean_format?option='y/n'&discord_format}`")

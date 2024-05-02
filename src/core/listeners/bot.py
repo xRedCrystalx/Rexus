@@ -23,7 +23,7 @@ class BotListeners(commands.Cog):
             self.shared.logger.log(f"Failed to create database file for guild {guild.name} ({guild.id}). Error ID: {id}\n{self.shared.errors.full_traceback()}", "ERROR")
 
         embed: discord.Embed = discord.Embed(title="Hey there!", timestamp=self.shared.time.datetime(), color=discord.Colour.dark_embed(),
-                                             description=f"Firstly, thank you for inviting me to your guild!\n\nI'm **NoPing**, friendly little robot that will help you protect your community.\nTo start with my configuration, use </config:1234484595445993542> command or </noping:1234489037608456192> for quick start pointers.")
+                                             description=f"Firstly, thank you for inviting me to your guild!\n\nI'm **NoPing**, friendly little robot that will help you protect your community.\nTo start with my configuration, use </config:1235708858580860929> command or </noping:1235708858136002623> for quick start pointers.")
         embed.set_thumbnail(url="https://i.ibb.co/R6WZm04/member.png")
         embed.set_footer(text="Developed by xRedCrystalx")
         await channel.send(embed=embed)
