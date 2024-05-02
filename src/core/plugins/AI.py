@@ -22,7 +22,10 @@ class AI:
             "What do you get from a pampered cow? Spoiled milk!"
         ]
 
-    async def ask_ai(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message, **OVERFLOW) -> None: 
+    async def ask_ai(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message, **OVERFLOW):
+        self.shared.loop.create_task(self.event(guild_db, bot_db, message))
+    
+    async def event(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message) -> None: 
         if guild_db["ai"]["status"] and message.channel.id in guild_db["ai"]["talkChannels"]:
             if message.content.startswith("> "):
                 async with aiohttp.ClientSession() as session:
