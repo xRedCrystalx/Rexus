@@ -21,12 +21,10 @@ class HelpPages:
     general.set_footer(text="Private & important matter: xredcrystaledx@gmail.com")
 
     cmd: Embed = Embed(title="Commands", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
-    cmd.add_field(name="Staff Commands:", value="- `/report message_link:[Link]` Optional: `extra:[Text]`, `age:[Number]`\
-                                            \n> ➔ Reports user to discord's moderation team.\
-                                            \n- `/slowmode set:[Number]` Optional: `channel:[Channel]`\
+    cmd.add_field(name="Staff Commands:", value="- `/slowmode set:[Number]` Optional: `channel:[Channel]`\
                                             \n> ➔ Sets channel slowmode. If no channel specified, changes slowmode in the channel where command was executed in.\
-                                            \n- `/search_user option:[Choose] name:[Choose] keyword:[Text]`\
-                                            \n> ➔ Searches for possible names with the given keyword/phrase and shows the IDs.", inline=False)
+                                            \n- `/purge user:[Member]` Optional: `number:[Number]`\
+                                            \n> ➔ Checks [number] (default 100) messages in each channel and deletes messages of that user.", inline=False)
     
     alt: Embed = Embed(title="Alt Detection", description="Alt detection is a plugin that detects new joined members and checks their account creation date.", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
     alt.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Member joins the guild\n2. <:profile:1203409921719140432> Bot checks account age\n3. <:message:1203419599824101416> Bot sends log message (if age < 3 days)")
