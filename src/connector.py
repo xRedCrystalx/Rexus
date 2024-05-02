@@ -1,10 +1,10 @@
 import sys, uuid, typing, platform, aiohttp, asyncio, schedule
 sys.dont_write_bytecode = True
 from discord.ext import commands
-
+from src.core.root.event import Event
 
 class Shared:
-    bot: commands.Bot = None ##ADD IT
+    bot: commands.Bot = None
     path: str = None
     OS: str = platform.system()
     session: aiohttp.ClientSession = None
@@ -18,25 +18,25 @@ class Shared:
         self.loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
         
         # system modules
-        import src.system.database as db_module
-        import src.system.logging as logger_module
-        import src.system.reloader as reload_module
+        from src.system.database import Database
+        from src.system.logging import Logger
+        from src.system.reloader import Reloader
 
-        self.db: db_module.Database = db_module.Database()
-        self.logger: logger_module.Logger = logger_module.Logger().main()
-        self.reloader: reload_module.Reloader = reload_module.Reloader()
+        self.db = Database()
+        self.logger: Logger = Logger().main()
+        self.reloader = Reloader()
 
         # main modules
-        import src.core.transmitters.sender as sender_module
-        import src.core.transmitters.queue as queue_module
+        from src.core.transmitters.sender import Sender
+        from src.core.transmitters.queue import QueueSystem
 
-        self.sender: sender_module.Sender = sender_module.Sender()
-        self.queue: queue_module.QueueSystem = queue_module.QueueSystem()
+        self.sender = Sender()
+        self.queue = QueueSystem()
 
         # security modules
-        import src.core.root.execution_reports as exec_report
+        from src.core.root.execution_reports import ExecReport
 
-        self.execution_reports: exec_report.ExecReport = exec_report.ExecReport()
+        self.execution_reports = ExecReport()
 
     def plugin_load(self) -> None:        
         from src.core.helpers.images import Images
@@ -58,7 +58,6 @@ class Shared:
         from src.core.plugins.auto_deleter import AutoDeleter
         from src.core.plugins.miscellaneous_handlers import MiscellaneousHandlers
         from src.core.plugins.reaction_filter import ReactionFilter
-        from src.core.plugins.spy import Spy
 
         self.imper_detection = ImpersonatorDetection()
         self.AI = AI()    
@@ -69,8 +68,6 @@ class Shared:
         self.auto_slowmode = AutoSlowmode()
         self.miscellaneous = MiscellaneousHandlers()
         self.reaction_filter = ReactionFilter()
-        self.spy = Spy()
-
 
         loader: tuple[typing.Callable] = (self.auto_slowmode.start, self.QOFTD.start, self.auto_deleter.start, self.reaction_filter.start, self.sender.start)
         self.plugin_tasks: list[asyncio.Task] = [self.loop.create_task(func(), name=func.__qualname__) for func in loader]
@@ -78,7 +75,7 @@ class Shared:
         self.queue.reload_filters()
 
     def _create_id(self) -> str:
-        return str(uuid.uuid1())
+        return str(uuid.uuid4())
 
 #making global class var, so data is presistent
 shared: Shared = Shared()
