@@ -13,6 +13,8 @@ class Database:
         try:
             with open(path, mode, encoding="utf-8") as file:
                 return json.load(file)
+        except FileNotFoundError:
+            self.shared.logger.log(f"@databaseHandler._open_file: No file found for: {path}.", "WARNING")
         except Exception:
             self.shared.logger.log(f"@databaseHandler._open_file: Error trying to load data for `{path}`.\n{self.shared.errors.full_traceback()}", "ERROR")
 
