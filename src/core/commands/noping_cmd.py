@@ -58,16 +58,16 @@ class NoPing(commands.Cog):
 
         if cmd.value == "help":
             embed: discord.Embed = discord.Embed(title="Help page", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
-            embed.add_field(name="Quick Start", value=f"__Due to security standards, only **guild owner** ({interaction.guild.owner.display_name}) can configure bot.__\n \
-                            Owner can **grant/rewoke** configuration permissions to **everyone** with `Administrator guild permission` using **</admin_editing:1235708858580860928>** slash command.\n\n \
-                            By default, Bot is **disabled** and will have to be **enabled** in `General settings` using **</config:1235708858580860929>** slash command.\n \
-                            Bot also requires a couple of general settings to be set. They are required and bot will **NOT** work without them. Required settings have `REQUIRED` tag in their descriptions.", inline=False)
-            embed.add_field(name="─────────────────────────────────────────────────────────────", value="**Navigation:**\n \
-                            Use arrows to navigate, `✕` for stopping configuration.\n\
-                            - `❔ > `Displays general information about that plugin.\n- `⚙️ > `Starts the configurator for that plugin.\
-                            \n**Read** instructions of the `Configuration Wizard` for plugin specific setup/configuration.\n\n\
-                            **General:**\n \
-                            - You have **1 hour** to configure each time you execute **</config:1235708858580860929>** command. You will be notified if that time is reached.\n- Please **read** instructions, they are important.\n- Each plugin has its own `switch`, meaning you can disable them anytime for whatever reason.\
+            embed.add_field(name="Quick Start", value=f"__Due to security standards, only **guild owner** ({interaction.guild.owner.display_name}) can configure bot.__\
+                            \nOwner can **grant/rewoke** configuration permissions to **everyone** with `Administrator guild permission` using **</admin_editing:1235708858580860928>** slash command. \
+                            \n\nBy default, Bot is **disabled** and will have to be **enabled** in `General settings` using **</config:1235708858580860929>** slash command.\
+                            \nBot also requires a couple of general settings to be set. They are required and bot will **NOT** work without them. Required settings have `REQUIRED` tag in their descriptions.", inline=False)
+            embed.add_field(name="─────────────────────────────────────────────────────────────", value="**Navigation:**\
+                            \nUse arrows to navigate, `✕` for stopping configuration.\
+                            \n- `❔ > `Displays general information about that plugin.\n- `⚙️ > `Starts the configurator for that plugin.\
+                            \n**Read** instructions of the `Configuration Wizard` for plugin specific setup/configuration.\
+                            \n\n**General:**\
+                            \n - You have **1 hour** to configure each time you execute **</config:1235708858580860929>** command. You will be notified if that time is reached.\n- Please **read** instructions, they are important.\n- Each plugin has its own `switch`, meaning you can disable them anytime for whatever reason.\
                             \nFor any questions and concerns, feel free to create **feedback or bug report** using **</noping:1235708858136002623>** command, or join the [Support Server](https://discord.gg/gzx3kxu68x)", inline=False)
 
             await interaction.response.send_message(embed=embed, ephemeral=True)
