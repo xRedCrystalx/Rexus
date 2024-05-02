@@ -24,7 +24,7 @@ class HelpPages:
     cmd.add_field(name="Staff Commands:", value="- `/slowmode set:[Number]` Optional: `channel:[Channel]`\
                                             \n> ➔ Sets channel slowmode. If no channel specified, changes slowmode in the channel where command was executed in.\
                                             \n- `/purge user:[Member]` Optional: `number:[Number]`\
-                                            \n> ➔ Checks [number] (default 100) messages in each channel and deletes messages of that user.", inline=False)
+                                            \n> ➔ Checks **[number] (default 100)** messages in each channel and deletes messages of that user.", inline=False)
     
     alt: Embed = Embed(title="Alt Detection", description="Alt detection is a plugin that detects new joined members and checks their account creation date.", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
     alt.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Member joins the guild\n2. <:profile:1203409921719140432> Bot checks account age\n3. <:message:1203419599824101416> Bot sends log message (if age < 3 days)")
@@ -42,13 +42,12 @@ class HelpPages:
 
     link: Embed = Embed(title="Link Protection", description="Link Protection is a plugin that detects new messages and tries to find link matches. Plugin logs and deletes detected messages.", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
     link.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Member sends message\n2. <:message:1203419599824101416> Bot checks message content & tries to find link matches\n3. <:dev:1203411510832136202> Bot sends log message & deletes sender's message (if match was found & config doesn't stop it)", inline=False)
-    link.add_field(name="`` Future Update ``", value="Role ignore, scam link detection, allowing giveaways/gifs, allowing social media links, only block masked links etc.", inline=False)
+    link.add_field(name="`` Future Update ``", value="Role ignore, scam link detection, only block masked links etc.", inline=False)
 
-    ping: Embed = Embed(title="Ping Protection", description="Ping Protection is a plugin that detects new messages and tries to find ping matches. If the pinged user has `MemberProtection`, `StaffProtection` or `YouTuberProtection` role, and if the message author doesn't have `BypassRole`, warns, logs and calls staff (optional). Bots are already build-in in the system.", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    ping: Embed = Embed(title="Ping Protection", description="Ping Protection is a plugin that detects new messages and tries to find ping matches. If rule was broken and user doesn't have `BypassRole`, warns, logs and calls staff (optional).", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
     ping.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Member sends message\n2. <:message:1203419599824101416> Bot checks message content & tries to find ping matches\n3. <:dev:1203411510832136202> Bot sends warn & log message AND what was set in configuration (if match was found & user doesn't have bypass role)", inline=False)
-    ping.add_field(name="`` Future Update ``", value="Fully customizable detections.", inline=False)
 
-    auto_delete: Embed = Embed(title="Auto Delete", description="AutoDelete is a plugin that deletes new created messages after x seconds/minutes/hours (depending of configuration) in the channel.", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    auto_delete: Embed = Embed(title="Auto Delete", description="AutoDelete is a plugin that deletes new created messages after x seconds/minutes/hours (depending of configuration) for the channel.", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
     auto_delete.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Member sends message\n2. <:settings:1205253280741982259> Bot saves message & waits x seconds (configured time_converter)\n3. <:delete:1205252465252114452> Bot tries to delete message.", inline=False)
 
     auto_slowmode: Embed = Embed(title="Auto Slowmode", description="AutoSlowmode is a plugin that records messages every 5 minutes and determinates how active channel is. Automatically sets slowmode to different values (seconds).", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
@@ -69,7 +68,7 @@ class ConfigPages:
     general.set_footer(text="Click on ❔ for general information about bot.")
 
     cmd: Embed = Embed(title="Commands", description="", color=discord.Colour.dark_embed())
-    cmd.add_field(name="`` Logging ``", value="<:settings:1205253280741982259> **Log CMD execution:** {logCmdExecution:boolean_format?option='y/n'&discord_format}\n<:settings:1205253280741982259> **Log failed CMD:** {failedCmdExecution:boolean_format?option='y/n'&discord_format}\n<:text_c:1203423388320669716>┇{cmdExecutionLogChannel:id_format?option='channel'}")
+    cmd.add_field(name="`` Logging ``", value="<:settings:1205253280741982259> **Log CMD execution:** {logCmdExecution:boolean_format?option='y/n'&discord_format}\n<:settings:1205253280741982259> **Log failed CMD:** {failedCmdExecution:boolean_format?option='y/n'&discord_format}\n<:text_c:1203423388320669716>┇{cmdExecutionLogChannel:id_format?option='channel'}\n__**Under development.**__")
     cmd.set_thumbnail(url="https://i.ibb.co/nQFfH71/slash-command.png")
 
     alt: Embed = Embed(title="Alt Detection", description="<:bot:1226153730836140054>┇{status:boolean_format?option='switch'&discord_format}\n<:text_c:1203423388320669716>┇{log_channel:id_format?option='channel'}", color=discord.Colour.dark_embed())
@@ -89,7 +88,7 @@ class ConfigPages:
     link.set_thumbnail(url="https://i.ibb.co/kDZZMVP/message.png")
 
     ping: Embed = Embed(title="Ping Protection", description="<:bot:1226153730836140054>┇{status:boolean_format?option='switch'&discord_format}\n<:settings:1205253280741982259> **Detect Reply Pings:** {detectReplyPings:boolean_format?option='y/n'&discord_format}\n<:settings:1205253280741982259> **Ignored Channels:**\n{ignoredChannels:id_format?option='channel'&list_format}", color=discord.Colour.dark_embed())
-    ping.add_field(name="rules $ ``  {key}  ``", value="<:role:1226153759722438707>┇{role:id_format?option='role'}\n<:ping:1226194531528216727>┇{ping:boolean_format?option='y/n'&discord_format}\n<:log:1203410684365504692>┇{log:boolean_format?option='y/n'&discord_format}\n<:text_c:1203423388320669716>┇{logChannel:id_format?option='channel'}\n<:delete:1205252465252114452>┇{delete:boolean_format?option='y/n'&discord_format}", inline=False)
+    ping.add_field(name="rules $ ``  {key}  ``", value="<:role:1226153759722438707>┇{role:id_format?option='role'}\n<:role:1226153759722438707>┇{bypass:id_format?option='role'}\n<:ping:1226194531528216727>┇{ping:boolean_format?option='y/n'&discord_format}\n<:log:1203410684365504692>┇{log:boolean_format?option='y/n'&discord_format}\n<:text_c:1203423388320669716>┇{logChannel:id_format?option='channel'}\n<:delete:1205252465252114452>┇{delete:boolean_format?option='y/n'&discord_format}", inline=False)
     ping.set_thumbnail(url="https://i.ibb.co/sq2sTff/ping.png")
 
     auto_delete: Embed = Embed(title="Auto Delete", description="<:bot:1226153730836140054>┇{status:boolean_format?option='switch'&discord_format}", color=discord.Colour.dark_embed())
