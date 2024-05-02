@@ -22,10 +22,14 @@ class BotListeners(commands.Cog):
             await channel.send(f"An error has occured. Please report this to the developer. Error ID: `{id}`")
             self.shared.logger.log(f"Failed to create database file for guild {guild.name} ({guild.id}). Error ID: {id}\n{self.shared.errors.full_traceback()}", "ERROR")
 
-        await channel.send("Thank you for inviting me to your guild! To start with my configuration, execute `/config` command. For other information, use `/noping` command.")
+        embed: discord.Embed = discord.Embed(title="Hey there!", timestamp=self.shared.time.datetime(), color=discord.Colour.dark_embed(),
+                                             description=f"Firstly, thank you for inviting me to your guild!\n\nI'm **NoPing**, friendly little robot that will help you protect your community.\nTo start with my configuration, use </config:1234484595445993542> command or </noping:1234489037608456192> for quick start pointers.")
+        embed.set_thumbnail(url="https://i.ibb.co/R6WZm04/member.png")
+        embed.set_footer(text="Developed by xRedCrystalx")
+        await channel.send(embed=embed)
 
         if events_channel := self.bot.get_channel(self.events_channel_id):
-            embed = discord.Embed(title=f"Joined {guild.name}", description=f"**Guild:** {guild.name} (`{guild.id}`)\n**Creation date:** {guild.created_at}\n**Owner:** {guild.owner.display_name}, {guild.owner.global_name} (`{guild.owner_id}`)",
+            embed = discord.Embed(title=f"Joined {guild.name}", description=f"**Guild:** {guild.name} (`{guild.id}`)\n**Creation date:** {guild.created_at:%d.%m.%Y %H:%M:%S}\n**Owner:** {guild.owner.display_name}, {guild.owner.global_name} (`{guild.owner_id}`)",
                                    timestamp=self.shared.time.datetime(), color=discord.Colour.green())
             embed.add_field(name="`` Counts ``", value=f"**Members:** `{guild.member_count}`\n**Roles:** `{len(guild.roles)}`\n**Channels:** `{len(guild.channels)}`\n**Emojis:** `{len(guild.emojis)}`")
             await events_channel.send(embed=embed)
@@ -33,7 +37,7 @@ class BotListeners(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_remove(self, guild: discord.Guild) -> None:
         if events_channel := self.bot.get_channel(self.events_channel_id):
-            embed = discord.Embed(title=f"Left {guild.name}", description=f"**Guild:** {guild.name} (`{guild.id}`)\n**Creation date:** {guild.created_at}\n**Owner:** {guild.owner.display_name}, {guild.owner.global_name} (`{guild.owner_id}`)",
+            embed = discord.Embed(title=f"Left {guild.name}", description=f"**Guild:** {guild.name} (`{guild.id}`)\n**Creation date:** {guild.created_at:%d.%m.%Y %H:%M:%S}\n**Owner:** {guild.owner.display_name}, {guild.owner.global_name} (`{guild.owner_id}`)",
                                    timestamp=self.shared.time.datetime(), color=discord.Colour.red())
             await events_channel.send(embed=embed)
 
