@@ -145,5 +145,3 @@ class ConfigPages:
         else:
             embed: Embed = Embed(title=name, description=f"<:bot:1226153730836140054>┇`{self.formatter.boolean_format(data.get("status"), option="switch")}`\n<:text_c:1203423388320669716>┇{self.formatter.id_format(data.get("log_channel"), "channel")}", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
         return embed
-
-# Hey there!\nI'm **NoPing**, friendly little robot that will help you with server protection for free!\nTo start with my configuration, use </config:1221521894713589771> command or </allow_admin_editing> command and let your server adminstrators to configure me!

@@ -38,7 +38,6 @@ class Configurator:
                     "embed": {"description": "Choose plugin setting from the list to continue."},
                     "view": [{"name": "slc_select", "kwargs" : {"options" : [
                         discord.SelectOption(label="Status", value="status", description="Enable/Disable bot"), 
-                        discord.SelectOption(label="Admin Editing", value="allow_admin_editing", description="Allow/Disallow server admins to edit NoPing's configuration."),
                         discord.SelectOption(label="Staff/Mod role", value="staff_role", description="Set Mod/Staff's role, this is REQUIRED."),
                         discord.SelectOption(label="Staff/Mod chat", value="staff_chat", description="Set Mod/Staff's channel, this is REQUIRED."),
                         discord.SelectOption(label="Admin role", value="admin_role", description="Set Admin's role, this is REQUIRED."),
@@ -53,18 +52,6 @@ class Configurator:
                         },
                         "btn_disable": {
                             "db": [["general", "status"], False, None, None],
-                            "return": 2
-                        }
-                    },
-                    "allow_admin_editing": {
-                        "embed": {"description": "Click on the buttons below to `Allow/Disallow` **Admin Editing**\n**Current:** {general[allowAdminEditing]:boolean_format?option='y/n'&discord_format}"},
-                        "view": ["btn_enable", "btn_disable", "btn_back"],
-                        "btn_enable": {
-                            "db": [["general", "allowAdminEditing"], True, None, None],
-                            "return": 2
-                        },
-                        "btn_disable": {
-                            "db": [["general", "allowAdminEditing"], False, None, None],
                             "return": 2
                         }
                     },
