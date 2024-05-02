@@ -19,8 +19,9 @@ class Update(commands.Cog):
     @app_commands.command(name="update", description="Owner command, no touchy!")
     async def update(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer()
+        
         for guild in self.bot.guilds:
-            if not (channel := guild.public_updates_channel) or (channel := guild.system_channel):
+            if not (channel := guild.public_updates_channel) or not (channel := guild.system_channel):
                 channel: discord.TextChannel = random.choice(guild.text_channels)
                 
             embed: discord.Embed = discord.Embed(title="🔒 NoPing V3 Major Update", color=discord.Colour.dark_embed(),
