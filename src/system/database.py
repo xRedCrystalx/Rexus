@@ -38,7 +38,7 @@ class Database:
         try:
             template: dict = self._open_file(self.template_path.format(type="user_template" if option == "user" else "guild_template"))
             
-            with open(self.template_path.format(type=self._name_resolver(option), id=id), "w", encoding="utf-8") as new_file:
+            with open(self.databases_path.format(type=self._name_resolver(option), id=id), "w", encoding="utf-8") as new_file:
                 json.dump(template, new_file, indent=4)
         
         except Exception:
