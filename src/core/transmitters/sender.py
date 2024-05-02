@@ -11,7 +11,7 @@ class Sender:
 
     def resolver(self, e: list[con.Event] | con.Event) -> None:
         if isinstance(e, con.Event):
-            self.events.append()
+            self.events.append(e)
         
         if isinstance(e, list):
             for event in e:
