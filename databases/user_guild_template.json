@@ -1,0 +1,34 @@
+{
+    "moderation": {
+        "notes": {},
+        "actions": {}
+    },
+    "leveling": {
+        "GLOBAL": {
+            "level": 0,
+            "counter": 0,
+            "current_xp": 0,
+            "global_xp": 0,
+            "rewards": [],
+            "achievements": []
+        },
+        "message": {
+            "level": 0,
+            "counter": 0,
+            "current_xp": 0,
+            "global_xp": 0
+        },
+        "voice": {
+            "level": 0,
+            "counter": 0,
+            "current_xp": 0,
+            "global_xp": 0
+        },
+        "reaction": {
+            "level": 0,
+            "counter": 0,
+            "current_xp": 0,
+            "global_xp": 0
+        }
+    }
+}

@@ -1,0 +1,96 @@
+{
+    "general": {
+        "status": false,
+        "language": "US/en",
+        "allowAdminEditing": false,
+        "staffRole": null,
+        "staffChannel": null,
+        "adminRole": null,
+        "adminChannel": null
+    },
+    "cmd": {
+        "logCmdExecution": false,
+        "failedCmdExecution": false,
+        "cmdExecutionLogChannel": null
+    },
+    "alt": {
+        "status": false,
+        "log_channel": null
+    },
+    "imper": {
+        "status": false,
+        "log_channel": null
+    },
+    "ai": {
+        "status": false,
+        "talkChannels": []
+    },
+    "automod": {
+        "status": false,
+        "log_channel": null,
+        "rules": {}
+    },
+    "link": {
+        "status": false,
+        "log_channel": null,
+        "options": {
+            "allowDiscordInvites": false,
+            "allowNitroGifts": false,
+            "allowSocialLinks": false
+        }
+    },
+    "ping": {
+        "status": false,
+        "detectReplyPings": false,
+        "ignoredChannels": [],
+        "rules": {}
+    },
+    "auto_delete": {
+        "status": false,
+        "monitored": {}
+    },
+    "auto_slowmode": {
+        "status": false,
+        "log_channel": null,
+        "monitored": {} 
+    },
+    "reaction": {
+        "status": false,
+        "log_channel": null,
+        "reactionBanRole": null
+    },
+    "QOFTD": {
+        "status": false,
+        "log_channel": null
+    },
+    "responder": {
+        "status": false,
+        "responses": {}
+    },
+    "leveling_system": {
+        "status": false,
+        "log_channel": null,
+        "levels": {
+            "message": false,
+            "voice": false,
+            "reaction": false
+        },
+        "rewards": {
+            "message": [],
+            "voice": [],
+            "reaction": []
+        },
+        "notifications": {
+            "dm": {
+                "send": false,
+                "ping": false,
+                "message": "Congrats {member}, you just advanced to {type} level {num}!"
+            },
+            "guild": {
+                "send": false,
+                "ping": false,
+                "message": "Congrats {member}, you just advanced to {type} level {num}!"
+            }
+        }
+    }
+}
