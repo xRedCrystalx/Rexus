@@ -158,7 +158,7 @@ class Configurator:
                         discord.SelectOption(label="Status", value="status", description="Enable/Disable plugin"), 
                         discord.SelectOption(label="Respond channels", value="respond", description="Channels where the AI will respond in.")]}}, "btn_back"],
                     "status": {
-                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **AI!**\n**Current:** {general[status]:boolean_format?option='switch'&discord_format}"},
+                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **AI!**\n**Current:** {ai[status]:boolean_format?option='switch'&discord_format}"},
                         "view": ["btn_enable", "btn_disable", "btn_back"],
                         "btn_enable": {
                             "db": [["ai", "status"], True, None, None],
@@ -509,6 +509,88 @@ class Configurator:
                                 "db": [["auto_slowmode", "monitored"], "SELF:1", "pop", None],
                                 "return": 1
                             }
+                        }
+                    }
+                }
+            },
+            "QOFTD" : {
+                "embed": self.MAIN_SCREEN,
+                "view": ["btn_switch", "btn_edit", "return"],
+                "btn_edit": {
+                    "embed": {"description": "Choose plugin setting from the list to continue."},
+                    "view": [{"name": "slc_select", "kwargs": {"options" : [
+                        discord.SelectOption(label="Status", value="status", description="Enable/Disable plugin"),
+                        discord.SelectOption(label="Watched channels", value="watched", description="Channels where the random questions will go.")]}}, "btn_back"],
+                    "status": {
+                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Question of the Day!**\n**Current:** {QOFTD[status]:boolean_format?option='switch'&discord_format}"},
+                        "view": ["btn_enable", "btn_disable", "btn_back"],
+                        "btn_enable": {
+                            "db": [["QOFTD", "status"], True, None, None],
+                            "return": 2
+                        },
+                        "btn_disable": {
+                            "db": [["QOFTD", "status"], False, None, None],
+                            "return": 2
+                        }
+                    },
+                    "watched": {
+                        "embed": {"description": "Choose action setting from the buttons down below."},
+                        "view": ["btn_add", "btn_remove", "btn_back"],
+                        "btn_add": {
+                            "embed": {"description": "Choose **Text Channel** that you want to add to the list.\n**Current:**\n{QOFTD[watched]:id_format?option='channel'&list_format}"},
+                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                            "slc_channel": {
+                                "db": [["QOFTD", "watched"], "SELF:1", "append", None],
+                                "return": 1
+                            }
+                        },
+                        "btn_remove": {
+                            "embed": {"description": "Choose **Text Channel** that you want to remove from the list.\n**Current:**\n{QOFTD[watched]:id_format?option='channel'&list_format}"},
+                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                            "slc_channel": {
+                                "db": [["QOFTD", "watched"], "SELF:1", "remove", None],
+                                "return": 1
+                            }
+                        }
+                    }
+                }
+            },
+            "reaction": {
+                "embed": self.MAIN_SCREEN,
+                "view": ["btn_switch", "btn_edit", "return"],
+                "btn_edit": {
+                    "embed": {"description": "Choose plugin setting from the list to continue."},
+                    "view": [{"name": "slc_select", "kwargs" : {"options" : [
+                        discord.SelectOption(label="Status", value="status", description="Enable/Disable bot"), 
+                        discord.SelectOption(label="Logging Channel", value="log_channel", description="Set plugin's logging channel."),
+                        discord.SelectOption(label="Reaction Ban role", value="role", description="Set Reaction ban role.")],
+                        "placeholder": "Choose selection (you might need to scroll)"}}, "btn_back"],
+                    "status": {
+                        "embed": {"description": "Click on the buttons below to `Enable/Disable` **Reaction Filter!**\n**Current:** {reaction[status]:boolean_format?option='switch'&discord_format}"},
+                        "view": ["btn_enable", "btn_disable", "btn_back"],
+                        "btn_enable": {
+                            "db": [["reaction", "status"], True, None, None],
+                            "return": 2
+                        },
+                        "btn_disable": {
+                            "db": [["reaction", "status"], False, None, None],
+                            "return": 2
+                        }
+                    },
+                    "role": {
+                        "embed": {"description": "Choose **Role** that will be used as **Reaction Ban Role**.\n**Current:** {general[reactionBanRole]:id_format?option='role'}"},
+                        "view": ["slc_role", "btn_back"],
+                        "slc_role": {
+                            "db": [["reaction", "reactionBanRole"], "SELF:1", None, None],
+                            "return": 2
+                        }
+                    },
+                    "log_channel": {
+                        "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {reaction[log_channel]:id_format?option='channel'}"},
+                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                        "slc_channel": {
+                            "db": [["reaction", "log_channel"], "SELF:1", None, None],
+                            "return": 2
                         }
                     }
                 }

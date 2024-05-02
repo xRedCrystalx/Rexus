@@ -22,6 +22,8 @@ class BaseConfigCMDView(ViewHelper):
             "ping": "Ping Protection",
             "auto_delete": "Auto Delete",
             "auto_slowmode": "Auto Slowmode",
+            "reaction": "Reaction Filter",
+            "QOFTD": "Question of the Day"
         }
         
         self.page_names: list[str] = list(self.global_config.keys())

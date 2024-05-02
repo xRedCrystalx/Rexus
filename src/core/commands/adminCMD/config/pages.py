@@ -54,6 +54,13 @@ class HelpPages:
     auto_slowmode.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Members send message\n2. <:log:1203410684365504692> Bot counts messages in specified channels\n3. <:dev:1203411510832136202> Every 5 minutes, bot calculates activity\n4. <:settings:1205253280741982259> Edits channel's slowmode delay", inline=False)
     auto_slowmode.add_field(name="`` Future Update ``", value="Better algorithm to detect actual number of active members, messages/members etc.", inline=False)
 
+    QOFTD: Embed = Embed(title="Question of the Day", description="This plugin posts a random question every day at midnight UTC.", color=discord.Colour.dark_embed())
+    QOFTD.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Waits for midnight in UTC\n2. <:message:1203419599824101416> Sends a random message in every channel.", inline=False)
+
+    reaction: Embed = Embed(title="Reaction Filter", description="Reaction filter is a plugin that looks for a specific reactions and removes them. If a member continuously tries to add those reactions, bot reaction bans that member (if the role is provided in the config).", color=discord.Colour.dark_embed())
+    reaction.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Waits for naughty reactions\n2. <:delete:1205252465252114452> Removes reactions from the message\n 3. <:message:1203419599824101416> Sends report to log channel (if provided).\n4. <:role:1226153759722438707> Multiple bad reactions by the same member -> reaction ban", inline=False)
+
+
 class ConfigPages:
     def __init__(self, guild_id: int) -> None:
         self.guild_id: int = guild_id
@@ -98,6 +105,13 @@ class ConfigPages:
     auto_slowmode: Embed = Embed(title="Auto Slowmode", description="<:bot:1226153730836140054>┇{status:boolean_format?option='switch'&discord_format}", color=discord.Colour.dark_embed())
     auto_slowmode.add_field(name="`` Monitored channels ``", value="{monitored:id_format?option='channel'|time_converter&discord_format>list_format}")
     auto_slowmode.set_thumbnail(url="https://i.ibb.co/kDZZMVP/message.png")
+
+    QOFTD: Embed = Embed(title="Question of the Day", description="<:bot:1226153730836140054>┇{status:boolean_format?option='switch'&discord_format}", color=discord.Colour.dark_embed())
+    QOFTD.add_field(name="`` Watched ``", value="{watched:id_format?option='channel'&list_format}")
+    QOFTD.set_thumbnail(url="https://i.ibb.co/kDZZMVP/message.png")
+
+    reaction: Embed = Embed(title="Reaction Filter", description="<:bot:1226153730836140054>┇{status:boolean_format?option='switch'&discord_format}\n<:text_c:1203423388320669716>┇{log_channel:id_format?option='channel'}\n<:role:1226153759722438707>┇{reactionBanRole:id_format?option='role'}", color=discord.Colour.dark_embed())
+    reaction.set_thumbnail(url="https://i.ibb.co/3dV35Hp/security.png")
 
     def handle_fields(self, sample: Embed, data: dict[str, dict[str, str]]) -> list[dict[str, str | bool]] | list:
         config, sample_name = str(sample.name).split("$", 1)
