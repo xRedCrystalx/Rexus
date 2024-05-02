@@ -7,7 +7,6 @@ import src.connector as con
 class AutomodCommand(commands.GroupCog, name="automod"):
     def __init__(self, bot: commands.Bot) -> None:
         self.shared: con.Shared = con.shared
-        self.c: con.Colors.C | con.Colors.CNone = self.shared.colors
         self.bot: commands.Bot = bot
 
     @app_commands.command(name = "load_rules", description = "Loads all automod modules.")
@@ -47,11 +46,9 @@ class AutomodCommand(commands.GroupCog, name="automod"):
 
             await interaction.response.send_message(embed=embed, view=paginator.create_paginator(messages=embed_list))
             paginator.original_message = await interaction.original_response()
-            await self.CONNECTOR.logging(logType="INFO", data=f"{self.c.Magenta}{interaction.user.name} ({interaction.user.id}){self.c.R} executed {self.c.Yellow}/automod load_rules{self.c.R} slash command. {self.c.DBlue}Guild{self.c.R}: {interaction.guild.name}")
 
         else:
             await interaction.response.send_message("You do not have permissions to execute this command.", ephemeral=True)
-            await self.CONNECTOR.logging(logType="WARNING", data=f"{self.c.Magenta}{interaction.user.name} ({interaction.user.id}){self.c.R} tried to use {self.c.Yellow}/automod load_rules{self.c.R} slash command. {self.c.DBlue}Guild{self.c.R}: {interaction.guild.name}")
 
     @app_commands.choices(pre_sets=[
         app_commands.Choice(name="Profanity", value="profanity"),
@@ -111,15 +108,13 @@ class AutomodCommand(commands.GroupCog, name="automod"):
                 ServerData["AutoMod"][rule_id][pre_sets.value] = response
 
                 self.database.save_data(server_id=interaction.guild.id, update_data=ServerData)
-                    
+    
                 await interaction.response.send_message(content=f"Successfully set `{response}` as response on rule trigger: **{automod_rule.name} ({rule_id})**; Pre-set: `{pre_sets.name}`")
             else:
                 await interaction.response.send_message(content="No match found. Please change parameters.", ephemeral=True)
             
-            await self.CONNECTOR.logging(logType="CHANGE", data=f"{self.c.Magenta}{interaction.user.name} ({interaction.user.id}){self.c.R} executed {self.c.Yellow}/automod create_response{self.c.R} slash command. {self.c.DBlue}Input{self.c.R}: rule_id: {rule_id} trigger: {trigger} pre_sets: {pre_sets.name if pre_sets.name is not None else None} {self.c.DBlue}Guild{self.c.R}: {interaction.guild.name}\nresponse: {response}")
         else:
             await interaction.response.send_message(content="You do not have permissions to execute this command.", ephemeral=True)
-            await self.CONNECTOR.logging(logType="WARNING", data=f"{self.c.Magenta}{interaction.user.name} ({interaction.user.id}){self.c.R} tried to use {self.c.Yellow}/automod create_response{self.c.R} slash command. {self.c.DBlue}Input{self.c.R}: rule_id: {rule_id} trigger: {trigger} pre_sets: {pre_sets.name if pre_sets.name is not None else None} {self.c.DBlue}Guild{self.c.R}: {interaction.guild.name}\nresponse: {response}")
 
 async def setup(bot: commands.Bot) -> None:
     pass

@@ -9,7 +9,6 @@ class SearchUserCommand(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.shared: con.Shared = con.shared
         self.bot: commands.Bot = bot
-        self.c: con.Colors.C | con.Colors.CNone = self.shared.colors
 
     @app_commands.choices(option=[
         app_commands.Choice(name="keyword equals to name", value="=="),
