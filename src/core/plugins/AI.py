@@ -26,7 +26,7 @@ class AI:
         if guild_db["ai"]["status"] and message.channel.id in guild_db["ai"]["talkChannels"]:
             if message.content.startswith("> "):
                 async with aiohttp.ClientSession() as session:
-                    response: aiohttp.ClientResponse = await session.get(f"http://api.brainshop.ai/get?bid=168684&key=lkrMGm9sSb22jqSG&uid={message.author.id}&msg={urllib.parse.quote(message.content[2:])}", headers=self.header)
+                    response: aiohttp.ClientResponse = await session.get(f"http://api.brainshop.ai/get?bid=168684&key=lkrMGm9sSb22jqSG&uid={message.author.id}&msg={urllib.parse.quote(message.clean_content[2:])}", headers=self.header)
                 
                 try:
                     JSONreply: dict[str, str] = await response.json()

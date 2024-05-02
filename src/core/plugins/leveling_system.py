@@ -155,14 +155,15 @@ class LevelingSystem:
                 user_db[str(guild_id)] = {}
                 self.shared.db.save_data(user_id, user_db, db="USER")
 
-            if not user_db[str(guild_id)].get("levels"):
-                user_db[str(guild_id)]["levels"] = {
+            if not user_db[str(guild_id)].get("leveling"):
+                user_db[str(guild_id)]["leveling"] = {
                     "GLOBAL": {
                         "level": 0,
                         "counter": 0,
                         "current_xp": 0,
                         "global_xp": 0,
-                        "rewards": []
+                        "rewards": [],
+                        "achievements": []
                     },
                     "message": {
                         "level": 0,
