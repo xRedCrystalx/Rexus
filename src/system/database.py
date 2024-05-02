@@ -42,6 +42,7 @@ class Database:
             
             with open(self.databases_path.format(type=self._name_resolver(option), id=id), "w", encoding="utf-8") as new_file:
                 json.dump(template, new_file, indent=4)
+                return True
         
         except Exception:
             self.shared.logger.log(f"@databaseHandler.create_database: Error trying to save data for {id}.\n{self.shared.errors.full_traceback()}", "ERROR")
