@@ -61,7 +61,6 @@
     },
     "QOFTD": {
         "status": false,
-        "log_channel": null,
         "watched": []
     },
     "responder": {
