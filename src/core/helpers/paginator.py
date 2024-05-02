@@ -10,7 +10,8 @@ class BasicPaginator(ViewHelper):
         self.lenList: int = len(self.msgList)-1
         self.currentPage: int = -1
 
-        self.create_buttons()
+        if messages:
+            self.create_buttons()
 
     def create_buttons(self) -> None:
         self.add_item(discord.ui.Button(label="◄", custom_id=f"PAGINATOR:BACK", style=discord.ButtonStyle.blurple))
