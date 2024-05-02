@@ -1,7 +1,5 @@
-import sys, asyncio, uuid, hashlib, typing
+import sys, uuid, hashlib, typing
 sys.dont_write_bytecode = True
-import src.connector as con
-
 
 class BaseSecuredMeta(type):
     def __new__(cls: str, clsname: type, bases: tuple[str, ...], attrs: dict[str, typing.Any], module=None) -> typing.Any:
@@ -31,7 +29,7 @@ class BaseSecuredMeta(type):
             return __class__.__delattr__(type(self), __name)
 
     def __secured_hash() -> str:
-        return hashlib.md5(str(uuid.uuid4()).encode()).hexdigest()
+        return hashlib.sha512(str(uuid.uuid4()).encode()).hexdigest()
 
     def __self_report(module: str, hash: str) -> None:
         # TODO: logic
