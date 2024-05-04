@@ -40,7 +40,3 @@ class ModalHelper(Modal):
     
         return {"modal_id": raw.get("custom_id"), "interaction": raw.get("interaction"),
                 "components": [{"custom_id": item["components"][0].get("custom_id"),"value": item["components"][0].get("value")} for item in raw.get("components")]}
-
-
-    
-

@@ -756,8 +756,6 @@ class Configurator:
             else:
                 raise ValueError("Recieved `None` as value.")
 
-        # modal arguments are being handled @ modal_interaction
-
         self.shared.logger.log(f"@Configurator.handle_db > Save arguments: {database_config}", "TESTING")
         return save_to_database(path=database_config[0], value=values, func=database_config[2], search=database_config[3])
 
