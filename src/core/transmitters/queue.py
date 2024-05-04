@@ -95,7 +95,7 @@ class QueueSystem:
                             self.shared.auto_deleter.add_to_queue),
             "on_message_edit" : (self.shared.ping_prot.find_pings, self.shared.message_handlers.antilink, self.shared.message_handlers.simon_invite_link_detection),
             "on_automod_action" : (self.shared.miscellaneous.automod_response, ),
-            "on_member_join" : (self.shared.imper_detection.detection_on_join, ),
+            "on_member_join" : (self.shared.imper_detection.detection_on_join,self.shared.miscellaneous.alt_detection),
             "on_member_update" : (self.shared.imper_detection.detection_on_update, ),
             "on_raw_reaction_add" : (self.shared.reaction_filter.check_reaction, ),
             "on_voice_state_update" : ()
