@@ -70,7 +70,7 @@ class ReactionFilter:
 
                         self.db[message_id]["users"].pop(user_id)
         except Exception as error:
-            self.shared.logger.log(f"@ReactionFilter.update: {type(error).__name__}: {error}", "ERROR")
+            self.shared.logger.log(f"@ReactionFilter.update: {self.shared.errors.full_traceback(False)}", "ERROR")
 
     async def start(self) -> None:
         while True:
