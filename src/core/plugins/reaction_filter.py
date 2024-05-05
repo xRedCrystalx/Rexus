@@ -50,7 +50,7 @@ class ReactionFilter:
                 guild_db: dict[str, typing.Any] = self.shared.db.load_data(message.guild.id)
 
                 for emoji in self.db[message_id]["emojis"].copy():
-                    await self.shared.sender.resolver(con.Event(message, "clear_reaction", event_data={"kwargs": {"emoji": emoji}}))
+                    self.shared.sender.resolver(con.Event(message, "clear_reaction", event_data={"kwargs": {"emoji": emoji}}))
                     self.db[message_id]["emojis"].remove(emoji)
 
                 if (role_id := guild_db["reaction"]["reactionBanRole"]) and role_id in [role.id for role in message.guild.roles]:
@@ -69,7 +69,7 @@ class ReactionFilter:
                                     self.shared.sender.resolver(con.Event(log_channel, "send", event_data={"kwargs": {"embed": embed}}))
 
                         self.db[message_id]["users"].pop(user_id)
-        except Exception as error:
+        except Exception:
             self.shared.logger.log(f"@ReactionFilter.update: {self.shared.errors.full_traceback(False)}", "ERROR")
 
     async def start(self) -> None:
