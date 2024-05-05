@@ -30,7 +30,8 @@ class Updater(commands.Cog):
                     self.shared.reloader.reload_module(args)
                     await interaction.followup.send(content=f"Reloaded {args}.")
                 else:
-                    await interaction.followup.send(content=f"Could not find the config info of {args} in configuration.")
+                    self.shared.reloader.reload_discord_module(args)
+                    await interaction.followup.send(content=f"Reloaded discord module on path: {args}")
         else:
             await interaction.followup.send("You do not have permissions to execute this command.", ephemeral=True)
 
