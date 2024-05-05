@@ -15,11 +15,14 @@ class ReactionFilter:
         self.db: dict[int, dict[str, discord.Message | dict[int, int] | list[str]] | discord.TextChannel] = {}
 
     async def check_reaction(self, guild_db: dict[str, typing.Any], payload: discord.RawReactionActionEvent, **OVERFLOW) -> None:
-        if guild_db["reaction"]["status"] and payload.member and guild_db["reaction"]["status"] and str(payload.emoji):
+        if guild_db["reaction"]["status"] and payload.member and guild_db["reaction"]["status"] and (emoji := str(payload.emoji)):
+            if emoji not in self.blacklist:
+                return
+
             if not self.db.get(payload.message_id):
                 self.db[payload.message_id] = {"msg" : None, "users" : {}, "emojis" : [], "channel" : payload.member.guild.get_channel(payload.channel_id)}
 
-            if not (emoji := str(payload.emoji)) in self.db[payload.message_id]["emojis"]:
+            if not (emoji in self.db[payload.message_id]["emojis"]):
                 self.db[payload.message_id]["emojis"].append(emoji)
 
             if self.db[payload.message_id]["users"].get(payload.member.id):
@@ -70,7 +73,7 @@ class ReactionFilter:
 
                         self.db[message_id]["users"].pop(user_id)
         except Exception:
-            self.shared.logger.log(f"@ReactionFilter.update: {self.shared.errors.full_traceback(False)}", "ERROR")
+            self.shared.logger.log(f"@ReactionFilter.update: {self.shared.errors.full_traceback(True)}", "ERROR")
 
     async def start(self) -> None:
         while True:
