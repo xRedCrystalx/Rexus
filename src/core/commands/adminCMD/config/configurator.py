@@ -65,7 +65,7 @@ class Configurator:
                     },
                     "staff_chat": {
                         "embed": {"description": "Choose **Text Channel** that will be used as **Staff/Mod Channel**.\n**Current:** {general[staffChannel]:id_format?option='channel'}"},
-                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text, discord.ChannelType.private]}}, "btn_back"],
                         "slc_channel": {
                             "db": [["general", "staffChannel"], "SELF:1", None, None],
                             "return": 2
@@ -81,7 +81,7 @@ class Configurator:
                     },
                     "admin_chat": {
                         "embed": {"description": "Choose **Text Channel** that will be used as **Admin Channel**.\n**Current:** {general[adminChannel]:id_format?option='channel'}"},
-                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text, discord.ChannelType.private]}}, "btn_back"],
                         "slc_channel": {
                             "db": [["general", "adminChannel"], "SELF:1", None, None],
                             "return": 2
@@ -111,7 +111,7 @@ class Configurator:
                     },
                     "log_channel": {
                         "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {alt[log_channel]:id_format?option='channel'}"},
-                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text, discord.ChannelType.private]}}, "btn_back"],
                         "slc_channel": {
                             "db": [["alt", "log_channel"], "SELF:1", None, None],
                             "return": 2
@@ -141,7 +141,7 @@ class Configurator:
                     },
                     "log_channel": {
                         "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {imper[log_channel]:id_format?option='channel'}"},
-                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text, discord.ChannelType.private]}}, "btn_back"],
                         "slc_channel": {
                             "db": [["imper", "log_channel"], "SELF:1", None, None],
                             "return": 2
@@ -174,7 +174,7 @@ class Configurator:
                         "view": ["btn_add", "btn_remove", "btn_back"],
                         "btn_add": {
                             "embed": {"description": "Choose **Text Channel** that you want to add to the list.\n**Current:**\n{ai[talkChannels]:id_format?option='channel'&list_format}"},
-                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text, discord.ChannelType.private, discord.ChannelType.public_thread]}}, "btn_back"],
                             "slc_channel": {
                                 "db": [["ai", "talkChannels"], "SELF:1", "append", None],
                                 "return": 1
@@ -216,7 +216,7 @@ class Configurator:
                     },
                     "log_channel": {
                         "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {link[log_channel]:id_format?option='channel'}"},
-                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text, discord.ChannelType.private]}}, "btn_back"],
                         "slc_channel": {
                             "db": [["link", "log_channel"], "SELF:1", None, None],
                             "return": 2
@@ -299,7 +299,7 @@ class Configurator:
                         "view": ["btn_add", "btn_remove", "btn_back"],
                         "btn_add": {
                             "embed": {"description": "Choose **Text Channel** that you want to add to the list.\n**Current:**\n{ping[ignoredChannels]:id_format?option='channel'&list_format}"},
-                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text, discord.ChannelType.private, discord.ChannelType.news, discord.ChannelType.public_thread, discord.ChannelType.forum]}}, "btn_back"],
                             "slc_channel": {
                                 "db": [["ping", "ignoredChannels"], "SELF:1", "append", None],
                                 "return": 1
@@ -366,7 +366,7 @@ class Configurator:
                                 },
                             "btn_log_channel": {
                                     "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {@LOCAL[logChannel]:id_format?option='channel'}"},
-                                    "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                                    "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text, discord.ChannelType.private]}}, "btn_back"],
                                     "slc_channel": {
                                         "db": [["local", "logChannel"], "SELF:1", None, None],
                                         "return": 2
@@ -444,7 +444,7 @@ class Configurator:
                         },
                         "btn_create": {
                             "embed": {"description": "Choose **Text Channel** that you want to add to the list.\n**Current:**\n{auto_delete[monitored]:id_format?option='channel'|time_converter&discord_format>list_format}"},
-                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text, discord.ChannelType.private, discord.ChannelType.forum, discord.ChannelType.public_thread, discord.ChannelType.news]}}, "btn_back"],
                             "*": {
                                 "db": [["auto_delete", "monitored"], "SELF:1", None, "autoDelete"],
                                 "return": 1
@@ -496,7 +496,7 @@ class Configurator:
                         },
                         "btn_create": {
                             "embed": {"description": "Choose **Text Channel** that you want to add to the list.\n**Current:**\n{auto_slowmode[monitored]:id_format?option='channel'|time_converter&discord_format>list_format}"},
-                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text, discord.ChannelType.private, discord.ChannelType.forum, discord.ChannelType.public_thread, discord.ChannelType.news]}}, "btn_back"],
                             "*": {
                                 "db": [["auto_slowmode", "monitored"], "SELF:1", None, "autoSlowmode"],
                                 "return": 1
@@ -538,7 +538,7 @@ class Configurator:
                         "view": ["btn_add", "btn_remove", "btn_back"],
                         "btn_add": {
                             "embed": {"description": "Choose **Text Channel** that you want to add to the list.\n**Current:**\n{QOFTD[watched]:id_format?option='channel'&list_format}"},
-                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                            "view":  [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text, discord.ChannelType.private, discord.ChannelType.news, discord.ChannelType.public_thread]}}, "btn_back"],
                             "slc_channel": {
                                 "db": [["QOFTD", "watched"], "SELF:1", "append", None],
                                 "return": 1
@@ -587,7 +587,7 @@ class Configurator:
                     },
                     "log_channel": {
                         "embed": {"description": "Choose **Text Channel** that will be used to log events.\n**Current:** {reaction[log_channel]:id_format?option='channel'}"},
-                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text]}}, "btn_back"],
+                        "view": [{"name": "slc_channel", "kwargs": {"channel_types": [discord.ChannelType.text, discord.ChannelType.private]}}, "btn_back"],
                         "slc_channel": {
                             "db": [["reaction", "log_channel"], "SELF:1", None, None],
                             "return": 2
