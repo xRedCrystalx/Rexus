@@ -23,7 +23,7 @@ class Updater(commands.Cog):
 
         if interaction.user.id in bot_config.get("owners", []):
             if cmd.value == "fetch":
-                process: subprocess.CompletedProcess[bytes] = subprocess.run(["git", "pull", "noping", "v3"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                process: subprocess.CompletedProcess[bytes] = subprocess.run(["git", "pull", "noping", "v3"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, text=False)
                 await interaction.followup.send(content="Fetched latest version from github.")
             elif cmd.value == "reload":
                 if bot_config["reloader"].get(args):
