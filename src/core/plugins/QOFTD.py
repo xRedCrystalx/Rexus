@@ -132,7 +132,7 @@ class QOFTD:
                 if self.current_msgs.get(channel_id):
                     await self.shared.sender.resolver(con.Event(self.current_msgs[channel_id], "unpin", event_data={}))
 
-                self.current_msgs[channel_id] = await channel.send(self.quotes[random.randint(0, len(self.quotes)-1)])
+                self.current_msgs[channel_id] = await channel.send(self.questions[random.randint(0, len(self.questions)-1)])
                 self.shared.sender.resolver(con.Event(self.current_msgs[channel_id], "pin", event_data={}))
 
         except Exception as error:
@@ -145,7 +145,7 @@ class QOFTD:
 
                 if db["QOFTD"]["status"] and (channels := db["QOFTD"]["watched"]):
                     for channel_id in channels:
-                        self.shared.loop.create_task(self.handle_quote(channel_id=channel_id))
+                        self.shared.loop.create_task(self.handle_quote(channel_id))
 
         except Exception as error:
             self.shared.logger.log(f"@QOFTD.loader: {type(error).__name__}: {error}", "ERROR")
