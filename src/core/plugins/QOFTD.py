@@ -12,7 +12,7 @@ class QOFTD:
 
         self.job: schedule.Job = None
         self.current_msgs: dict[int, discord.Message] = {}
-        self.quotes: list[str] = ["Would you allow someone to throw garbage over your head in return for a $100 reward?",
+        self.questions: list[str] = ["Would you allow someone to throw garbage over your head in return for a $100 reward?",
                               "What would you do when you reach your school or workplace and realize that you forgot to have a bath before coming?",
                               "Would you ever think of pranking your teacher/boss?",
                               "Suppose you go to a restaurant all alone and eat a lot only to realize that you have forgotten your wallet back at home, what would you do?",
@@ -143,8 +143,9 @@ class QOFTD:
             for guild in self.bot.guilds:
                 db: dict[str, typing.Any] = self.shared.db.load_data(guild.id)
 
-                if db["QOFTD"]["status"] and (channel_id := db["QOFTD"]["log_channel"]):
-                    self.shared.loop.create_task(self.handle_quote(channel_id=channel_id))
+                if db["QOFTD"]["status"] and (channels := db["QOFTD"]["watched"]):
+                    for channel_id in channels:
+                        self.shared.loop.create_task(self.handle_quote(channel_id=channel_id))
 
         except Exception as error:
             self.shared.logger.log(f"@QOFTD.loader: {type(error).__name__}: {error}", "ERROR")
