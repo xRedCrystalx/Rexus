@@ -30,7 +30,7 @@ class StringFormats:
                     return role
                 elif member := guild.get_member(ID):
                     return member
-            except Exception as error:
+            except Exception:
                 self.shared.logger.log( f"@ConfigPages.resolve_id.obj > {self.shared.errors.full_traceback()}", "ERROR")
 
         try:
@@ -47,7 +47,7 @@ class StringFormats:
         except (ValueError, TypeError):
             return f"`{id}`"
         
-        except Exception as error:
+        except Exception:
             self.shared.logger.log( f"@ConfigPages.resolve_id > {self.shared.errors.full_traceback()}", "ERROR")
 
     def list_format(self, value: list, sep: typing.Literal["comma", "point"] = "point") -> str | None:
@@ -109,7 +109,7 @@ class StringFormats:
                             value = callable_function(value, **arguments)
                 return value
 
-            except Exception as error:
+            except Exception:
                 self.shared.logger.log(f"@StringFormats.format.handle_functions > {self.shared.errors.full_traceback()}", "ERROR")
             return 
         
@@ -181,6 +181,6 @@ class StringFormats:
             
             return string
 
-        except Exception as error:
+        except Exception:
             self.shared.logger.log( f"@StringFormats.format >\n{self.shared.errors.full_traceback()}", "ERROR")
         return
