@@ -49,5 +49,3 @@ class TimeHelper:
             return datetime.datetime.now(datetime.UTC)
 
         return datetime.datetime.now()
-
-
