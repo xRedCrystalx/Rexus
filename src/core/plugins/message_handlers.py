@@ -61,30 +61,32 @@ class MessageHandlers:
 
     async def antilink(self, guild_db: dict[str, typing.Any], message: discord.Message = None, after: discord.Message = None, **OVERFLOW) -> None:
         message: discord.Message = message or after
+        roles: list[int] = [role.id for role in message.author.roles]
 
-        if guild_db["link"]["status"] and not (isinstance(message.author, discord.User) or message.author.guild_permissions.administrator):
-            if (links := self.URL_pattern.findall(message.clean_content))  and (channel_id := guild_db["link"]["log_channel"]):
-                options: dict[str, bool] = guild_db["link"]["options"]
-                pattern_list: list[re.Pattern] = [pattern 
-                                                  for setting, pattern in 
-                                                  zip(["allowDiscordInvites", "allowNitroGifts", "allowSocialLinks"], [self.invite_link_pattern, self.nitro_gift_pattern, self.social_medias_pattern]) 
-                                                  if options[setting]]
+        if guild_db["link"]["status"] and not (isinstance(message.author, discord.User) or message.author.guild_permissions.administrator ):
+            if not (guild_db["general"]["staffRole"] in roles or guild_db["general"]["adminRole"] in roles):
+                if (links := self.URL_pattern.findall(message.clean_content)) and (channel_id := guild_db["link"]["log_channel"]):
+                    options: dict[str, bool] = guild_db["link"]["options"]
+                    pattern_list: list[re.Pattern] = [pattern 
+                                                    for setting, pattern in 
+                                                    zip(["allowDiscordInvites", "allowNitroGifts", "allowSocialLinks"], [self.invite_link_pattern, self.nitro_gift_pattern, self.social_medias_pattern]) 
+                                                    if options[setting]]
 
-                if all([any([re.match(pattern, link) for pattern in pattern_list]) for link in links]):
-                    return
+                    if all([any([re.match(pattern, link) for pattern in pattern_list]) for link in links]):
+                        return
 
-                embed: discord.Embed=discord.Embed(title="Link Protection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
-                embed.set_thumbnail(url=message.author.display_avatar.url)
-                embed.add_field(name="`` Author ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
-                embed.add_field(name="`` Message ``", value=f"<:msg_id:1203422168046768129>┇{message.author.id}\n<:text_c:1203423388320669716>┇{message.channel.name}\n<:ID:1203410054016139335>┇{message.channel.id}", inline=True)
+                    embed: discord.Embed=discord.Embed(title="Link Protection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+                    embed.set_thumbnail(url=message.author.display_avatar.url)
+                    embed.add_field(name="`` Author ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
+                    embed.add_field(name="`` Message ``", value=f"<:msg_id:1203422168046768129>┇{message.author.id}\n<:text_c:1203423388320669716>┇{message.channel.name}\n<:ID:1203410054016139335>┇{message.channel.id}", inline=True)
 
-                if (msglen := len(message.content)) > 1000:
-                    embed.add_field(name="`` Message ``", value=f"{message.content[:msglen-1000]}...", inline=False)
-                else:
-                    embed.add_field(name="`` Message ``", value=f"{message.content if msglen != 0 else 'Could not find the message content.'}", inline=False)
+                    if (msglen := len(message.content)) > 1000:
+                        embed.add_field(name="`` Message ``", value=f"{message.content[:msglen-1000]}...", inline=False)
+                    else:
+                        embed.add_field(name="`` Message ``", value=f"{message.content if msglen != 0 else 'Could not find the message content.'}", inline=False)
 
-                self.shared.sender.resolver([con.Event(message.channel, "send", event_data={"kwargs": {"content" : f"{message.author.mention} do NOT send links!", "delete_after": 5}}),
-                                             con.Event(message, "delete", {})])
+                    self.shared.sender.resolver([con.Event(message.channel, "send", event_data={"kwargs": {"content" : f"{message.author.mention} do NOT send links!", "delete_after": 5}}),
+                                                con.Event(message, "delete", {})])
 
-                if channel := message.guild.get_channel(channel_id):
-                    self.shared.sender.resolver(con.Event(channel, "send", event_data={"kwargs": {"embed": embed}}))
+                    if channel := message.guild.get_channel(channel_id):
+                        self.shared.sender.resolver(con.Event(channel, "send", event_data={"kwargs": {"embed": embed}}))
