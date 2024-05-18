@@ -61,9 +61,9 @@ class MessageHandlers:
 
     async def antilink(self, guild_db: dict[str, typing.Any], message: discord.Message = None, after: discord.Message = None, **OVERFLOW) -> None:
         message: discord.Message = message or after
-        roles: list[int] = [role.id for role in message.author.roles]
 
         if guild_db["link"]["status"] and not (isinstance(message.author, discord.User) or message.author.guild_permissions.administrator ):
+            roles: list[int] = [role.id for role in message.author.roles]
             if not (guild_db["general"]["staffRole"] in roles or guild_db["general"]["adminRole"] in roles):
                 if (links := self.URL_pattern.findall(message.clean_content)) and (channel_id := guild_db["link"]["log_channel"]):
                     options: dict[str, bool] = guild_db["link"]["options"]
