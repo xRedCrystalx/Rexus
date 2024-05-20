@@ -28,9 +28,12 @@ class AI:
     async def event(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message) -> None: 
         if guild_db["ai"]["status"] and message.channel.id in guild_db["ai"]["talkChannels"]:
             if message.content.startswith("> "):
-                async with aiohttp.ClientSession() as session:
+                async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(5000)) as session:
                     response: aiohttp.ClientResponse = await session.get(f"http://api.brainshop.ai/get?bid=168684&key=lkrMGm9sSb22jqSG&uid={message.author.id}&msg={urllib.parse.quote(message.clean_content[2:])}", headers=self.header)
                 
+                if response.status != 200:
+                    self.shared.logger.log(f"AI: API call failed. {response.reason} {response.status}", "WARNING")
+
                 try:
                     JSONreply: dict[str, str] = await response.json()
                 except:
