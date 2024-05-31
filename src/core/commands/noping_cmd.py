@@ -15,10 +15,10 @@ class NoPing(commands.Cog):
     
     async def report(self, option: str, components: list[dict], interaction: discord.Interaction) -> None:        
         if option == "bug" and (report_channel := self.bot.get_channel(1234544223236260010)):
-            embed = discord.Embed(title="Bug report", timestamp=get_datetime(), color=discord.Colour.dark_embed(), description=f"**Error ID:** `{ID if (ID := components["txt_err_id"]) else "No ID provided"}`\n**Affected component:** {components[1]["txt_component"]}")
+            embed = discord.Embed(title="Bug report", timestamp=get_datetime(), color=discord.Colour.dark_embed(), description=f"**Error ID:** `{ID if (ID := components["txt_err_id"]) else "No ID provided"}`\n**Affected component:** {components["txt_component"]}")
             embed.add_field(name="`` Description: ``", value=components["txt_desc"], inline=False)
             embed.add_field(name="`` Reproduction steps: ``", value=components["txt_rep_steps"], inline=False)
-            embed.add_field(name="`` Other: ``", value=other if (other := components[4]["value"]) else "No data provided.", inline=False)
+            embed.add_field(name="`` Other: ``", value=other if (other := components["value"]) else "No data provided.", inline=False)
         
         elif option == "feedback" and (report_channel := self.bot.get_channel(1235577391620034661)):
             embed = discord.Embed(title="Feedback", timestamp=get_datetime(), color=discord.Colour.dark_embed(), description=f"**Name:** {components["txt_name"]}")
