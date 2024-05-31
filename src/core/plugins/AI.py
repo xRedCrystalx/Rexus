@@ -19,10 +19,43 @@ class AI:
             "What do you call a 100 year old ant? An antique!",
             "What's brown and sticky? A stick!",
             "What does James Bond do before bedtime? He goes undercover!",
-            "What do you get from a pampered cow? Spoiled milk!"
+            "What do you get from a pampered cow? Spoiled milk!",
+            "What do you call a bee that comes from America? A USB!",
+            "I went to the aquarium this weekend, but I didn't stay long. There's something fishy about that place.",
+            "What's a cat's favorite instrument? Purr-cussion.",
+            "What subject do cats like the most in school? Hiss-tory.",
+            "My boss said \"dress for the job you want, not for the job you have.\" So I went in as Batman.",
+            "How do you make holy water? You boil the hell out of it.",
+            "I can always tell when someone is lying. I can tell when they're standing too.",
+            "Some people pick their nose, but I was born with mine.",
+            "I used to be afraid of speed bumps. I'm trying to get over it.",
+            "If your house is cold, just stand in the corner. It's always 90 degrees there.",
+            "I found a book called *How to Solve 50% of Your Problems*. So I bought 2.",
+            "Did you hear about the new squirrel diet? It's just nuts.",
+            "I made song about tortilla once, now it's more like a wrap.",
+            "I was going to tell you a joke about boxing but I forgot the punch line.",
+            "Why did the egg hide? It was a little chicken.",
+            "What kind of candy do astronauts like? Mars bars.",
+            "I ordered a chicken and an egg from Amazon. I'll let you know. (Context: What came first? The globally known question.)",
+            "What do you call it when a snowman throws a tantrum? A meltdown.",
+            "My uncle named his dogs Timex and Rolex. They're his watch dogs.",
+            "Which is faster, hot or cold? Hot, because you can catch cold.",
+            "What do you call a pig that does karate? A pork chop.",
+            "I'm so good at sleeping I can do it with my eyes closed!",
+            "What happens when a strawberry gets run over crossing the street? Traffic jam.",
+            "How do celebrities stay cool? They have many fans.",
+            "How did the student feel when he learned about electricity? Totally shocked.",
+            "What do you call a bee that can't make up its mind? A Maybe.",
+            "What do you call a hippie's wife? Mississippi.",
+            "What did one wall say to the other? I'll meet you at the corner.",
+            "Did you hear the rumor about butter? Well, I'm not going to spread it.",
+            "Why did the student eat his homework? Because his teacher told him it was a piece of cake.",
+            "I couldn't figure out why the baseball kept getting larger. Then it hit me.",
+            "Did you hear the one about the roof? Never mind, it's over your head.",
+            "What's a ninja's favorite type of shoes? Sneakers."
         ]
 
-    async def ask_ai(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message, **OVERFLOW):
+    async def ask_ai(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message, **OVERFLOW) -> None:
         self.shared.loop.create_task(self.event(guild_db, bot_db, message))
     
     async def event(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message) -> None: 
