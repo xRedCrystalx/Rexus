@@ -2,8 +2,11 @@ import discord, sys, typing
 sys.dont_write_bytecode = True
 from discord.ext import commands
 from discord import app_commands
+from xRedUtils.dates import get_datetime
+
 import src.connector as con
 from src.core.helpers.paginator import BasicPaginator
+
 class AutomodCommand(commands.GroupCog, name="automod"):
     def __init__(self, bot: commands.Bot) -> None:
         self.shared: con.Shared = con.shared
@@ -41,7 +44,7 @@ class AutomodCommand(commands.GroupCog, name="automod"):
                 embed_list.append(newEmbed)
 
             paginator = BasicPaginator(embed_list, 15*60)
-            embed: discord.Embed = discord.Embed(title="Automod Rules", description="Server's Automod rules.\nUse arrows to navigate.", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+            embed: discord.Embed = discord.Embed(title="Automod Rules", description="Server's Automod rules.\nUse arrows to navigate.", color=discord.Colour.dark_embed(), timestamp=get_datetime())
             await interaction.response.send_message(embed=embed, view=paginator)
         else:
             await interaction.response.send_message("You do not have permissions to execute this command.", ephemeral=True)
@@ -102,7 +105,7 @@ class AutomodCommand(commands.GroupCog, name="automod"):
                 await interaction.response.send_message(content=f"Successfully set `{response}` as response on rule trigger: **{automod_rule.name} ({rule_id})**; Keywords: `{trigger if trigger != '/' else 'GLOBAL_VALUE'}`", ephemeral=True)
 
             #presets
-            elif not pre_sets and automod_trigger.type == discord.AutoModRuleTriggerType.keyword_preset:
+            elif pre_sets and automod_trigger.type == discord.AutoModRuleTriggerType.keyword_preset:
                 create_db_path(id=rule_id, path=pre_sets.value)
                 guild_db["automod"]["rules"][rule_id][pre_sets.value] = response
 

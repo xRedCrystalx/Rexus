@@ -2,6 +2,7 @@ import sys, discord
 sys.dont_write_bytecode = True
 import src.connector as con
 from discord import Embed
+from xRedUtils.dates import get_datetime
 
 class HelpPages:
     def __init__(self, guild_id: int) -> None:
@@ -9,48 +10,48 @@ class HelpPages:
 
     shared: con.Shared = con.shared
 
-    ERROR: Embed = Embed(title="Error", description="An error has occured. Please report this to the developer.\n**Error code:** `{error}`", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    ERROR: Embed = Embed(title="Error", description="An error has occured. Please report this to the developer.\n**Error code:** `{error}`", color=discord.Colour.dark_embed(), timestamp=get_datetime())
     ERROR.set_footer(text="Configuration has been terminated.")
     
-    START: Embed = Embed(title="Configuration", description="Here, you can view, set, edit and learn about NoPing's plugins and configurations!\n**Use buttons down below to navigate.**", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    START: Embed = Embed(title="Configuration", description="Here, you can view, set, edit and learn about NoPing's plugins and configurations!\n**Use buttons down below to navigate.**", color=discord.Colour.dark_embed(), timestamp=get_datetime())
 
     # link github, youtube etc. - invite link - website 
-    general: Embed = Embed(title="General", description=f"Hey there!\nI'm **NoPing**, friendly little robot that will help you with server protection!\n\nHere are some important commands:\n- </config:1221521894713589771> ➔ Command to configure me\n- </noping:1224009186531217478> ➔ Command for other information about me\n\nHelp me reach **100 guilds** by recommending me to your friends, so we can together get me verified! Here is the [invite link](https://discord.com/oauth2/authorize?client_id=980031906836009000).\nThank you :)", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    general: Embed = Embed(title="General", description=f"Hey there!\nI'm **NoPing**, friendly little robot that will help you with server protection!\n\nHere are some important commands:\n- </config:1221521894713589771> ➔ Command to configure me\n- </noping:1224009186531217478> ➔ Command for other information about me\n\nHelp me reach **100 guilds** by recommending me to your friends, so we can together get me verified! Here is the [invite link](https://discord.com/oauth2/authorize?client_id=980031906836009000).\nThank you :)", color=discord.Colour.dark_embed(), timestamp=get_datetime())
     general.add_field(name="`` Info ``", value=f"- **Developer:** `@xRedCrystalx`\n- **Version:** `3.0.0`\n- **Ping:** `{round(shared.bot.latency * 1000, 0)}ms`\n- **Shards:** `{shared.bot.shard_count}`\n- **Guild count:** {len(shared.bot.guilds)}")
     general.add_field(name="`` Links ``", value="- [`Support Server`](https://discord.gg/gzx3kxu68x)\n- [`YouTube`](https://www.youtube.com/channel/UCYQ7OuJL8ceDbKqBG_PWdgQ)\n- [`Twitter/X`](https://twitter.com/xRedCrystal)\n- [`Github`](https://github.com/xRedCrystalx)")
     general.set_footer(text="Private & important matter: xredcrystaledx@gmail.com")
 
-    cmd: Embed = Embed(title="Commands", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    cmd: Embed = Embed(title="Commands", color=discord.Colour.dark_embed(), timestamp=get_datetime())
     cmd.add_field(name="Staff Commands:", value="- `/slowmode set:[Number]` Optional: `channel:[Channel]`\
                                             \n> ➔ Sets channel slowmode. If no channel specified, changes slowmode in the channel where command was executed in.\
                                             \n- `/purge user:[Member]` Optional: `number:[Number]`\
                                             \n> ➔ Checks **[number] (default 100)** messages in each channel and deletes messages of that user.", inline=False)
     
-    alt: Embed = Embed(title="Alt Detection", description="Alt detection is a plugin that detects new joined members and checks their account creation date.", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    alt: Embed = Embed(title="Alt Detection", description="Alt detection is a plugin that detects new joined members and checks their account creation date.", color=discord.Colour.dark_embed(), timestamp=get_datetime())
     alt.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Member joins the guild\n2. <:profile:1203409921719140432> Bot checks account age\n3. <:message:1203419599824101416> Bot sends log message (if age < 3 days)")
     alt.add_field(name="`` Future Update ``", value="Smart detection: check really young accounts after a member ban.")
 
-    imper: Embed = Embed(title="Impersonator Detection", description="Impersonator Detection is a plugin that detects new joined members and member profile updates. Bot checks their display and global name for any known youtuber/company/celebrity names etc. Real accounts are ignored.", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    imper: Embed = Embed(title="Impersonator Detection", description="Impersonator Detection is a plugin that detects new joined members and member profile updates. Bot checks their display and global name for any known youtuber/company/celebrity names etc. Real accounts are ignored.", color=discord.Colour.dark_embed(), timestamp=get_datetime())
     imper.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Member joins the guild or updates profile\n2. <:profile:1203409921719140432> Bot checks display & global names\n3. <:message:1203419599824101416> Bot sends log message (if match was found & user ID doesn't match real person)", inline=False)
     
-    ai: Embed = Embed(title="Artificial Intelligence", description="Artificial Inteligence (computer that understands human text and responds to it). Talk to NoPing!\n**Prefix:** `> ` (space)", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    ai: Embed = Embed(title="Artificial Intelligence", description="Artificial Inteligence (computer that understands human text and responds to it). Talk to NoPing!\n**Prefix:** `> ` (space)", color=discord.Colour.dark_embed(), timestamp=get_datetime())
 
-    automod: Embed = Embed(title="Automod Responses", description="Automod Responses is a plugin that sends custom message under Automod's trigger message. Normally used for automatically creating warn/ban/kick commands for other bots, for example Dyno, MEE6, Probot...\nTo use placeholders, use `{...}` *Example: ?warn {user.id} Spamming*", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    automod: Embed = Embed(title="Automod Responses", description="Automod Responses is a plugin that sends custom message under Automod's trigger message. Normally used for automatically creating warn/ban/kick commands for other bots, for example Dyno, MEE6, Probot...\nTo use placeholders, use `{...}` *Example: ?warn {user.id} Spamming*", color=discord.Colour.dark_embed(), timestamp=get_datetime())
     automod.add_field(name="Placeholder user:", value="This placeholder specifies the __guild member__ who triggerd Automod.\n- `user.name` ➔ Get username of targeted member\n- `user.id` ➔ Get user ID of targeted member\n- `user.mention` ➔ Mentions triggered member", inline= True)
     automod.add_field(name="Placeholder channel:", value="This placeholder specifies the __channel__ where member triggered Automod.\n- `channel.name` ➔ Get channel name\n- `channel.id` ➔ Get channel ID\n- `channel.mention` ➔ Mentions channel", inline=True)
     automod.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Automod triggers\n2. <:settings:1205253280741982259> Bot reads report and attempts to find correct response message\n3. <:message:1203419599824101416> Formats and sends message under automod's report", inline=False)
 
-    link: Embed = Embed(title="Link Protection", description="Link Protection is a plugin that detects new messages and tries to find link matches. Plugin logs and deletes detected messages.", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    link: Embed = Embed(title="Link Protection", description="Link Protection is a plugin that detects new messages and tries to find link matches. Plugin logs and deletes detected messages.", color=discord.Colour.dark_embed(), timestamp=get_datetime())
     link.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Member sends message\n2. <:message:1203419599824101416> Bot checks message content & tries to find link matches\n3. <:dev:1203411510832136202> Bot sends log message & deletes sender's message (if match was found & config doesn't stop it)", inline=False)
     link.add_field(name="`` Future Update ``", value="Role ignore, scam link detection, only block masked links etc.", inline=False)
 
-    ping: Embed = Embed(title="Ping Protection", description="Ping Protection is a plugin that detects new messages and tries to find ping matches. If rule was broken and user doesn't have `BypassRole`, warns, logs and calls staff (optional).", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    ping: Embed = Embed(title="Ping Protection", description="Ping Protection is a plugin that detects new messages and tries to find ping matches. If rule was broken and user doesn't have `BypassRole`, warns, logs and calls staff (optional).", color=discord.Colour.dark_embed(), timestamp=get_datetime())
     ping.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Member sends message\n2. <:message:1203419599824101416> Bot checks message content & tries to find ping matches\n3. <:dev:1203411510832136202> Bot sends warn & log message AND what was set in configuration (if match was found & user doesn't have bypass role)", inline=False)
 
-    auto_delete: Embed = Embed(title="Auto Delete", description="AutoDelete is a plugin that deletes new created messages after x seconds/minutes/hours (depending of configuration) for the channel.", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    auto_delete: Embed = Embed(title="Auto Delete", description="AutoDelete is a plugin that deletes new created messages after x seconds/minutes/hours (depending of configuration) for the channel.", color=discord.Colour.dark_embed(), timestamp=get_datetime())
     auto_delete.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Member sends message\n2. <:settings:1205253280741982259> Bot saves message & waits x seconds (configured time_converter)\n3. <:delete:1205252465252114452> Bot tries to delete message.", inline=False)
 
-    auto_slowmode: Embed = Embed(title="Auto Slowmode", description="AutoSlowmode is a plugin that records messages every 5 minutes and determinates how active channel is. Automatically sets slowmode to different values (seconds).", color=discord.Colour.dark_embed(), timestamp=shared.time.datetime())
+    auto_slowmode: Embed = Embed(title="Auto Slowmode", description="AutoSlowmode is a plugin that records messages every 5 minutes and determinates how active channel is. Automatically sets slowmode to different values (seconds).", color=discord.Colour.dark_embed(), timestamp=get_datetime())
     auto_slowmode.add_field(name="`` Functionality ``", value="1. <:search:1203411854336983161> Members send message\n2. <:log:1203410684365504692> Bot counts messages in specified channels\n3. <:dev:1203411510832136202> Every 5 minutes, bot calculates activity\n4. <:settings:1205253280741982259> Edits channel's slowmode delay", inline=False)
     auto_slowmode.add_field(name="`` Future Update ``", value="Better algorithm to detect actual number of active members, messages/members etc.", inline=False)
 
@@ -134,7 +135,7 @@ class ConfigPages:
         self.interaction: discord.Interaction = interaction
 
         if blueprint_embed:
-            embed: Embed = Embed(title=blueprint_embed.title or "", description=self.formatter.format(blueprint_embed.description or "", data), color=blueprint_embed.color, timestamp=self.shared.time.datetime())
+            embed: Embed = Embed(title=blueprint_embed.title or "", description=self.formatter.format(blueprint_embed.description or "", data), color=blueprint_embed.color, timestamp=get_datetime())
             
             if blueprint_embed.thumbnail.url:
                 self.shared.logger.log(f"@ConfigPages.create_embed > Blueprint has thumbnail: {blueprint_embed.thumbnail.url}", "NP_DEBUG")
@@ -154,5 +155,5 @@ class ConfigPages:
                     else:
                         embed.add_field(name=self.formatter.format(field.name, data), value=self.formatter.format(field.value, data), inline=field.inline)
         else:
-            embed: Embed = Embed(title=name, description=f"<:bot:1226153730836140054>┇`{self.formatter.boolean_format(data.get("status"), option="switch")}`\n<:text_c:1203423388320669716>┇{self.formatter.id_format(data.get("log_channel"), "channel")}", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+            embed: Embed = Embed(title=name, description=f"<:bot:1226153730836140054>┇`{self.formatter.boolean_format(data.get("status"), option="switch")}`\n<:text_c:1203423388320669716>┇{self.formatter.id_format(data.get("log_channel"), "channel")}", color=discord.Colour.dark_embed(), timestamp=get_datetime())
         return embed

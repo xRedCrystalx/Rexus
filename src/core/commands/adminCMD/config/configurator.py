@@ -3,6 +3,8 @@ sys.dont_write_bytecode = True
 import src.connector as con
 
 from discord.ui import RoleSelect, ChannelSelect, UserSelect, Select, MentionableSelect, Button, TextInput
+from xRedUtils.dicts import dict_walk
+from xRedUtils.dates import get_datetime
 
 if typing.TYPE_CHECKING:
     from .base_handler import BaseConfigCMDView
@@ -597,19 +599,6 @@ class Configurator:
             }
         }
 
-
-    # method that moves inside the config and databases (dicts)
-    def db_traversal(self, dictionary: dict[str, typing.Any], path: str | list[str], _slice: slice = slice(None, None), _sep: str = ".") -> dict[str, typing.Any]:
-        current_db: dict[str, typing.Any] = dictionary
-        path = path.split(_sep) if isinstance(path, str) else path
-
-        for key in path[_slice]:
-            if key in current_db:
-                current_db = current_db[key]
-            else:
-                raise MemoryError(f"Failed to reach value specified: `{key}` on `{path}`")
-        return current_db
-
     # handler for SELF:[INT&*] argument
     def list_slicing(self, iterable: list | tuple, argument: str) -> list | typing.Any:
         if not isinstance(iterable, (list, tuple)):
@@ -637,7 +626,7 @@ class Configurator:
             self.shared.logger.log(f"@Configurator.navigate > Going back", "TESTING")
             self.local_db["local_path"].pop(-1)
 
-        current_config: dict[str, typing.Any] = self.db_traversal(self.config, self.local_db["local_path"])
+        current_config: dict[str, typing.Any] = dict_walk(self.config, self.local_db["local_path"])
 
         if custom_id:
             if custom_id and current_config.get(custom_id):
@@ -675,7 +664,7 @@ class Configurator:
 
     # formats embed - supported placeholders and merging
     def format_embed(self, embed_data: dict[str, typing.Any]) -> discord.Embed:
-        BASE_EMBED: dict = dict(title="Configuration Wizard 🪄", timestamp=self.shared.time.datetime(), color=discord.Colour.dark_embed())
+        BASE_EMBED: dict = dict(title="Configuration Wizard 🪄", timestamp=get_datetime(), color=discord.Colour.dark_embed())
         
         if isinstance(embed_data, dict):
             dict_embed: dict[str, typing.Any] = BASE_EMBED | embed_data # merging 2 dicts
@@ -708,7 +697,7 @@ class Configurator:
             keys: list[str] = [*self.local_db["db_path"], *path[1:]] if path[0].startswith("local") else path
             last_key: str = keys[-1]
             
-            database: dict[str, str | dict[str, str | int] | int] = self.db_traversal(self.guild_db, keys, slice(None, -1))
+            database: dict[str, str | dict[str, str | int] | int] = dict_walk(self.guild_db, keys, slice(None, -1))
             
             if search:
                 #print(last_key, value)
@@ -763,7 +752,7 @@ class Configurator:
     def item_generator(self, item_config: dict[str, typing.Any]) -> list:
         self.shared.logger.log(f"@Configurator.item_generator > Generating items..", "TESTING")
         if isinstance(item_config, dict):
-            database: dict[str, str | dict[str, str | int] | int] = self.db_traversal(self.guild_db, path=item_config.get("path"))
+            database: dict[str, str | dict[str, str | int] | int] = dict_walk(self.guild_db, path=item_config.get("path"))
 
             if isinstance(database, dict):
                 items: list[discord.ui.Item] = []
@@ -837,16 +826,14 @@ class Configurator:
         if not (current_config := self.navigate(clean_data.get("modal_id"))):
             raise NotImplementedError("Failed to find screen for the next interaction (Modal)")
 
-        for text_input in clean_data.get("components"):
-            custom_id: str = text_input.get("custom_id")
-            
+        for text_input, data in clean_data.get("components").items():
             try:
-                input_value: typing.Any = ast.literal_eval(text_input.get("value"))
+                input_value: typing.Any = ast.literal_eval(data.get("value"))
             except:
-                input_value: str = text_input.get("value")            
+                input_value: str = data.get("value")            
             
-            if not (screen_config := self.navigate(custom_id, input_value)):
-                raise LookupError(f"Could not find required information for modal text input of: {custom_id}")    
+            if not (screen_config := self.navigate(text_input, input_value)):
+                raise LookupError(f"Could not find required information for modal text input of: {text_input}")    
             
             await self.create_new_screen(screen_config)
         self.shared.logger.log(f"@Configurator.modal_interaction > Handled modal's text inputs.", "TESTING")
