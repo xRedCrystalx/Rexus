@@ -1,6 +1,7 @@
 import sys, traceback, typing
 sys.dont_write_bytecode = True
 import src.connector as con
+from xRedUtils.strings import string_split
 
 if typing.TYPE_CHECKING:
     from discord.ext import commands
@@ -23,5 +24,5 @@ class ErrorHelper:
 
     def report_to_discord(self, error: str) -> None:
         if self.bot and (errors_channel := self.bot.get_channel(1234547496454459432)):
-            for sliced_error in [error[i:i+1994] for i in range(0, len(error), 1994)]:
+            for sliced_error in string_split(error, 1994):
                 self.shared.sender.resolver(con.Event(errors_channel, "send", event_data={"kwargs": {"content": f"```{sliced_error}```"}}))

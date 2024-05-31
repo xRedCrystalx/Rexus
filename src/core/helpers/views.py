@@ -1,4 +1,4 @@
-import sys, discord, typing, asyncio
+import sys, discord
 sys.dont_write_bytecode = True
 import src.connector as con
 from discord.ui import View

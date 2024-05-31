@@ -1,6 +1,7 @@
 import sys, discord
 sys.dont_write_bytecode = True
 from .views import ViewHelper
+from xRedUtils.dates import get_datetime
 
 class BasicPaginator(ViewHelper):
     def __init__(self, messages: list[discord.Embed | str], timeout: float | None = None) -> None:
@@ -29,13 +30,12 @@ class BasicPaginator(ViewHelper):
             elif isinstance(self.msgList[index], discord.Embed):
                 embed: discord.Embed = self.msgList[index]
                 embed.set_footer(text=f"Page {self.currentPage+1}/{self.lenList+1}")
-                embed.timestamp = self.shared.time.datetime()
+                embed.timestamp = get_datetime()
                 await interaction.response.edit_message(embed=embed)
             else:
                 self.shared.logger(f"@BasicPaginator.paginator > An error has occured. Could not find `str` or `discord.Embed` object in list. Index: {index}")
         else:
             await interaction.response.edit_message(view=None)
-
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         custom_id: str = dict(interaction.data).get('custom_id')
