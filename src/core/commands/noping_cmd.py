@@ -3,8 +3,9 @@ sys.dont_write_bytecode = True
 from discord.ext import commands
 from discord import app_commands
 from discord.ui import TextInput
-from src.core.helpers.modals import ModalHelper
+from xRedUtils.dates import get_datetime
 
+from src.core.helpers.modals import ModalHelper
 import src.connector as con
 
 class NoPing(commands.Cog):
@@ -14,29 +15,29 @@ class NoPing(commands.Cog):
     
     async def report(self, option: str, components: list[dict], interaction: discord.Interaction) -> None:        
         if option == "bug" and (report_channel := self.bot.get_channel(1234544223236260010)):
-            embed = discord.Embed(title="Bug report", timestamp=self.shared.time.datetime(), color=discord.Colour.dark_embed(), description=f"**Error ID:** `{ID if (ID := components[0]["value"]) else "No ID provided"}`\n**Affected component:** {components[1]["value"]}")
-            embed.add_field(name="`` Description: ``", value=components[2]["value"], inline=False)
-            embed.add_field(name="`` Reproduction steps: ``", value=components[3]["value"], inline=False)
+            embed = discord.Embed(title="Bug report", timestamp=get_datetime(), color=discord.Colour.dark_embed(), description=f"**Error ID:** `{ID if (ID := components["txt_err_id"]) else "No ID provided"}`\n**Affected component:** {components[1]["txt_component"]}")
+            embed.add_field(name="`` Description: ``", value=components["txt_desc"], inline=False)
+            embed.add_field(name="`` Reproduction steps: ``", value=components["txt_rep_steps"], inline=False)
             embed.add_field(name="`` Other: ``", value=other if (other := components[4]["value"]) else "No data provided.", inline=False)
         
         elif option == "feedback" and (report_channel := self.bot.get_channel(1235577391620034661)):
-            embed = discord.Embed(title="Feedback", timestamp=self.shared.time.datetime(), color=discord.Colour.dark_embed(), description=f"**Name:** {components[0]["value"]}")
-            embed.add_field(name="`` Description: ``", value=components[1]["value"], inline=False)
-            embed.add_field(name="`` Other: ``", value=other if (other := components[2]["value"]) else "No data provided.", inline=False)
+            embed = discord.Embed(title="Feedback", timestamp=get_datetime(), color=discord.Colour.dark_embed(), description=f"**Name:** {components["txt_name"]}")
+            embed.add_field(name="`` Description: ``", value=components["txt_desc"], inline=False)
+            embed.add_field(name="`` Other: ``", value=other if (other := components["txt_other"]) else "No data provided.", inline=False)
         
         if embed and report_channel:
             embed.set_footer(text=f"{interaction.user.display_name} ({interaction.user.id}) in {interaction.guild.name} ({interaction.guild_id})")
             await report_channel.send(embed=embed)
     
     async def handle_modal(self, interaction: discord.Interaction, option: str, text_inputs: list[TextInput]) -> None:
-        modal = ModalHelper(f"{option.capitalize()} report:", custom_id="CMD:MDL")
+        modal = ModalHelper(f"{option.capitalize()} report:", custom_id="NOPING_CMD:MDL")
         for input in text_inputs:
             modal.add_item(input)
 
         await interaction.response.send_modal(modal)
         response: dict = await modal.clean_data()
         interaction: discord.Interaction = response.get("interaction")
-        components: list[dict[str, str]] = response.get("components")
+        components: dict[str, str] = response.get("components")
 
         if interaction and components:
             await interaction.followup.send(content=f"Thank you for submitting a {option} report! Developer has been notified.", ephemeral=True)
@@ -57,7 +58,7 @@ class NoPing(commands.Cog):
         bot_db: dict[str, typing.Any] = self.shared.db.load_data()
 
         if cmd.value == "help":
-            embed: discord.Embed = discord.Embed(title="Help page", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+            embed: discord.Embed = discord.Embed(title="Help page", color=discord.Colour.dark_embed(), timestamp=get_datetime())
             embed.add_field(name="Quick Start", value=f"__Due to security standards, only **guild owner** ({interaction.guild.owner.display_name}) can configure bot.__\
                             \nOwner can **grant/rewoke** configuration permissions to **everyone** with `Administrator guild permission` using **</admin_editing:1235708858580860928>** slash command. \
                             \n\nBy default, Bot is **disabled** and will have to be **enabled** in `General settings` using **</config:1235708858580860929>** slash command.\
