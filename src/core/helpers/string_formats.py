@@ -1,6 +1,7 @@
 import sys, discord, typing, ast, re
 sys.dont_write_bytecode = True
 import src.connector as con
+from xRedUtils.times import seconds_to_str
 
 class StringFormats:
     def __init__(self) -> None:
@@ -84,7 +85,7 @@ class StringFormats:
         return string
 
     def time_converter(self, seconds: int) -> str:
-        return self.shared.time.seconds_to_string(seconds)
+        return seconds_to_str(seconds)
 
     def format(self, string: str, db: dict) -> str:
         def handle_functions(value: str, funcs: str) -> typing.Any:
