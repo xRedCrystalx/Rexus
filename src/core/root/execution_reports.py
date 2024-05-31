@@ -1,6 +1,8 @@
 import discord, sys, asyncio, typing
 sys.dont_write_bytecode = True
 import src.connector as con
+from xRedUtils.dates import get_datetime
+from xRedUtils.strings import string_split
 
 
 class ExecReport:
@@ -8,7 +10,7 @@ class ExecReport:
         self.shared: con.Shared = con.shared
 
     def _create_report(self, data: dict[str, typing.Any]) -> discord.Embed:
-        return discord.Embed(title=data.get("title"), description=data.get("description"), color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+        return discord.Embed(title=data.get("title"), description=data.get("description"), color=discord.Colour.dark_embed(), timestamp=get_datetime())
 
     async def send(self, embed: discord.Embed, guild: bool = False) -> None:
         if guild:
