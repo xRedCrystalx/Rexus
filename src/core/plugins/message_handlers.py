@@ -1,6 +1,7 @@
 import sys, discord, typing, re
 sys.dont_write_bytecode = True
 import src.connector as con
+from xRedUtils.dates import get_datetime
 
 if typing.TYPE_CHECKING:
     from discord.ext import commands
@@ -47,7 +48,7 @@ class MessageHandlers:
                 invite_object: discord.Invite = self.link_db[link]
 
                 if invite_object.guild.id == 1067152607459688549:
-                    embed: discord.Embed = discord.Embed(title="XNDUIW | CBE_Simon Protection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+                    embed: discord.Embed = discord.Embed(title="XNDUIW | CBE_Simon Protection", color=discord.Colour.dark_embed(), timestamp=get_datetime())
                     embed.set_thumbnail(url=message.author.display_avatar.url)
                     embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
                     embed.add_field(name="`` Rule ``", value=f"Detected invite link redirecting to Simon's server.", inline=True)
@@ -75,7 +76,7 @@ class MessageHandlers:
                     if all([any([re.match(pattern, link) for pattern in pattern_list]) for link in links]):
                         return
 
-                    embed: discord.Embed=discord.Embed(title="Link Protection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+                    embed: discord.Embed=discord.Embed(title="Link Protection", color=discord.Colour.dark_embed(), timestamp=get_datetime())
                     embed.set_thumbnail(url=message.author.display_avatar.url)
                     embed.add_field(name="`` Author ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
                     embed.add_field(name="`` Message ``", value=f"<:msg_id:1203422168046768129>┇{message.author.id}\n<:text_c:1203423388320669716>┇{message.channel.name}\n<:ID:1203410054016139335>┇{message.channel.id}", inline=True)

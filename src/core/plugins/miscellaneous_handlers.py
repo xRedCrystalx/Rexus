@@ -1,6 +1,7 @@
 import sys, discord, typing, datetime
 sys.dont_write_bytecode = True
 import src.connector as con
+from xRedUtils.dates import get_datetime
 
 if typing.TYPE_CHECKING:
     from discord.ext import commands
@@ -16,7 +17,7 @@ class MiscellaneousHandlers:
             createdAt: int = int(datetime.datetime.timestamp(member.created_at))
 
             if joinedAt-createdAt <= 259200:
-                embed: discord.Embed=discord.Embed(title="Alt Detection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+                embed: discord.Embed=discord.Embed(title="Alt Detection", color=discord.Colour.dark_embed(), timestamp=get_datetime())
                 embed.set_thumbnail(url=member.display_avatar.url)
                 embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{member.display_name}\n<:global:1203410626492240023>┇{member.global_name}\n<:ID:1203410054016139335>┇{member.id}", inline=True)
                 embed.add_field(name="`` Rule ``", value=f"**Account was created <t:{createdAt}:R>.**\n`AccountAge < 3 days`", inline=True)

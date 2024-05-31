@@ -1,7 +1,7 @@
 import discord, sys, typing
 sys.dont_write_bytecode = True
 import src.connector as con
-
+from xRedUtils.dates import get_datetime
 
 class PingProtection:
     def __init__(self) -> None:
@@ -29,7 +29,7 @@ class PingProtection:
 
                         embed = discord.Embed(title="**Hold up!**", 
                                               description=f"{message.author.mention} Please do not ping this user. If you need help or have questions, please ping <@&{staff_role}> instead!\n\n**As always, read the server rules!**", 
-                                              color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+                                              color=discord.Colour.dark_embed(), timestamp=get_datetime())
                         events.append(con.Event(message.channel, "send", event_data={"kwargs": {"embed": embed, "delete_after": 30}}))
 
                         if rule_data.get("ping"):
@@ -40,7 +40,7 @@ class PingProtection:
 
                         if rule_data.get("log") and (log_channel_id := rule_data.get("logChannel")):
                             if log_channel := message.guild.get_channel(log_channel_id):
-                                embed: discord.Embed = discord.Embed(title=f"Ping Protection - {rule_name}", timestamp=self.shared.time.datetime(), color=discord.Colour.dark_embed())
+                                embed: discord.Embed = discord.Embed(title=f"Ping Protection - {rule_name}", timestamp=get_datetime(), color=discord.Colour.dark_embed())
                                 embed.set_thumbnail(url=message.author.display_avatar.url)
                                 embed.add_field(name="`` Author ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
                                 embed.add_field(name="`` Location ``", value=f"<:msg_id:1203422168046768129>┇{message.id}\n<:text_c:1203423388320669716>┇{message.channel.name}\n<:ID:1203410054016139335>┇{message.channel.id}", inline=True)

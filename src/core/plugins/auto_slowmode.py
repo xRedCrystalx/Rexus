@@ -1,6 +1,8 @@
 import discord, asyncio, sys, typing
 sys.dont_write_bytecode = True
 import src.connector as con
+from xRedUtils.dates import get_datetime
+from xRedUtils.times import seconds_to_str
 
 if typing.TYPE_CHECKING:
     from discord.ext import commands
@@ -57,9 +59,9 @@ class AutoSlowmode:
             self.shared.sender.resolver(con.Event(channel, "edit", event_data={"kwargs": {"slowmode_delay": delay}}))
 
             if (log_channel_id := guild_db["auto_slowmode"]["log_channel"]):
-                embed: discord.Embed = discord.Embed(title="Auto Slowmode", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+                embed: discord.Embed = discord.Embed(title="Auto Slowmode", color=discord.Colour.dark_embed(), timestamp=get_datetime())
                 embed.add_field(name="`` Channel ``", value=f"<:text_c:1203423388320669716>┇{channel.mention}\n<:ID:1203410054016139335>┇{channel.id}", inline=True)
-                embed.add_field(name="`` Change ``", value=f"**Slowmode delay:**\n`{self.shared.time.seconds_to_string(channel.slowmode_delay)}` ➔ `{self.shared.time.seconds_to_string(delay)}`", inline=True)
+                embed.add_field(name="`` Change ``", value=f"**Slowmode delay:**\n`{seconds_to_str(channel.slowmode_delay)}` ➔ `{seconds_to_str(delay)}`", inline=True)
 
                 if (log_channel := channel.guild.get_channel(log_channel_id)):
                     self.shared.sender.resolver(con.Event(log_channel, "send", event_data={"kwargs": {"embed" : embed}}))

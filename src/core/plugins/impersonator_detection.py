@@ -1,6 +1,7 @@
 import discord, sys, typing
 sys.dont_write_bytecode = True
 import src.connector as con
+from xRedUtils.dates import get_datetime
 
 
 class ImpersonatorDetection:
@@ -8,7 +9,7 @@ class ImpersonatorDetection:
         self.shared: con.Shared = con.shared
 
     def _create_embed(self, member: discord.Member) -> discord.Embed:
-        embed: discord.Embed = discord.Embed(title="Impersonator Detection", color=discord.Colour.dark_embed(), timestamp=self.shared.time.datetime())
+        embed: discord.Embed = discord.Embed(title="Impersonator Detection", color=discord.Colour.dark_embed(), timestamp=get_datetime())
         embed.set_thumbnail(url=member.display_avatar.url)
         return embed
 
