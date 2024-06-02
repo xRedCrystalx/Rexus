@@ -1,7 +1,8 @@
-import sys, uuid, typing, platform, aiohttp, asyncio, schedule
+import sys, uuid, typing, platform, aiohttp, asyncio, schedule, re
 sys.dont_write_bytecode = True
 from discord.ext import commands
 from src.core.root.event import Event
+from xRedUtils.type_hints import SIMPLE_ANY
 
 class Shared:
     bot: commands.Bot = None
@@ -9,6 +10,13 @@ class Shared:
     OS: str = platform.system()
     session: aiohttp.ClientSession = None
     schedule_jobs: list[schedule.Job] = []
+    global_db: dict[SIMPLE_ANY, SIMPLE_ANY] = {
+        "invite_links": {
+            "regex": re.compile(r"\b(?:https?://)?(?:www\.)?(?:discord\.(?:gg|com/invite)|discordapp\.com/invite)/[a-zA-Z0-9]+(?:\?[^\s&]+)?\b", re.IGNORECASE),
+            "simon": {},
+            "scam_guilds": {}
+        }
+    }
     
     import src.system.colors as colors_module
     colors: colors_module.C | colors_module.CNone = colors_module.auto_color_handler()
@@ -72,6 +80,17 @@ class Shared:
 
     def _create_id(self) -> str:
         return str(uuid.uuid4())
+    
+    async def fetch_invite_links(self, string: str, option: typing.Literal["simon", "scam_guilds"]) -> list[int]:
+        invites: list[int] = []
+        for link in self.global_db["invite_links"].get("regex").findall(string):
+            if link not in self.global_db["invite_links"].get(option):
+                try:
+                    self.global_db["invite_links"][option][link] = await self.bot.fetch_invite(link).guild.id
+                except: continue
+            
+            invites.append(self.global_db["invite_links"][option][link])
+        return invites
 
 #making global class var, so data is presistent
 shared: Shared = Shared()
