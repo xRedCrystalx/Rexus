@@ -37,7 +37,7 @@ class ConfigureCommand(commands.Cog):
         allowAdminEditing: bool = guild_db["general"].get("allowAdminEditing")
         self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Loaded databases.", "NP_DEBUG")
 
-        if (allowAdminEditing and interaction.user.guild_permissions.administrator) or (interaction.user.id in bot_db["owners"]) or (interaction.user == interaction.guild.owner):
+        if (allowAdminEditing and interaction.user.guild_permissions.administrator) or (interaction.user.id in bot_db["owners"]) or (interaction.user.id == interaction.guild.owner.id):
             self.reload()
             paginator = self.baseConfigCMDView(current_position=plugin.value if plugin else None, guild_id=interaction.guild.id)
             self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Created base paginator system.", "NP_DEBUG")
