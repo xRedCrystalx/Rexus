@@ -30,10 +30,15 @@ class Database:
             return self._open_file(self.config_path)
 
     def save_data(self, id: int, update_data: dict, db: str = "guilds") -> None:
+        if not id:
+            path: str = self.config_path
+        else:
+            path = self.databases_path.format(type=self._name_resolver(db), id=id)
+        
         try:
-            with open(self.databases_path.format(type=self._name_resolver(db), id=id), "w", encoding="utf-8") as old_data:
+            with open(path, "w", encoding="utf-8") as old_data:
                 json.dump(update_data, old_data, indent=4)
-        except Exception as error:
+        except Exception:
             self.shared.logger.log(f"@databaseHandler.save_data: Error trying to save data for {id}.\n{self.shared.errors.full_traceback()}", "ERROR")
 
     def create_database(self, id: str | int, option: str = "guilds") -> dict[str, typing.Any]:
