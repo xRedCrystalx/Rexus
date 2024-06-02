@@ -55,10 +55,7 @@ class AI:
             "What's a ninja's favorite type of shoes? Sneakers."
         ]
 
-    async def ask_ai(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message, **OVERFLOW) -> None:
-        self.shared.loop.create_task(self.event(guild_db, bot_db, message))
-    
-    async def event(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message) -> None: 
+    async def ask_ai(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], message: discord.Message, **OVERFLOW) -> None: 
         if guild_db["ai"]["status"] and message.channel.id in guild_db["ai"]["talkChannels"]:
             if message.content.startswith("> "):
                 async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(5000)) as session:
