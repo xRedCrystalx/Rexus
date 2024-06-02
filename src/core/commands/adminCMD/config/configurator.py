@@ -697,7 +697,7 @@ class Configurator:
             keys: list[str] = [*self.local_db["db_path"], *path[1:]] if path[0].startswith("local") else path
             last_key: str = keys[-1]
             
-            database: dict[str, str | dict[str, str | int] | int] = dict_walk(self.guild_db, keys, slice(None, -1))
+            database: dict[str, str | dict[str, str | int] | int] = dict_walk(self.guild_db, keys, _slice=slice(None, -1))
 
             print(database)
             print(last_key)                        
