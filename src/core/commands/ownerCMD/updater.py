@@ -44,7 +44,7 @@ class Updater(commands.Cog):
                     self.shared.reloader.reload_module(module)
 
                 for dc_module in self.bot.cogs:
-                    self.shared.reloader.reload_discord_module(dc_module)
+                    await self.shared.reloader.reload_discord_module(dc_module)
         else:
             await interaction.followup.send("You do not have permissions to execute this command.", ephemeral=True)
 
