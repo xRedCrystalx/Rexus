@@ -39,15 +39,9 @@ class MessageHandlers:
     async def simon_invite_link_detection(self, message: discord.Message = None, after: discord.Message = None, **OVERFLOW) -> None:
         message: discord.Message = message or after
 
-        if links := self.invite_link_pattern.findall(string=message.content) and message.guild.id == 1175874833146450042:
-            for link in links:
-                if link not in self.link_db.keys():
-                    link_data: discord.Invite = await self.bot.fetch_invite(link)
-                    self.link_db[link] = link_data
-
-                invite_object: discord.Invite = self.link_db[link]
-
-                if invite_object.guild.id == 1067152607459688549:
+        if (guilds := await self.shared.fetch_invite_links(message.content, option="simon")) and message.guild.id == 1175874833146450042:
+            for guild_id in guilds:
+                if guild_id == 1067152607459688549:
                     embed: discord.Embed = discord.Embed(title="XNDUIW | CBE_Simon Protection", color=discord.Colour.dark_embed(), timestamp=get_datetime())
                     embed.set_thumbnail(url=message.author.display_avatar.url)
                     embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
