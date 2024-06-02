@@ -34,7 +34,7 @@ class QueueSystem:
             
             done: set[asyncio.Task]
             pending: set[asyncio.Task]
-            done, pending = await asyncio.wait(tasks, timeout=.001)
+            done, pending = await asyncio.wait(tasks, timeout=2)
 
             self.shared.logger.log(f"@QueueSystem._thread_event_runner > Execution completed. Returning completed and incompleted functions.", "NP_DEBUG")
 
