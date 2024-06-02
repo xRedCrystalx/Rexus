@@ -698,7 +698,9 @@ class Configurator:
             last_key: str = keys[-1]
             
             database: dict[str, str | dict[str, str | int] | int] = dict_walk(self.guild_db, keys, slice(None, -1))
-            
+
+            print(database)
+            print(last_key)                        
             if search:
                 #print(last_key, value)
                 if isinstance(database[last_key], dict) and (new_value := self.local_db["pre-sets"].get(search, "UNKNOWN")) != "UNKNOWN":
