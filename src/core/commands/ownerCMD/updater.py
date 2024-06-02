@@ -4,6 +4,8 @@ from discord.ext import commands
 from discord import app_commands
 import src.connector as con
 
+from xRedUtils.strings import string_split
+
 
 class Updater(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -24,8 +26,12 @@ class Updater(commands.Cog):
 
         if interaction.user.id in bot_config.get("owners", []):
             if cmd.value == "fetch":
-                subprocess.run(["git", "pull", "noping", "v3"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, text=False)
+                result: subprocess.CompletedProcess[str] = subprocess.run(["git", "pull", "noping", "v3"], capture_output=True, text=True)
                 await interaction.followup.send(content="Fetched latest version from github.")
+                
+                for chunk in string_split(result.stdout, chunk_size=1994, option="smart"):
+                    await interaction.followup.send(content=f"```{chunk}```")
+
             elif cmd.value == "reload":
                 if bot_config["reloader"].get(args):
                     self.shared.reloader.reload_module(args)
@@ -36,8 +42,12 @@ class Updater(commands.Cog):
             elif cmd.value == "full":
                 for module in bot_config["reloader"]:
                     self.shared.reloader.reload_module(module)
+
+                for dc_module in self.bot.cogs:
+                    self.shared.reloader.reload_discord_module(dc_module)
         else:
             await interaction.followup.send("You do not have permissions to execute this command.", ephemeral=True)
 
 async def setup(bot: commands.Bot) -> None:
+
     await bot.add_cog(Updater(bot), guild=discord.Object(id=1230040815116484678))
