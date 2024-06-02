@@ -20,7 +20,10 @@
                 "fuk","fuck", "bitch", "shit","fck","fvck","btch","damn","crap","goddam","cunt","bastard","twat","faggot","tart","fack",
                 "asshole","sex","porn","cock","tits","dick","pussy","fanny","d1ck","boobs","dildo","fister","vagina","fisting","whore","slut", "nigger"
             ]           
-        }       
+        },
+        "hacked_accs_detection": {
+            "bad_guilds": []
+        }
     },
     "reloader" : {
         "Database": {
@@ -109,7 +112,7 @@
             "path" : "src.core.plugins.message_handlers",
             "var" : "message_handlers",
             "kwargs" : {},
-            "save" : ["link_db"]
+            "save" : []
         },
         "AutoDeleter" : {
             "path" : "src.core.plugins.auto_deleter",
