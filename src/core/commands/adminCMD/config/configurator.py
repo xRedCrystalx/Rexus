@@ -828,9 +828,9 @@ class Configurator:
 
         for text_input, data in clean_data.get("components").items():
             try:
-                input_value: typing.Any = ast.literal_eval(data.get("value"))
+                input_value: typing.Any = ast.literal_eval(data)
             except:
-                input_value: str = data.get("value")            
+                input_value: str = data          
             
             if not (screen_config := self.navigate(text_input, input_value)):
                 raise LookupError(f"Could not find required information for modal text input of: {text_input}")    
