@@ -6,7 +6,6 @@ import src.connector as con
 
 from xRedUtils.strings import string_split
 
-
 class Updater(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.shared: con.Shared = con.shared
@@ -39,12 +38,23 @@ class Updater(commands.Cog):
                 else:
                     self.shared.reloader.reload_discord_module(args)
                     await interaction.followup.send(content=f"Reloaded discord module on path: {args}")
+            
             elif cmd.value == "full":
                 for module in bot_config["reloader"]:
                     self.shared.reloader.reload_module(module)
 
                 for dc_module in self.bot.cogs:
                     await self.shared.reloader.reload_discord_module(dc_module)
+
+            elif cmd.value == "requirements":
+                result: subprocess.CompletedProcess[str] = subprocess.run(["pip", "install", "-r", "./requirements.txt"], capture_output=True, text=True)
+                await interaction.followup.send(content="Updating requirements..")
+                
+                for chunk in string_split(result.stdout, chunk_size=1994, option="smart"):
+                    await interaction.followup.send(content=f"```{chunk}```")
+
+                #TODO: reload all modules from requirements.txt
+            
         else:
             await interaction.followup.send("You do not have permissions to execute this command.", ephemeral=True)
 
