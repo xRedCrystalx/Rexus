@@ -1,16 +1,18 @@
-import sys, uuid, typing, platform, aiohttp, asyncio, schedule, re
+import sys, uuid, typing, aiohttp, asyncio, schedule, re
 sys.dont_write_bytecode = True
 from discord.ext import commands
+from xRedUtils import (general, 
+                       typehints as th)
+
 from src.core.root.event import Event
-from xRedUtils.type_hints import SIMPLE_ANY
 
 class Shared:
     bot: commands.Bot = None
     path: str = None
-    OS: str = platform.system()
+    OS: str = general.OS
     session: aiohttp.ClientSession = None
     schedule_jobs: list[schedule.Job] = []
-    global_db: dict[SIMPLE_ANY, SIMPLE_ANY] = {
+    global_db: dict[th.SIMPLE_ANY, th.SIMPLE_ANY] = {
         "invite_links": {
             "regex": re.compile(r"\b(?:https?://)?(?:www\.)?(?:discord\.(?:gg|com/invite)|discordapp\.com/invite)/[a-zA-Z0-9]+(?:\?[^\s&]+)?\b", re.IGNORECASE),
             "simon": {},
@@ -20,7 +22,7 @@ class Shared:
     
     import src.system.colors as colors_module
     colors: colors_module.C | colors_module.CNone = colors_module.auto_color_handler()
-    
+
     # system required
     def system_load(self) -> None:
         self.loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
@@ -80,7 +82,7 @@ class Shared:
 
     def _create_id(self) -> str:
         return str(uuid.uuid4())
-    
+
     async def fetch_invite_links(self, string: str, option: typing.Literal["simon", "scam_guilds"]) -> list[int]:
         invites: list[int] = []
         for link in self.global_db["invite_links"].get("regex").findall(string):
