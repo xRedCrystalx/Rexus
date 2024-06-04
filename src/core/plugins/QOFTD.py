@@ -2,6 +2,8 @@ import schedule, sys, discord, random, asyncio, typing
 sys.dont_write_bytecode = True
 import src.connector as con
 
+from xRedUtils.errors import simple_error
+
 if typing.TYPE_CHECKING:
     from discord.ext import commands
 
@@ -10,8 +12,6 @@ class QOFTD:
         self.shared: con.Shared = con.shared
         self.bot: commands.Bot = self.shared.bot
 
-        self.job: schedule.Job = None
-        self.current_msgs: dict[int, discord.Message] = {}
         self.questions: list[str] = [
             "Would you allow someone to throw garbage over your head in return for a $100 reward?",
             "What would you do when you reach your school or workplace and realize that you forgot to have a bath before coming?",
@@ -134,14 +134,12 @@ class QOFTD:
         try:
             channel: discord.TextChannel = self.bot.get_channel(channel_id)
             if channel_id:
-                if self.current_msgs.get(channel_id):
-                    self.shared.sender.resolver(con.Event(self.current_msgs[channel_id], "unpin", event_data={}))
-
-                self.current_msgs[channel_id] = await channel.send(self.questions[random.randint(0, len(self.questions)-1)])
-                self.shared.sender.resolver(con.Event(self.current_msgs[channel_id], "pin", event_data={}))
+                index = random.randint(0, len(self.questions)-1)
+                self.shared.sender.resolver(con.Event(channel, "send", event_data={"content": self.questions[index]}))
+                # append index to the database - last 14? for 14 days
 
         except Exception as error:
-            self.shared.logger.log(f"@QOFTD.handle_quote: {type(error).__name__}: {error}", "ERROR")
+            self.shared.logger.log(f"@QOFTD.handle_quote: {simple_error(error)}", "ERROR")
 
     def loader(self) -> None:
         try:
@@ -153,12 +151,9 @@ class QOFTD:
                         self.shared.loop.create_task(self.handle_quote(channel_id))
 
         except Exception as error:
-            self.shared.logger.log(f"@QOFTD.loader: {type(error).__name__}: {error}", "ERROR")
-    
-    async def start(self) -> None:
-        if self.job:
-           schedule.cancel_job(self.job) 
+            self.shared.logger.log(f"@QOFTD.loader: {simple_error(error)}", "ERROR")
 
+    async def start(self) -> None:
         self.job: schedule.Job = schedule.every().day.at("00:00").do(self.loader)
         while True:
             schedule.run_pending()
