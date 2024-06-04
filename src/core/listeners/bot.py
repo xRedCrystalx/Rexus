@@ -1,7 +1,8 @@
-import discord, json, sys, typing
+import discord, sys, typing
 sys.dont_write_bytecode = True
 from discord.ext import commands
 import src.connector as con
+
 from xRedUtils.dates import get_datetime
 
 class BotListeners(commands.Cog):
@@ -15,7 +16,7 @@ class BotListeners(commands.Cog):
         await self.bot.tree.sync(guild = discord.Object(id=guild.id))
         channel: discord.TextChannel = guild.system_channel
 
-        # read attempt, db handler will create or read database, if nothing returned, error happened.
+        # read attempt, db handler will create or read database, if nothing returned, error happened. -- TODO: creation of db here
         database: dict[str, typing.Any] = self.shared.db.load_data(guild.id)
 
         if not database:

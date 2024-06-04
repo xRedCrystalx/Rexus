@@ -1,4 +1,4 @@
-import discord, sys, asyncio
+import discord, sys
 sys.dont_write_bytecode = True
 from discord.ext import commands
 import src.connector as con
