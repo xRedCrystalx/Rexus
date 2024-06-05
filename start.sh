@@ -13,7 +13,7 @@ fi
 echo "Activating virtual env and updating requirements."
 
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -U -r requirements.txt
 
 clear
 python3 main.py
