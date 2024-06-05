@@ -32,7 +32,7 @@ class HackedAccounts:
         action = action or message
         # temp. replacing with permissions when making it public
         if action.guild.id == 626159471386689546:
-            if (invites := self.shared.fetch_invite_links(action.content, option="scam_guilds")):
+            if (invites := await self.shared.fetch_invite_links(action.content, option="scam_guilds")):
                 member: discord.Member | None = getattr(action, "member", None) or getattr(action, "author", None)
 
                 for guild_id in invites:
