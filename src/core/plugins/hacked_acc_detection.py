@@ -28,7 +28,8 @@ class HackedAccounts:
 
         self.shared.sender.resolver(con.Event(self.bot.get_channel(711311257570902109), "send", event_data={"embed": embed}))
 
-    async def check_hacked(self, action: discord.Message | discord.AutoModAction, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], **OVERFLOW) -> None:
+    async def check_hacked(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], action: discord.Message = None, message: discord.Message = None, **OVERFLOW) -> None:
+        action = action or message
         # temp. replacing with permissions when making it public
         if action.guild.id == 626159471386689546:
             if ("@everyone" in action.content or "@here" in action.content) and (invites := self.shared.fetch_invite_links(action.content, option="scam_guilds")):
