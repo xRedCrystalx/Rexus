@@ -55,7 +55,7 @@ class HackedAccounts:
                     
                     if len(matches) > 2 and len(matches) <= 4:
                         await self.kick(member, kick=False) 
-                    else:
+                    elif len(matches) > 4:
                         return await self.kick(member, kick=True)
 
 # NOTE: Possible memory leak for self.bad_guilds
