@@ -1,6 +1,7 @@
-import sys, json, typing, os
+import sys, typing, os, json
 sys.dont_write_bytecode = True
 import src.connector as con
+from xRedUtils import dicts, typehints as th
 
 class Database:
     def __init__(self) -> None:
@@ -9,46 +10,54 @@ class Database:
         self.databases_path: str = self.shared.path+"/databases/{type}/{id}.json"
         self.template_path: str = self.shared.path+"/databases/{type}.json"
 
-    def _open_file(self, path: str, mode: str = "r") -> dict:
+    # replace with file handler - xRedUtils
+    def _open_file(self, path: str, mode: str = "r") -> dict[str, th.SIMPLE_ANY]:
         try:
             with open(path, mode, encoding="utf-8") as file:
-                return json.load(file)
+                return dicts.dict_to_json(file)
+            
         except FileNotFoundError:
             self.shared.logger.log(f"@databaseHandler._open_file: No file found for: {path}.", "WARNING")
         except Exception:
             self.shared.logger.log(f"@databaseHandler._open_file: Error trying to load data for `{path}`.\n{self.shared.errors.full_traceback()}", "ERROR")
-
-    def _name_resolver(self, name: str) -> str:
-        return "users" if str(name).upper() in ["USERS", "USER", "MEMBER", "MEMBERS"] else "guilds"
     
     def load_data(self, id: int | None = None, db: str = "guilds") -> dict[str, typing.Any]:
         if id:
-            if not (database := self._open_file(self.databases_path.format(type=self._name_resolver(db), id=id))):
+            if not (database := self._open_file(self.databases_path.format(type=db, id=id))):
                 database: dict[str, typing.Any] = self.create_database(id, db)
             return database
         else:
             return self._open_file(self.config_path)
 
     def save_data(self, id: int, update_data: dict, db: str = "guilds") -> None:
-        if not id:
-            path: str = self.config_path
-        else:
-            path = self.databases_path.format(type=self._name_resolver(db), id=id)
+        if id:
+            ...
+            #files.save_json(self.databases_path.format(type=db, id=id), update_data)
         
+        else:
+            ...
+            #files.save_json(self.config_path, update_data)
+        """
         try:
             with open(path, "w", encoding="utf-8") as old_data:
                 json.dump(update_data, old_data, indent=4)
         except Exception:
             self.shared.logger.log(f"@databaseHandler.save_data: Error trying to save data for {id}.\n{self.shared.errors.full_traceback()}", "ERROR")
-
+        """
+    
     def create_database(self, id: str | int, option: str = "guilds") -> dict[str, typing.Any]:
         try:
-            template: dict = self._open_file(self.template_path.format(type="user_template" if option == "user" else "guild_template"))
+            # load file - xRedUtils
+            template: dict = self._open_file(self.template_path.format(type="user_template" if option == "member" else "guild_template"))
             
-            with open(self.databases_path.format(type=self._name_resolver(option), id=id), "w", encoding="utf-8") as new_file:
+            # files.save_json(self.databases_path.format(type=option, id=id), template)
+            
+            """
+            with open(self.databases_path.format(type=option, id=id), "w", encoding="utf-8") as new_file:
                 json.dump(template, new_file, indent=4)
                 return True
-        
+            """
+            
         except Exception:
             self.shared.logger.log(f"@databaseHandler.create_database: Error trying to save data for {id}.\n{self.shared.errors.full_traceback()}", "ERROR")
 
