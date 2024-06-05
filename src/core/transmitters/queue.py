@@ -92,9 +92,9 @@ class QueueSystem:
         self.filter: dict[str, tuple[typing.Callable]] = {
             "on_message": (self.shared.AI.ask_ai, self.shared.ping_prot.find_pings, self.shared.auto_slowmode.message_listener,
                             self.shared.message_handlers.responder, self.shared.message_handlers.simon_invite_link_detection, self.shared.message_handlers.antilink,
-                            self.shared.auto_deleter.add_to_queue),
+                            self.shared.auto_deleter.add_to_queue, self.shared.hacked_accs.check_hacked),
             "on_message_edit": (self.shared.ping_prot.find_pings, self.shared.message_handlers.antilink, self.shared.message_handlers.simon_invite_link_detection),
-            "on_automod_action": (self.shared.miscellaneous.automod_response, ),
+            "on_automod_action": (self.shared.miscellaneous.automod_response, self.shared.hacked_accs.check_hacked),
             "on_member_join": (self.shared.imper_detection.detection_on_join,self.shared.miscellaneous.alt_detection),
             "on_member_update": (self.shared.imper_detection.detection_on_update, ),
             "on_raw_reaction_add": (self.shared.reaction_filter.check_reaction, ),

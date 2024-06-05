@@ -64,6 +64,7 @@ class Shared:
         from src.core.plugins.auto_deleter import AutoDeleter
         from src.core.plugins.miscellaneous_handlers import MiscellaneousHandlers
         from src.core.plugins.reaction_filter import ReactionFilter
+        from src.core.plugins.hacked_acc_detection import HackedAccounts
 
         self.imper_detection = ImpersonatorDetection()
         self.AI = AI()    
@@ -74,6 +75,7 @@ class Shared:
         self.auto_slowmode = AutoSlowmode()
         self.miscellaneous = MiscellaneousHandlers()
         self.reaction_filter = ReactionFilter()
+        self.hacked_accs = HackedAccounts()
 
         loader: tuple[typing.Callable] = (self.auto_slowmode.start, self.QOFTD.start, self.auto_deleter.start, self.reaction_filter.start, self.sender.start)
         self.plugin_tasks: list[asyncio.Task] = [self.loop.create_task(func(), name=func.__qualname__) for func in loader]
