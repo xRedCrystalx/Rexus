@@ -90,7 +90,8 @@ class Shared:
         for link in self.global_db["invite_links"].get("regex").findall(string):
             if link not in self.global_db["invite_links"].get(option):
                 try:
-                    self.global_db["invite_links"][option][link] = await self.bot.fetch_invite(link).guild.id
+                    invite_link = await self.bot.fetch_invite(link)
+                    self.global_db["invite_links"][option][link] = invite_link.guild.id
                 except: continue
             
             invites.append(self.global_db["invite_links"][option][link])
