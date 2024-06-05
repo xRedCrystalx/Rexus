@@ -7,7 +7,6 @@ class Reloader:
         self.shared: con.Shared = con.shared
 
     def _resolver(self, keyword: str) -> str:
-        """Basic resolver for special input"""
         if keyword == "*":
             for module in self.config:
                 self.reload_module(module)
@@ -15,16 +14,12 @@ class Reloader:
             return keyword
 
     def load_configuration(self) -> dict[str, dict[str, str | list[str] | dict]]:
-        """Basic json config loading for dynamic updates."""
-        self.shared.logger.log(f"@Reloader.load_configuration > Getting configuration..", "NP_DEBUG")
         return self.shared.db.load_data().get("reloader")
 
     def stop_task(self, module: str) -> None:
-        """Attempts to find running inf. `asyncio.Task[module.start]` and kills it."""
         self.shared.logger.log(f"@Reloader.stop_task > Checking for active task.", "NP_DEBUG")
         for task in self.shared.plugin_tasks:
             if task.get_name().startswith(module):
-                self.shared.logger.log(f"@Reloader.stop_task > Found task. Terminating", "NP_DEBUG")
                 if task.cancel():
                     self.shared.logger.log(f"@Reloader.stop_task > Task terminated.", "NP_DEBUG")
                     try:
@@ -41,7 +36,6 @@ class Reloader:
             self.shared.logger.log(f"@Reloader.stop_task > Did not find any active task.", "NP_DEBUG")
         
     def start_task(self, module: typing.Callable) -> None:
-        """Auto executes `main` methods and starts a new instance of `asyncio.Task[module.start]` if exist. After class initialization."""
 
         if module.__class__.__dict__.get("main"):
             module.main()
@@ -60,7 +54,6 @@ class Reloader:
             self.shared.logger.log(f"@Reloader.start_task > Did not find `start` function. Ignoring.", "NP_DEBUG")
 
     def finish(self) -> None:
-        """Finish reloading - updating required datatypes"""
         self.shared.logger.log(f"@Reloader.finish > Reloading filters.", "NP_DEBUG")
         self.shared.queue.reload_filters()
 
