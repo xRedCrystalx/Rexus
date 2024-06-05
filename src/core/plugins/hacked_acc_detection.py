@@ -19,14 +19,14 @@ class HackedAccounts:
         if not member: return
 
         if kick:
-            self.shared.sender.resolver(con.Event(member, "kick", event_data={"reason": "Hacked account"}))
+            self.shared.sender.resolver(con.Event(member, "kick", event_data={"kwargs": {"reason": "Hacked account"}}))
 
         embed: discord.Embed = discord.Embed(title="Hacked Accounts Detection", timestamp=get_datetime(), color=discord.Colour.dark_embed())
         embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{member.display_name}\n<:global:1203410626492240023>┇{member.global_name}\n<:ID:1203410054016139335>┇{member.id}", inline=True)
         embed.add_field(name="``` Rule ``", value=f"Detected patterns of hacked account behaviour.")
         embed.set_footer(text="Member has been kicked from the server." if member else "Suspicious member. Please check their messages.")
 
-        self.shared.sender.resolver(con.Event(self.bot.get_channel(711311257570902109), "send", event_data={"embed": embed}))
+        self.shared.sender.resolver(con.Event(self.bot.get_channel(711311257570902109), "send", event_data={"kwargs": {"embed": embed}}))
 
     async def check_hacked(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], action: discord.Message = None, message: discord.Message = None, **OVERFLOW) -> None:
         action = action or message
