@@ -81,7 +81,7 @@ class Sender:
                             self.shared.logger.log(f"@Sender.start > Under rate limit. Adding back to queue.", "NP_DEBUG")
                             self.events.append(event)
                         else:
-                            self.shared.logger.log(f"@Sender.execution.discord.HTTPException: {self.shared.errors.full_traceback()}", "ERROR")
+                            self.shared.logger.log(f"@Sender.execution.discord.HTTPException[Event]: {"await" if event._async else ""} {event.event_obj.__name__}.{event.action}() {event.event_data}\n{self.shared.errors.full_traceback()}", "ERROR")
                     else:
                         self.shared.logger.log(f"@Sender.execution: {self.shared.errors.full_traceback()}", "ERROR")
 
