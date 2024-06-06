@@ -35,7 +35,7 @@ class HackedAccounts:
         if action.guild.id == 626159471386689546:
             if (invites := await self.shared.fetch_invite_links(action.content, option="scam_guilds")):
                 member: discord.Member | None = getattr(action, "member", None) or getattr(action, "author", None)
-
+                self.shared.logger.log(f"@HackedAccounts.check_hacked: Got {member.name} ({member.id}) -> {invites}", "TESTING")
                 for guild_id in invites:
                     if guild_id in bot_db["filters"]["hacked_accs_detection"]["bad_guilds"]:
                         return await self.kick(member, kick=True)
