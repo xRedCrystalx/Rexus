@@ -133,9 +133,9 @@ class QOFTD:
     async def handle_quote(self, channel_id: int) -> None:
         try:
             channel: discord.TextChannel = self.bot.get_channel(channel_id)
-            if channel_id:
+            if channel:
                 index = random.randint(0, len(self.questions)-1)
-                self.shared.sender.resolver(con.Event(channel, "send", event_data={"content": self.questions[index]}))
+                self.shared.sender.resolver(con.Event(channel, "send", event_data={"kwargs": {"content": self.questions[index]}}))
                 # append index to the database - last 14? for 14 days
 
         except Exception as error:
