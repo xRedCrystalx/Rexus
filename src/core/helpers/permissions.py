@@ -20,5 +20,5 @@ class Permission:
     def check_channel_type(self, current_location: ChannelType, required_location: Literal["text", "category", "forum", "group", "news", "news_thread", "private", "private_thread", "public_thread", "voice", "stage_voice"]) -> bool:
         return current_location == getattr(ChannelType, required_location, None)
     
-    def check_id(self, current: object | int, required: int) -> bool:
-        return getattr(current, "id", current) == required
+    def check_id(self, current: object | int, required: object | int) -> bool:
+        return getattr(current, "id", current) == getattr(required, "id", required)
