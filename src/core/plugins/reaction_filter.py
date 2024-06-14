@@ -1,10 +1,11 @@
 import sys, discord, typing, asyncio
 sys.dont_write_bytecode = True
+from discord.ext import commands
 import src.connector as con
-from xRedUtils.dates import get_datetime
 
-if typing.TYPE_CHECKING:
-    from discord.ext import commands
+from src.core.helpers.embeds import create_base_embed, apply_embed_items
+from src.core.helpers.errors import report_error
+from src.core.helpers.event import Event
 
 class ReactionFilter:
     def __init__(self) -> None:
@@ -31,15 +32,16 @@ class ReactionFilter:
             else:
                 self.db[payload.message_id]["users"][payload.member.id] = 1
 
-            if (log_channnel_id := guild_db["reaction"]["log_channel"]):                    
-                embed: discord.Embed=discord.Embed(title="Reaction Filter", color=discord.Colour.dark_embed(), timestamp=get_datetime())
-                embed.set_thumbnail(url=payload.member.display_avatar.url)
+            if (log_channnel_id := guild_db["reaction"]["log_channel"]):
+                embed: discord.Embed = apply_embed_items(
+                    embed=create_base_embed("Reaction Filter"),
+                    thumbnail=payload.member.display_avatar.url,
+                    footer="Reaction will be removed.")
                 embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{payload.member.display_name}\n<:global:1203410626492240023>┇{payload.member.global_name}\n<:ID:1203410054016139335>┇{payload.member.id}", inline=True)
                 embed.add_field(name="`` Rule ``", value=f"User reacted with {payload.emoji} emoji under https://discord.com/channels/{payload.guild_id}/{payload.channel_id}/{payload.message_id}.", inline=True)
-                embed.set_footer(text=f"Reaction will be removed.")
 
                 if log_channel := payload.member.guild.get_channel(log_channnel_id):
-                    self.shared.sender.resolver(con.Event(log_channel, "send", event_data={"kwargs": {"embed": embed}}))
+                    self.shared.sender.resolver(Event(log_channel, "send", event_data={"kwargs": {"embed": embed}}))
 
     async def update(self, message_id: int) -> None:
         try:
@@ -54,27 +56,28 @@ class ReactionFilter:
                 guild_db: dict[str, typing.Any] = self.shared.db.load_data(message.guild.id)
 
                 for emoji in self.db[message_id]["emojis"].copy():
-                    self.shared.sender.resolver(con.Event(message, "clear_reaction", event_data={"kwargs": {"emoji": emoji}}))
+                    self.shared.sender.resolver(Event(message, "clear_reaction", event_data={"kwargs": {"emoji": emoji}}))
                     self.db[message_id]["emojis"].remove(emoji)
 
                 if (role_id := guild_db["reaction"]["reactionBanRole"]) and role_id in [role.id for role in message.guild.roles]:
                     for user_id, counter in self.db[message_id]["users"].copy().items():
                         if counter >= 5 and (member := message.guild.get_member(user_id)):
                             if role_id not in [role.id for role in member.roles]:
-                                self.shared.sender.resolver(con.Event(member, "add_roles", event_data={"args": [discord.Object(role_id)]}))
+                                self.shared.sender.resolver(Event(member, "add_roles", event_data={"args": [discord.Object(role_id)]}))
 
-                            if log_channel_id := guild_db["reaction"]["log_channel"]:                            
-                                embed: discord.Embed=discord.Embed(title="Reaction Ban", color=discord.Colour.dark_embed(), timestamp=get_datetime())
-                                embed.set_thumbnail(url=member.display_avatar.url)
+                            if log_channel_id := guild_db["reaction"]["log_channel"]:
+                                embed: discord.Embed = apply_embed_items(
+                                    embed=create_base_embed("Reaction Ban"),
+                                    thumbnail=member.display_avatar.url,
+                                    footer="Sucessfully reaction banned the user.")                          
                                 embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{member.display_name}\n<:global:1203410626492240023>┇{member.global_name}\n<:ID:1203410054016139335>┇{member.id}", inline=True)
-                                embed.set_footer(text=f"Sucessfully reaction banned the user.")
 
                                 if log_channel := message.guild.get_channel(log_channel_id):
-                                    self.shared.sender.resolver(con.Event(log_channel, "send", event_data={"kwargs": {"embed": embed}}))
+                                    self.shared.sender.resolver(Event(log_channel, "send", event_data={"kwargs": {"embed": embed}}))
 
                         self.db[message_id]["users"].pop(user_id)
-        except Exception:
-            self.shared.logger.log(f"@ReactionFilter.update: {self.shared.errors.full_traceback(True)}", "ERROR")
+        except Exception as error:
+            report_error(error, self.update, "full")
 
     async def start(self) -> None:
         while True:

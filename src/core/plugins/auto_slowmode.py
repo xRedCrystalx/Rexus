@@ -1,11 +1,13 @@
 import discord, asyncio, sys, typing
 sys.dont_write_bytecode = True
+from discord.ext import commands
 import src.connector as con
-from xRedUtils.dates import get_datetime
-from xRedUtils.times import seconds_to_str
 
-if typing.TYPE_CHECKING:
-    from discord.ext import commands
+from src.core.helpers.embeds import create_base_embed
+from src.core.helpers.errors import report_error
+from src.core.helpers.event import Event
+
+from xRedUtils.times import seconds_to_str
 
 class AutoSlowmode:
     def __init__(self, interval_minutes: int = 5) -> None:
@@ -56,15 +58,15 @@ class AutoSlowmode:
         self.shared.logger.log(f"@AutoSlowmode.slowmode > Got delay: {delay}.", "NP_DEBUG")
 
         if channel.slowmode_delay != delay and delay >= default_delay and guild_db["auto_slowmode"]["status"]:
-            self.shared.sender.resolver(con.Event(channel, "edit", event_data={"kwargs": {"slowmode_delay": delay}}))
+            self.shared.sender.resolver(Event(channel, "edit", event_data={"kwargs": {"slowmode_delay": delay}}))
 
             if (log_channel_id := guild_db["auto_slowmode"]["log_channel"]):
-                embed: discord.Embed = discord.Embed(title="Auto Slowmode", color=discord.Colour.dark_embed(), timestamp=get_datetime())
+                embed: discord.Embed = create_base_embed("Auto Slowmode")
                 embed.add_field(name="`` Channel ``", value=f"<:text_c:1203423388320669716>┇{channel.mention}\n<:ID:1203410054016139335>┇{channel.id}", inline=True)
                 embed.add_field(name="`` Change ``", value=f"**Slowmode delay:**\n`{seconds_to_str(channel.slowmode_delay)}` ➔ `{seconds_to_str(delay)}`", inline=True)
 
                 if (log_channel := channel.guild.get_channel(log_channel_id)):
-                    self.shared.sender.resolver(con.Event(log_channel, "send", event_data={"kwargs": {"embed" : embed}}))
+                    self.shared.sender.resolver(Event(log_channel, "send", event_data={"kwargs": {"embed" : embed}}))
 
     async def start(self) -> None:
         while True:
@@ -75,7 +77,7 @@ class AutoSlowmode:
                 try:
                     if channel := self.bot.get_channel(channel_id):
                         await self.slowmode(channel=channel)
-                except Exception:
-                    self.shared.logger.log(f"@AutoSlowmode.start > {self.shared.errors.full_traceback()}", "ERROR")
+                except Exception as error:
+                    report_error(error, self.start, "full")
 
             self.database.clear()

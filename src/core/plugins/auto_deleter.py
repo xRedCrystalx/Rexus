@@ -2,6 +2,8 @@ import discord, asyncio, sys, typing
 sys.dont_write_bytecode = True
 import src.connector as con
 
+from src.core.helpers.event import Event
+
 class AutoDeleter:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
@@ -17,7 +19,7 @@ class AutoDeleter:
                 self.database[msg] -= 5
 
                 if self.database[msg] <=  0:
-                    self.shared.sender.resolver(con.Event(msg, "delete", event_data={}))
+                    self.shared.sender.resolver(Event(msg, "delete", event_data={}))
                     self.database.pop(msg)
 
             await asyncio.sleep(5)

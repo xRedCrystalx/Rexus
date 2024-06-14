@@ -2,6 +2,9 @@ import discord, urllib.parse, sys, typing, random, aiohttp
 sys.dont_write_bytecode = True
 import src.connector as con
 
+from src.core.helpers.embeds import create_base_embed
+from src.core.helpers.event import Event
+
 class AI:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
@@ -79,9 +82,9 @@ class AI:
                     else:
                         filtered: str = text
 
-                    self.shared.sender.resolver(con.Event(message.channel, "send", event_data={"kwargs": {"content": filtered}}))
+                    self.shared.sender.resolver(Event(message.channel, "send", event_data={"kwargs": {"content": filtered}}))
 
             elif "<@980031906836009000>" in message.content or "noping" in message.content.lower() or "no ping" in message.content.lower():
-                embed: discord.Embed = discord.Embed(title="Hey there!", color=discord.Colour.dark_embed(), description="To talk to me, use `> ` infront of message!\nHere is an example: `> Hey, how are you!`")
-                self.shared.sender.resolver(con.Event(message.channel, "send", event_data={"kwargs": {"embed": embed}}))
+                embed: discord.Embed = create_base_embed(title="Hey there!", description="To talk to me, use `> ` infront of message!\nHere is an example: `> Hey, how are you!`")
+                self.shared.sender.resolver(Event(message.channel, "send", event_data={"kwargs": {"embed": embed}}))
         return None
