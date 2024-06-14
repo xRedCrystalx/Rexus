@@ -27,4 +27,4 @@ class ExecReport:
         try:
             task.result()
         except Exception as error:
-            self.shared.logger.log(f"@ExecReport.report > Failed to .send() message. {self.shared.errors.simple_error(error)}")
+            self.shared.logger.log(f"@ExecReport.report > Failed to .send() message. {"self.shared.errors.simple_error(error)"}")
