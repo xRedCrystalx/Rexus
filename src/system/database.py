@@ -1,8 +1,9 @@
-import sys, typing, os, json
+import sys, typing, os
 sys.dont_write_bytecode = True
 import src.connector as con
+from src.core.helpers.errors import report_error
 
-from xRedUtils import dicts, files
+from xRedUtils import files
 from xRedUtils.type_hints import SIMPLE_ANY
 
 class Database:
@@ -14,27 +15,27 @@ class Database:
     
     def load_data(self, id: int | None = None, db: str = "guilds") -> dict[str, SIMPLE_ANY]:
         if id:
-            if not (database := files.open_file(self.databases_path.format(type=db, id=id), decoder="json")):
+            try:
+                database = files.open_file(self.databases_path.format(type=db, id=id), decoder="json")
+            except FileNotFoundError:
                 database: dict[str, SIMPLE_ANY] = self.create_database(id, db)
+            
             return database
         else:
             return files.open_file(self.config_path, decoder="json")
 
     def save_data(self, id: int, update_data: dict, db: str = "guilds") -> None:
         if id:
-            files.save_file(self.databases_path.format(type=db, id=id), update_data, encoder="json")
+            files.save_file(self.databases_path.format(type=db, id=id), update_data, encoder="json", indent=4)
         else:
-            files.save_file(self.config_path, update_data, encoder="json")
+            files.save_file(self.config_path, update_data, encoder="json", indent=4)
     
     def create_database(self, id: str | int, option: str = "guilds") -> dict[str, typing.Any]:
         try:
             template: dict = files.open_file(self.template_path.format(type="user_template" if option == "member" else "guild_template"), decoder="json")
             files.save_file(self.databases_path.format(type=option, id=id), template, encoder="json")
-        except Exception:
-            self.shared.logger.log(f"@databaseHandler.create_database: Error trying to save data for {id}.\n{self.shared.errors.full_traceback()}", "ERROR")
-
-
-
+        except Exception as error:
+            report_error(error, self.create_database, "full")
 
 
     # FIX THESE ˇˇˇˇˇˇ
