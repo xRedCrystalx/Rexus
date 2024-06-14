@@ -1,28 +1,22 @@
-import sys, traceback, typing
+import sys, typing
 sys.dont_write_bytecode = True
 import src.connector as con
+from .event import Event
+
 from xRedUtils.strings import string_split
+from xRedUtils.errors import simple_error, full_traceback
+from xRedUtils.general import generate_uuid
 
-if typing.TYPE_CHECKING:
-    from discord.ext import commands
-class ErrorHelper:
-    def __init__(self) -> None:
-        self.shared: con.Shared =  con.shared
-        self.bot: commands.Bot = self.shared.bot
-        
-    def full_traceback(self, dc: bool = True) -> str:
-        error: str = traceback.format_exc()
-        if dc:
-            self.report_to_discord(error)
-        return error
+def report_error(error: Exception | ExceptionGroup, _caller: typing.Callable = None, option: typing.Literal["simple", "full"] = "full", discord: int = 1234547496454459432) -> str:
+    error: str = full_traceback() if option == "full" else simple_error(error) if option == "simple" and error else None
+    if not error:
+        return
     
-    def simple_error(self, error: Exception, dc: bool = True) -> str:
-        error: str = f"{type(error).__name__}: {error}"
-        if dc: 
-            self.report_to_discord(error)
-        return error
+    error_id: str = generate_uuid()
+    con.shared.logger.log(f"{f"@{_caller.__qualname__.removeprefix("src.core.")}" if _caller else "An error has occured. "}[{error_id}] > {error}", "ERROR")
 
-    def report_to_discord(self, error: str) -> None:
-        if self.bot and (errors_channel := self.bot.get_channel(1234547496454459432)):
-            for sliced_error in string_split(error, 1994):
-                self.shared.sender.resolver(con.Event(errors_channel, "send", event_data={"kwargs": {"content": f"```{sliced_error}```"}}))
+    if con.shared.bot and (channel := con.shared.bot.get_channel(discord)):
+        for sliced in string_split(error, 1994, option="smart"):
+            con.shared.sender.resolver(Event(channel, "send", event_data={"kwargs": {"content": f"```{sliced}```"}}))
+
+    return error_id

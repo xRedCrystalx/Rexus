@@ -1,7 +1,9 @@
 import sys, discord, typing, ast, re
 sys.dont_write_bytecode = True
 import src.connector as con
+
 from xRedUtils.times import seconds_to_str
+from src.core.helpers.errors import report_error
 
 class StringFormats:
     def __init__(self) -> None:
@@ -31,8 +33,8 @@ class StringFormats:
                     return role
                 elif member := guild.get_member(ID):
                     return member
-            except Exception:
-                self.shared.logger.log( f"@ConfigPages.resolve_id.obj > {self.shared.errors.full_traceback()}", "ERROR")
+            except Exception as error:
+                report_error(error, obj, "full")
 
         try:
             self.shared.logger.log(f"@StringFormats.resolve_id > kwargs: id: {id}, guild: {guild}, var: {var}", "NP_DEBUG")
@@ -110,8 +112,8 @@ class StringFormats:
                             value = callable_function(value, **arguments)
                 return value
 
-            except Exception:
-                self.shared.logger.log(f"@StringFormats.format.handle_functions > {self.shared.errors.full_traceback()}", "ERROR")
+            except Exception as error:
+                report_error(error, handle_functions, "full")
             return 
         
         try:
@@ -182,6 +184,6 @@ class StringFormats:
             
             return string
 
-        except Exception:
-            self.shared.logger.log( f"@StringFormats.format >\n{self.shared.errors.full_traceback()}", "ERROR")
+        except Exception as error:
+            report_error(error, self.format, "full")
         return

@@ -3,6 +3,8 @@ sys.dont_write_bytecode = True
 import src.connector as con
 from discord.ui import View
 
+from .errors import report_error
+
 class ViewHelper(View):
     def __init__(self, timeout: float | None = 60) -> None:
         super().__init__(timeout=timeout)
@@ -23,8 +25,5 @@ class ViewHelper(View):
         except: pass
     
     async def on_error(self, interaction: discord.Interaction, error: Exception, item) -> None:
-        error_id: str = self.shared._create_id()
-        self.interaction = interaction
-        
+        error_id: str = report_error(error, self.on_error, "simple")
         await interaction.response.send_message(f"**An error has occured. Report this to the developer.**\n**Error ID:** `{error_id}`")
-        self.shared.logger.log(f"ViewHelper.on_error[{error_id}] >\n{self.shared.errors.full_traceback()}")
