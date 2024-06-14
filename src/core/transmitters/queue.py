@@ -2,6 +2,7 @@ import sys, typing, asyncio
 sys.dont_write_bytecode = True
 import src.connector as con
 
+from src.core.helpers.errors import report_error, full_traceback
 
 class QueueSystem:
     def __init__(self) -> None:
@@ -50,7 +51,7 @@ class QueueSystem:
                 except (asyncio.CancelledError, asyncio.InvalidStateError, asyncio.TimeoutError):
                     self.shared.logger.log(f"@QueueSystem.Task.{task.get_name()} ({guild_id}): Task killed.", "WARNING")
                 except Exception as error:
-                    self.shared.logger.log(f"@QueueSystem.Task.{task.get_name()} ({guild_id}): {self.shared.errors.full_traceback()}", "ERROR")
+                    self.shared.logger.log(f"@QueueSystem.Task.{task.get_name()} ({guild_id}): {full_traceback()}", "ERROR")
 
             self.shared.logger.log(f"@QueueSystem._thread_event_runner > Completed main Task. Success rate: {len(done)}/{len(pending)+len(done)}", "NP_DEBUG")
 
@@ -60,7 +61,7 @@ class QueueSystem:
             self.shared.logger.log(f"@QueueSystem._thread_event_runner ({guild_id}): {type(error).__name__}: {error}", "ERROR")
 
     # hijacker for testing server
-    async def testing_guild(self, **kwargs):
+    async def testing_guild(self, **kwargs) -> None:
         for argument in kwargs.values():
             if channel := getattr(argument, "channel", None):
                 channel_id: int = channel.id
@@ -82,9 +83,8 @@ class QueueSystem:
         elif functions:
             try:
                 self.shared.loop.create_task(self._thread_event_runner(guild_id=guild_id, funcs=functions, **kwargs))
-                self.shared.logger.log(f"@QueueSystem.add_to_queue > Successfully created task for {event} event.", "NP_DEBUG")
             except Exception as error:
-                self.shared.logger.log(f"@QueueSystem.add_to_queue: {type(error).__name__}: {error}", "ERROR")
+                report_error(error, self.add_to_queue, "simple")
         return None
 
     # filter reloader

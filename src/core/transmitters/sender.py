@@ -2,20 +2,23 @@ import discord, sys, typing, asyncio
 sys.dont_write_bytecode = True
 import src.connector as con
 
+from src.core.helpers.event import Event
+from src.core.helpers.errors import report_error, full_traceback
+
 class Sender:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
 
-        self.events: list[con.Event] = []
+        self.events: list[Event] = []
         self.rate_limited: dict[int, float] = {}
 
-    def resolver(self, e: list[con.Event] | con.Event) -> None:
-        if isinstance(e, con.Event):
+    def resolver(self, e: list[Event] | Event) -> None:
+        if isinstance(e, Event):
             self.events.append(e)
         
         if isinstance(e, list):
             for event in e:
-                if isinstance(event, con.Event):
+                if isinstance(event, Event):
                     self.events.append(event)
 
     async def countdown(self, id: int) -> None:
@@ -48,12 +51,12 @@ class Sender:
                 self.shared.logger.log(f"@Sender.rate_limit_handler > Not a rate limit error, returning.", "NP_DEBUG")
 
         except Exception as error:
-            self.shared.logger.log(f"@Sender.rate_limit_handler: {type(error).__name__}: {error}", "ERROR")
+            report_error(error, self.rate_limit_handler, "simple")
 
     async def start(self) -> None:
         while True:
             while self.events:
-                event: con.Event = self.events[0]
+                event: Event = self.events[0]
 
                 try:
                     event_data: dict = event.event_data
@@ -81,9 +84,9 @@ class Sender:
                             self.shared.logger.log(f"@Sender.start > Under rate limit. Adding back to queue.", "NP_DEBUG")
                             self.events.append(event)
                         else:
-                            self.shared.logger.log(f"@Sender.execution.discord.HTTPException[Event]: {"await" if event._async else ""} {event.event_obj.__name__}.{event.action}() {event.event_data}\n{self.shared.errors.full_traceback()}", "ERROR")
+                            self.shared.logger.log(f"@Sender.execution.discord.HTTPException[Event]: {"await" if event._async else ""} {event.event_obj.__name__}.{event.action}() {event.event_data}\n{full_traceback()}", "ERROR")
                     else:
-                        self.shared.logger.log(f"@Sender.execution: {self.shared.errors.full_traceback()}", "ERROR")
+                        report_error(error, self.start, "simple")
 
                 self.events.remove(event)
             await asyncio.sleep(0.5)
