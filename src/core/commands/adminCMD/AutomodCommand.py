@@ -1,18 +1,17 @@
 import discord, sys, typing
 sys.dont_write_bytecode = True
 from discord.ext import commands
-from discord import app_commands
-from xRedUtils.dates import get_datetime
-
 import src.connector as con
+
 from src.core.helpers.paginator import BasicPaginator
+from src.core.helpers.embeds import create_base_embed
 
 class AutomodCommand(commands.GroupCog, name="automod"):
     def __init__(self, bot: commands.Bot) -> None:
         self.shared: con.Shared = con.shared
         self.bot: commands.Bot = bot
 
-    @app_commands.command(name = "load_rules", description = "Loads all automod modules.")
+    @discord.app_commands.command(name = "load_rules", description = "Loads all automod modules.")
     async def load(self, interaction: discord.Interaction) -> None:
         bot_db: dict = self.shared.db.load_data(interaction.guild.id)
         
@@ -23,7 +22,7 @@ class AutomodCommand(commands.GroupCog, name="automod"):
         if interaction.user.guild_permissions.administrator or interaction.user.id in bot_db["owners"]:
             for rule in await interaction.guild.fetch_automod_rules():
                 trigger: discord.AutoModTrigger = rule.trigger
-                newEmbed: discord.Embed = discord.Embed(title=rule.name, description=f"- **Rule ID:** {rule.id}\n- **Status:**: `{'Enabled' if rule.enabled is True else 'Disabled'}`\n- **Type:** {trigger.type}", color=0xff0000)
+                newEmbed: discord.Embed = create_base_embed(rule.name, description=f"- **Rule ID:** {rule.id}\n- **Status:**: `{'Enabled' if rule.enabled else 'Disabled'}`\n- **Type:** {trigger.type}")
 
                 if trigger.type == discord.AutoModRuleTriggerType.keyword:
                     newEmbed.add_field(name="Keyword filter:", value=f"{', '.join(replace_symbols(trigger.keyword_filter)) if trigger.keyword_filter != [] else 'No filter keywords found.'}", inline=False)
@@ -44,18 +43,18 @@ class AutomodCommand(commands.GroupCog, name="automod"):
                 embed_list.append(newEmbed)
 
             paginator = BasicPaginator(embed_list, 15*60)
-            embed: discord.Embed = discord.Embed(title="Automod Rules", description="Server's Automod rules.\nUse arrows to navigate.", color=discord.Colour.dark_embed(), timestamp=get_datetime())
+            embed: discord.Embed = create_base_embed("Automod Rules", description="Server's Automod rules.\nUse arrows to navigate.")
             await interaction.response.send_message(embed=embed, view=paginator)
         else:
             await interaction.response.send_message("You do not have permissions to execute this command.", ephemeral=True)
 
-    @app_commands.choices(pre_sets=[
-        app_commands.Choice(name="Profanity", value="profanity"),
-        app_commands.Choice(name="Slurs", value="slurs"),
-        app_commands.Choice(name="Sexual Content", value="sexual content"),
+    @discord.app_commands.choices(pre_sets=[
+        discord.app_commands.Choice(name="Profanity", value="profanity"),
+        discord.app_commands.Choice(name="Slurs", value="slurs"),
+        discord.app_commands.Choice(name="Sexual Content", value="sexual content"),
         ])
-    @app_commands.command(name = "create_response", description = "Creates responses and uses them on automod trigger.")
-    async def save(self, interaction: discord.Interaction, rule_id: str, response: str, trigger: str, pre_sets: app_commands.Choice[str] | None = None) -> None:
+    @discord.app_commands.command(name = "create_response", description = "Creates responses and uses them on automod trigger.")
+    async def save(self, interaction: discord.Interaction, rule_id: str, response: str, trigger: str, pre_sets: discord.app_commands.Choice[str] | None = None) -> None:
         bot_db: dict[str, typing.Any] = self.shared.db.load_data()
         guild_db: dict[str, typing.Any] = self.shared.db.load_data(interaction.guild.id)
         

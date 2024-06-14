@@ -1,45 +1,41 @@
 import sys, discord
 sys.dont_write_bytecode = True
 from discord.ext import commands
-from discord import app_commands
-
 import src.connector as con
 
-class ConfigureCommand(commands.Cog):
-    def __init__(self, bot: commands.Bot) -> None:
-        self.shared: con.Shared = con.shared
-        self.bot: commands.Bot = bot
-        self.reload()
+from src.core.helpers.permissions import check_bot_owner
+from .config.base_handler import BaseConfigCMDView
 
-    @app_commands.choices(plugin=[
-        app_commands.Choice(name="General settings", value="general"),
-        app_commands.Choice(name="Commands", value="cmd"),
-        app_commands.Choice(name="Alt Detection", value="alt"),
-        app_commands.Choice(name="Impersonator detection", value="imper"),
-        app_commands.Choice(name="Artificial Intelligence", value="ai"),
-        app_commands.Choice(name="Automod Response", value="automod"),
-        app_commands.Choice(name="Link Protection", value="link"),
-        app_commands.Choice(name="Ping Protection", value="ping"),
-        app_commands.Choice(name="Auto Delete", value="auto_delete"),
-        app_commands.Choice(name="Auto Slowmode", value="auto_slowmode"),
-        app_commands.Choice(name="Reaction Filter", value="reaction"),
-        app_commands.Choice(name="Quote of the day", value="QOFTD")
+class ConfigureCommand(commands.Cog):
+    def __init__(self, bot: commands.AutoShardedBot) -> None:
+        self.shared: con.Shared = con.shared
+        self.bot: commands.AutoShardedBot = bot
+
+    @discord.app_commands.choices(plugin=[
+        discord.app_commands.Choice(name="General settings", value="general"),
+        discord.app_commands.Choice(name="Commands", value="cmd"),
+        discord.app_commands.Choice(name="Alt Detection", value="alt"),
+        discord.app_commands.Choice(name="Impersonator detection", value="imper"),
+        discord.app_commands.Choice(name="Artificial Intelligence", value="ai"),
+        discord.app_commands.Choice(name="Automod Response", value="automod"),
+        discord.app_commands.Choice(name="Link Protection", value="link"),
+        discord.app_commands.Choice(name="Ping Protection", value="ping"),
+        discord.app_commands.Choice(name="Auto Delete", value="auto_delete"),
+        discord.app_commands.Choice(name="Auto Slowmode", value="auto_slowmode"),
+        discord.app_commands.Choice(name="Reaction Filter", value="reaction"),
+        discord.app_commands.Choice(name="Quote of the day", value="QOFTD")
     ])
-    @app_commands.command(name="config", description="Bot's configuration command!")
-    async def config(self, interaction: discord.Interaction, plugin: app_commands.Choice[str] | None) -> None:
-        self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Called config command.", "NP_DEBUG")
+    @discord.app_commands.command(name="config", description="Bot's configuration command!")
+    async def config(self, interaction: discord.Interaction, plugin: discord.app_commands.Choice[str] | None) -> None:
         if not interaction.guild:
             await interaction.response.send_message("Sorry, but this command only works in guilds!", ephemeral=True)
             self.shared.logger.log(f"@ConfigureCommand.config[cmd] > In DMs command execution attempt.", "NP_DEBUG")
 
-        bot_db: dict[str, dict] = self.shared.db.load_data()
         guild_db: dict[str, dict] = self.shared.db.load_data(interaction.guild.id)
         allowAdminEditing: bool = guild_db["general"].get("allowAdminEditing")
-        self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Loaded databases.", "NP_DEBUG")
 
-        if (allowAdminEditing and interaction.user.guild_permissions.administrator) or (interaction.user.id in bot_db["owners"]) or (interaction.user.id == interaction.guild.owner.id):
-            self.reload()
-            paginator = self.baseConfigCMDView(current_position=plugin.value if plugin else None, guild_id=interaction.guild.id)
+        if (allowAdminEditing and interaction.user.guild_permissions.administrator) or (interaction.user.id == interaction.guild.owner.id) or check_bot_owner(interaction.user.id):
+            paginator = BaseConfigCMDView(current_position=plugin.value if plugin else None, guild_id=interaction.guild.id)
             self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Created base paginator system.", "NP_DEBUG")
             
             if plugin:
@@ -51,16 +47,7 @@ class ConfigureCommand(commands.Cog):
                 await interaction.response.send_message(embed=paginator.help_obj.START, view=paginator.create_paginator_buttons(), ephemeral=True)
                 self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Executing global config.", "NP_DEBUG")
         else:
-            self.shared.logger.log(f"@ConfigureCommand.config[cmd] > No permission.", "NP_DEBUG")
             await interaction.response.send_message("You do not have permissions to execute this command!", ephemeral=True)
 
-    def reload(self) -> None:
-        for imp in ["config_handler", "pages", "configurator"]:
-            if f"src.core.commands.adminCMD.config.{imp}" in sys.modules:
-                del sys.modules[f"src.core.commands.adminCMD.config.{imp}"]
-
-        from .config.base_handler import BaseConfigCMDView
-        self.baseConfigCMDView = BaseConfigCMDView
-
-async def setup(bot: commands.Bot) -> None:
+async def setup(bot: commands.AutoShardedBot) -> None:
     await bot.add_cog(ConfigureCommand(bot))

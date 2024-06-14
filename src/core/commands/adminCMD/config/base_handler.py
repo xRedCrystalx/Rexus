@@ -4,6 +4,7 @@ import src.connector as con
 
 from src.core.helpers.views import ViewHelper
 from src.core.helpers.modals import ModalHelper
+from src.core.helpers.errors import report_error
 
 class BaseConfigCMDView(ViewHelper):
     def __init__(self, current_position: str, guild_id: int, timeout: float | None = 60 * 60) -> None:
@@ -128,8 +129,7 @@ class BaseConfigCMDView(ViewHelper):
         return
     
     async def on_error(self, interaction: discord.Interaction, error: Exception, item: discord.ui.item.Item) -> None:
-        error_id: str = self.shared._create_id()
-        self.shared.logger.log(f"BaseConfigCMDView.on_error[{error_id}] >\n{self.shared.errors.full_traceback()}")
+        error_id: str = report_error(error, self.on_error, "full")
 
         error_embed: discord.Embed = self.help_obj.ERROR
         error_embed.description = error_embed.description.format(error=error_id)

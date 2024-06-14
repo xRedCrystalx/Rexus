@@ -1,7 +1,6 @@
 import discord, sys, typing
 sys.dont_write_bytecode = True
 from discord.ext import commands
-from discord import app_commands
 import src.connector as con
 
 class AdminEditing(commands.Cog):
@@ -9,7 +8,7 @@ class AdminEditing(commands.Cog):
         self.shared: con.Shared = con.shared
         self.bot: commands.Bot = bot
 
-    @app_commands.command(name="admin_editing", description="Allow/Disallow admin editing - Owner CMD")
+    @discord.app_commands.command(name="admin_editing", description="Allow/Disallow admin editing - Owner CMD")
     async def admin_cmd(self, interaction: discord.Interaction) -> None:
         guild_db: dict[str, typing.Any] = self.shared.db.load_data(interaction.guild.id)
         bot_db: dict[str, typing.Any] = self.shared.db.load_data()

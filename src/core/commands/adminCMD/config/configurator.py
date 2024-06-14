@@ -1,13 +1,12 @@
 import sys, discord, typing, ast
 sys.dont_write_bytecode = True
+from discord.ui import RoleSelect, ChannelSelect, UserSelect, Select, MentionableSelect, Button, TextInput
 import src.connector as con
 
-from discord.ui import RoleSelect, ChannelSelect, UserSelect, Select, MentionableSelect, Button, TextInput
 from xRedUtils.dicts import dict_walk
 from xRedUtils.dates import get_datetime
 
-if typing.TYPE_CHECKING:
-    from .base_handler import BaseConfigCMDView
+from .base_handler import BaseConfigCMDView
 
 """
 embed = dict[str, str]
