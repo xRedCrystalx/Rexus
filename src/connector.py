@@ -1,20 +1,19 @@
-import sys, uuid, typing, aiohttp, asyncio, schedule, re
+import sys, typing, aiohttp, asyncio, schedule, re
 sys.dont_write_bytecode = True
 from discord.ext import commands
-from xRedUtils import (general, 
+from xRedUtils import (system, 
                        typehints as th)
-
-from src.core.root.event import Event
 
 class Shared:
     bot: commands.Bot = None
     path: str = None
-    OS: str = general.OS
+    OS: str = system.OS
+
     session: aiohttp.ClientSession = None
     schedule_jobs: list[schedule.Job] = []
     global_db: dict[th.SIMPLE_ANY, th.SIMPLE_ANY] = {
         "invite_links": {
-            "regex": re.compile(r"\b(?:https?://)?(?:www\.)?(?:discord\.(?:gg|com/invite)|discordapp\.com/invite)/[a-zA-Z0-9]+(?:\?[^\s&]+)?\b", re.IGNORECASE),
+            "regex": re.compile(r"(?:https?\:\/\/)?discord(?:\.gg|(?:app)?\.com\/invite)\/[^/]+", re.IGNORECASE),
             "simon": {},
             "scam_guilds": {}
         }
@@ -50,10 +49,8 @@ class Shared:
 
     def plugin_load(self) -> None:        
         from src.core.helpers.string_formats import StringFormats
-        from src.core.helpers.errors import ErrorHelper
 
         self.string_formats = StringFormats()
-        self.errors = ErrorHelper()
 
         from src.core.plugins.impersonator_detection import ImpersonatorDetection
         from src.core.plugins.AI import AI
@@ -81,21 +78,6 @@ class Shared:
         self.plugin_tasks: list[asyncio.Task] = [self.loop.create_task(func(), name=func.__qualname__) for func in loader]
 
         self.queue.reload_filters()
-
-    def _create_id(self) -> str:
-        return str(uuid.uuid4())
-
-    async def fetch_invite_links(self, string: str, option: typing.Literal["simon", "scam_guilds"]) -> list[int]:
-        invites: list[int] = []
-        for link in self.global_db["invite_links"].get("regex").findall(string):
-            if link not in self.global_db["invite_links"].get(option):
-                try:
-                    invite_link = await self.bot.fetch_invite(link)
-                    self.global_db["invite_links"][option][link] = invite_link.guild.id
-                except: continue
-            
-            invites.append(self.global_db["invite_links"][option][link])
-        return invites
 
 #making global class var, so data is presistent
 shared: Shared = Shared()

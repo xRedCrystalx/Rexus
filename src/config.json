@@ -124,7 +124,7 @@
             "path" : "src.core.plugins.QOFTD",
             "var" : "QOFTD",
             "kwargs" : {},
-            "save" : ["current_msgs", "job"]
+            "save" : []
         },        
         "AutoSlowmode" : {
             "path" : "src.core.plugins.auto_slowmode",
