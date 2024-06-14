@@ -1,11 +1,10 @@
 import schedule, sys, discord, random, asyncio, typing
 sys.dont_write_bytecode = True
+from discord.ext import commands
 import src.connector as con
 
-from xRedUtils.errors import simple_error
-
-if typing.TYPE_CHECKING:
-    from discord.ext import commands
+from src.core.helpers.errors import report_error
+from src.core.helpers.event import Event
 
 class QOFTD:
     def __init__(self) -> None:
@@ -134,24 +133,24 @@ class QOFTD:
         try:
             channel: discord.TextChannel = self.bot.get_channel(channel_id)
             if channel:
-                index = random.randint(0, len(self.questions)-1)
-                self.shared.sender.resolver(con.Event(channel, "send", event_data={"kwargs": {"content": self.questions[index]}}))
+                index: int = random.randint(0, len(self.questions)-1)
+                self.shared.sender.resolver(Event(channel, "send", event_data={"kwargs": {"content": self.questions[index]}}))
                 # append index to the database - last 14? for 14 days
 
         except Exception as error:
-            self.shared.logger.log(f"@QOFTD.handle_quote: {simple_error(error)}", "ERROR")
+            report_error(error, self.handle_quote, "simple")
 
     def loader(self) -> None:
-        try:
-            for guild in self.bot.guilds:
+        for guild in self.bot.guilds:
+            try:
                 db: dict[str, typing.Any] = self.shared.db.load_data(guild.id)
 
                 if db["QOFTD"]["status"] and (channels := db["QOFTD"]["watched"]):
                     for channel_id in channels:
                         self.shared.loop.create_task(self.handle_quote(channel_id))
 
-        except Exception as error:
-            self.shared.logger.log(f"@QOFTD.loader: {simple_error(error)}", "ERROR")
+            except Exception as error:
+                report_error(error, self.loader, "simple")
 
     async def start(self) -> None:
         self.job: schedule.Job = schedule.every().day.at("00:00").do(self.loader)
