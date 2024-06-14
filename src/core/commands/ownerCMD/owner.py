@@ -1,29 +1,26 @@
 import discord, sys, typing
 sys.dont_write_bytecode = True
 from discord.ext import commands
-from discord import app_commands
 import src.connector as con
 
+from src.core.helpers.permissions import check_bot_owner
 
 class OwnerCMD(commands.Cog):
-    def __init__(self, bot: commands.Bot) -> None:
+    def __init__(self, bot: commands.AutoShardedBot) -> None:
         self.shared: con.Shared = con.shared
-        self.bot: commands.Bot = bot
+        self.bot: commands.AutoShardedBot = bot
 
-    @app_commands.choices(cmd=[
-        app_commands.Choice(name="sync", value="sync"),
-        app_commands.Choice(name="shutdown", value="shutdown"),
-        app_commands.Choice(name="logging_level", value="logging_level")
+    @discord.app_commands.choices(cmd=[
+        discord.app_commands.Choice(name="sync", value="sync"),
+        discord.app_commands.Choice(name="shutdown", value="shutdown"),
+        discord.app_commands.Choice(name="logging_level", value="logging_level")
         ]
     )
-    @app_commands.command(name="owner", description="Owner commands, no touchy!")
-    async def owner(self, interaction: discord.Interaction, cmd: app_commands.Choice[str], args: str = None) -> None:
-        guild_db: dict[str, typing.Any] = self.shared.db.load_data(interaction.guild.id)
-        bot_config: dict[str, typing.Any] = self.shared.db.load_data()
-
+    @discord.app_commands.command(name="owner", description="Owner commands, no touchy!")
+    async def owner(self, interaction: discord.Interaction, cmd: discord.app_commands.Choice[str], args: str = None) -> None:
         await interaction.response.defer(thinking=True, ephemeral=True)
 
-        if interaction.user.id in bot_config.get("owners", []):
+        if check_bot_owner(interaction.user.id):
             func: typing.Callable = getattr(self, cmd.value)
             await func(interaction=interaction, args=args)
         else:
@@ -70,5 +67,5 @@ class OwnerCMD(commands.Cog):
             await interaction.followup.send(f"Failed to update logging level: `{args}`.\n```{type(error).__name__}: {error}```", ephemeral=True)
             self.shared.logger.log(f"@NoPing.logging_level > {type(error).__name__}: {error}", "ERROR")
 
-async def setup(bot: commands.Bot) -> None:
+async def setup(bot: commands.AutoShardedBot) -> None:
     await bot.add_cog(OwnerCMD(bot), guild=discord.Object(id=1230040815116484678))
