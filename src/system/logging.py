@@ -8,12 +8,12 @@ class Logger:
         self.c = self.shared.colors
         self._levels: dict[str, int] = {
             "UPDATE": 25, 
-            "SYSTEM": 18,
+            "SYSTEM": 21,
             "NP_DEBUG": 15,
             "TESTING": 17
         }
         self.FILE_LEVEL = 17
-        self.CONSOLE_LEVEL = 18
+        self.CONSOLE_LEVEL = 21
 
         self.handlers: list[logging.Handler] = []
         self.logger: logging.Logger = logging.getLogger("discord")
