@@ -20,16 +20,11 @@ class BotListeners(commands.Cog):
 
         # read attempt, db handler will create or read database, if nothing returned, error happened.
         database: dict[str, typing.Any] = self.shared.db.load_data(guild.id)
-
-        if not database:
-            error_id: str = report_error(None, self.on_guild_join, "full")
-            await channel.send(f"An error has occured. Please report this to the developer. Error ID: `{error_id}`")
-
+        
         embed: discord.Embed = apply_embed_items(
-            embed=create_base_embed("Hey there!", title="Firstly, thank you for inviting me to your guild!\n\nI'm **NoPing**, friendly little robot that will help you protect your community.\nTo start with my configuration, use </config:1235708858580860929> command or </noping:1235708858136002623> for quick start pointers."),
+            embed=create_base_embed("Hey there!", description="Firstly, thank you for inviting me to your guild!\n\nI'm **NoPing**, friendly little robot that will help you protect your community.\nTo start with my configuration, use </config:1235708858580860929> command or </noping:1235708858136002623> for quick start pointers."),
             thumbnail="https://i.ibb.co/R6WZm04/member.png",
-            footer="Developed by xRedCrystalx"
-        )
+            footer="Developed by xRedCrystalx")
         self.shared.sender.resolver(Event(channel, "send", event_data={"kwargs": {"embed": embed}}))
 
         if events_channel := self.bot.get_channel(self.events_channel_id):
