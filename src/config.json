@@ -147,7 +147,7 @@
             "save" : ["db"]
         },
         "HackedAccounts": {
-            "path": "src.core.helpers.hacked_acc_detection",
+            "path": "src.core.plugins.hacked_acc_detection",
             "var": "hacked_accs",
             "kwargs": {},
             "save": []
