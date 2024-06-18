@@ -27,14 +27,19 @@ class HackedAccounts:
         if not action_member:
             print("No member")
 
+        if not action_content:
+            print("No content")
+
         if not (action_guild and action_member and action_content):
+            print("Skipping")
             #self.shared.logger.log(f"Could not get required data.", "TESTING")
             return
 
         # temp. replacing with permissions when making it public
         if action_guild.id == 626159471386689546:
             for check in self.hacked_types.keys():
-                matches: list[str] = len([item for item in self.hacked_types[check] if item in action_content])
+                matches: int = len([item for item in self.hacked_types[check] if item in action_content])
+                print(matches)
                 
                 if matches > 4:
                     self.shared.logger.log(f"Match found! {matches} - {action_member.display_name} ({action_member.id})", "TESTING")
