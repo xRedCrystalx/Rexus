@@ -65,18 +65,12 @@ class Sender:
                         self.shared.logger.log(f"@Sender.start > Requested event endpoint under rate limit, adding back to queue.", "NP_DEBUG")
                         self.events.append(event)
                     else:
-                        if not event_data.get("kwargs"):
-                            event_data["kwargs"] = {}
-
-                        if not event_data.get("args"):
-                            event_data["args"] = ()
-
                         self.shared.logger.log(f"@Sender.start > Executing API event.", "NP_DEBUG")
                         if function := getattr(event.event_obj, event.action, None):
                             if event._async:
-                                await function(*event_data.get("args"), **event_data.get("kwargs"))
+                                await function(*event_data.get("args", ()), **event_data.get("kwargs", {}))
                             else:
-                                function(*event_data.get("args"), **event_data.get("kwargs"))
+                                function(*event_data.get("args", ()), **event_data.get("kwargs", {}))
                 
                 except Exception as error:
                     if isinstance(error, discord.HTTPException):
@@ -84,7 +78,7 @@ class Sender:
                             self.shared.logger.log(f"@Sender.start > Under rate limit. Adding back to queue.", "NP_DEBUG")
                             self.events.append(event)
                         else:
-                            self.shared.logger.log(f"@Sender.execution.discord.HTTPException[Event]: {"await" if event._async else ""} {event.event_obj.__name__}.{event.action}() {event.event_data}\n{full_traceback()}", "ERROR")
+                            self.shared.logger.log(f"@Sender.execution.discord.HTTPException[Event]: {"await" if event._async else ""} {event.event_obj.__class__.__name__}.{event.action}() {event.event_data}\n{full_traceback()}", "ERROR")
                     else:
                         report_error(error, self.start, "simple")
 
