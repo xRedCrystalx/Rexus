@@ -13,31 +13,32 @@ class HackedAccounts:
             #"acc": ["gift card", "money", "[steamcommunity.com/gift"]
         }
 
-    async def check_hacked(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], action: discord.Message = None, message: discord.Message = None, **OVERFLOW) -> None:
-        action = action or message
-        self.shared.logger.log(f"Got new event: {action}", "TESTING")
-        
+    async def check_hacked(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], action: discord.AutoModAction = None, message: discord.Message = None, **OVERFLOW) -> None:
+        action: discord.Message | discord.AutoModAction = action or message
+
+        action_guild: discord.Guild = getattr(action, "guild", None)
+        action_member: discord.Member = getattr(action, "member", None) or getattr(action, "author", None)
+        action_content: str = getattr(action, "content", None)
+
+        if not (action_guild or action_member or action_content):
+            self.shared.logger.log(f"Could not get required data.", "TESTING")
+            return
+
         # temp. replacing with permissions when making it public
         if action.guild.id == 626159471386689546:
-            member: discord.Member | None = getattr(action, "member", None) or getattr(action, "author", None)
-            
-            if not member or not action.content:
-                self.shared.logger.log(f"Could not find member or action.content {member} - {action}", "TESTING")
-                return
-
-            for check in self.hacked_types:
-                matches: list[str] = len([item for item in self.hacked_types[check] if item in action.content])
+            for check in self.hacked_types.keys():
+                matches: list[str] = len([item for item in self.hacked_types[check] if item in action_content])
                 
                 if matches > 4:
-                    self.shared.logger.log(f"Match found! {matches} - {member.display_name} ({member.id})", "TESTING")
+                    self.shared.logger.log(f"Match found! {matches} - {action_member.display_name} ({action_member.id})", "TESTING")
                     embed: discord.Embed = apply_embed_items(
                         embed=create_base_embed("Hacked Accounts Protection"),
-                        thumbnail=member.display_avatar.url,
+                        thumbnail=action_member.display_avatar.url,
                         footer="Member has been kicked from the server.")
-                    embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{member.display_name}\n<:global:1203410626492240023>┇{member.global_name}\n<:ID:1203410054016139335>┇{member.id}", inline=True)
+                    embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{action_member.display_name}\n<:global:1203410626492240023>┇{action_member.global_name}\n<:ID:1203410054016139335>┇{action_member.id}", inline=True)
                     embed.add_field(name="`` Rule ``", value=f"Detected patterns of hacked account behaviour.")
 
                     self.shared.sender.resolver([
-                        Event(member, "kick", event_data={"kwargs": {"reason": "Hacked account"}}),
-                        Event(action.guild.get_channel(711311257570902109), "send", event_data={"kwargs": {"embed": embed}})])
+                        Event(action_member, "kick", event_data={"kwargs": {"reason": "Hacked account"}}),
+                        Event(action_guild.get_channel(711311257570902109), "send", event_data={"kwargs": {"embed": embed}})])
                     return
