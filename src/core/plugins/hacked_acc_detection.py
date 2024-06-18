@@ -20,12 +20,21 @@ class HackedAccounts:
         action_member: discord.Member = getattr(action, "member", None) or getattr(action, "author", None)
         action_content: str = getattr(action, "content", None)
 
+        if not action_guild:
+            print("No guild")
+        
+        if not action_member:
+            print("No member")
+        
+        if not action_content:
+            print("No content")
+
         if not (action_guild and action_member and action_content):
-            self.shared.logger.log(f"Could not get required data.", "TESTING")
+            #self.shared.logger.log(f"Could not get required data.", "TESTING")
             return
 
         # temp. replacing with permissions when making it public
-        if action.guild.id == 626159471386689546:
+        if action_guild.id == 626159471386689546:
             for check in self.hacked_types.keys():
                 matches: list[str] = len([item for item in self.hacked_types[check] if item in action_content])
                 
