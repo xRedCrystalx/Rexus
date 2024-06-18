@@ -29,10 +29,10 @@ class HackedAccounts:
 
             for check in self.hacked_types.keys():
                 matches: list[str] = [item for item in self.hacked_types[check] if item in action_content]
-                print(matches)
                 
                 if len(matches) > 4:
                     self.shared.logger.log(f"Match found! {matches} - {action_member.display_name} ({action_member.id})", "TESTING")
+                    
                     embed: discord.Embed = apply_embed_items(
                         embed=create_base_embed("Hacked Accounts Protection"),
                         thumbnail=action_member.display_avatar.url,
@@ -41,6 +41,6 @@ class HackedAccounts:
                     embed.add_field(name="`` Rule ``", value=f"Detected patterns of hacked account behaviour.")
 
                     self.shared.sender.resolver([
-                        Event(action_member, "kick", event_data={"kwargs": {"reason": "Hacked account"}}),
-                        Event(action_guild.get_channel(711311257570902109), "send", event_data={"kwargs": {"embed": embed}})])
-                    return
+                        Event(action_guild.get_channel(711311257570902109), "send", event_data={"kwargs": {"embed": embed}}),
+                        Event(action_member, "kick", event_data={"kwargs": {"reason": "Hacked account"}})
+                    ])
