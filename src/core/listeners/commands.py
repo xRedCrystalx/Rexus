@@ -9,7 +9,7 @@ class CommandListeners(commands.Cog):
         self.bot: commands.Bot = bot
 
     @commands.Cog.listener()
-    async def on_message_error(self, ctx: commands.Context, error: commands.CommandError):
+    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError) -> None:
         if isinstance(error, commands.CommandNotFound):
             # ignore Unknown commands errors - i dont need console spam
             pass
