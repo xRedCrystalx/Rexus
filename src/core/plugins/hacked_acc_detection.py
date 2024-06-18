@@ -9,7 +9,6 @@ from src.core.helpers.event import Event
 class HackedAccounts:
     def __init__(self) -> None:
         self.shared: con.Shared = con.shared
-        self.bot: commands.Bot =  self.shared.bot
         self.hacked_types: dict[str, list[str]] = {
             "porn": ["18+", "teen", "girls", "free", "leaks", "onlyfans", "nude", "hot", "pussy", "porn", "nsfw", "sex", "video", "photo", "content", ":underage:", ":peach:", ":heart:", ":sweat_drops:", ":egg_plant:", ":hot_face:", ":lips:"],
             #"acc": ["gift card", "money", "[steamcommunity.com/gift"]
@@ -21,14 +20,15 @@ class HackedAccounts:
         # temp. replacing with permissions when making it public
         if action.guild.id == 626159471386689546:
             member: discord.Member | None = getattr(action, "member", None) or getattr(action, "author", None)
+            
+            if not member or not action.content:
+                return
 
             for check in self.hacked_types:
                 matches: list[str] = len([item for item in self.hacked_types[check] if item in action.content])
                 
-                if not matches:
-                    return
-                
-                elif matches > 4:
+                if matches > 4:
+                    self.shared.logger.log(f"Match found! {matches} - {member.display_name} ({member.id})")
                     embed: discord.Embed = apply_embed_items(
                         embed=create_base_embed("Hacked Accounts Protection"),
                         thumbnail=member.display_avatar.url,
@@ -38,6 +38,5 @@ class HackedAccounts:
 
                     self.shared.sender.resolver([
                         Event(member, "kick", event_data={"kwargs": {"reason": "Hacked account"}}),
-                        Event(self.bot.get_channel(711311257570902109), "send", event_data={"kwargs": {"embed": embed}})
-                    ])
+                        Event(action.guild.get_channel(711311257570902109), "send", event_data={"kwargs": {"embed": embed}})])
                     return
