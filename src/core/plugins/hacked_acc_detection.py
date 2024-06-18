@@ -19,15 +19,13 @@ class HackedAccounts:
         action_guild: discord.Guild = getattr(action, "guild", None)
         action_member: discord.Member = getattr(action, "member", None) or getattr(action, "author", None)
         action_content: str = getattr(action, "content", None)
+        print(action_content)
 
         if not action_guild:
             print("No guild")
         
         if not action_member:
             print("No member")
-        
-        if not action_content:
-            print("No content")
 
         if not (action_guild and action_member and action_content):
             #self.shared.logger.log(f"Could not get required data.", "TESTING")
