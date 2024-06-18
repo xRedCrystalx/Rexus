@@ -1,6 +1,5 @@
 import sys, discord, typing
 sys.dont_write_bytecode = True
-from discord.ext import commands
 import src.connector as con
 
 from src.core.helpers.embeds import create_base_embed, apply_embed_items
@@ -16,19 +15,21 @@ class HackedAccounts:
 
     async def check_hacked(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], action: discord.Message = None, message: discord.Message = None, **OVERFLOW) -> None:
         action = action or message
+        self.shared.logger.log(f"Got new event: {action}", "TESTING")
         
         # temp. replacing with permissions when making it public
         if action.guild.id == 626159471386689546:
             member: discord.Member | None = getattr(action, "member", None) or getattr(action, "author", None)
             
             if not member or not action.content:
+                self.shared.logger.log(f"Could not find member or action.content {member} - {action}", "TESTING")
                 return
 
             for check in self.hacked_types:
                 matches: list[str] = len([item for item in self.hacked_types[check] if item in action.content])
                 
                 if matches > 4:
-                    self.shared.logger.log(f"Match found! {matches} - {member.display_name} ({member.id})")
+                    self.shared.logger.log(f"Match found! {matches} - {member.display_name} ({member.id})", "TESTING")
                     embed: discord.Embed = apply_embed_items(
                         embed=create_base_embed("Hacked Accounts Protection"),
                         thumbnail=member.display_avatar.url,
