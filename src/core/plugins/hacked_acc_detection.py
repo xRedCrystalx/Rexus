@@ -15,6 +15,7 @@ class HackedAccounts:
 
     async def check_hacked(self, guild_db: dict[str, typing.Any], bot_db: dict[str, typing.Any], action: discord.AutoModAction = None, message: discord.Message = None, **OVERFLOW) -> None:
         action: discord.Message | discord.AutoModAction = action or message
+        print(action.__class__.__name__)
 
         action_guild: discord.Guild = getattr(action, "guild", None)
         action_member: discord.Member = getattr(action, "member", None) or getattr(action, "author", None)
@@ -25,12 +26,14 @@ class HackedAccounts:
 
         # temp. replacing with permissions when making it public
         if action_guild.id == 626159471386689546:
+            print("Doing the check")
             action_content = action_content.lower()
 
             for check in self.hacked_types.keys():
                 matches: list[str] = [item for item in self.hacked_types[check] if item in action_content]
                 
                 if len(matches) > 4:
+                    print("Executing..")
                     self.shared.logger.log(f"Match found! {matches} - {action_member.display_name} ({action_member.id})", "TESTING")
                     
                     embed: discord.Embed = apply_embed_items(
@@ -40,6 +43,7 @@ class HackedAccounts:
                     embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{action_member.display_name}\n<:global:1203410626492240023>┇{action_member.global_name}\n<:ID:1203410054016139335>┇{action_member.id}", inline=True)
                     embed.add_field(name="`` Rule ``", value=f"Detected patterns of hacked account behaviour.")
 
+                    print("Sending to event resolver")
                     self.shared.sender.resolver([
                         Event(action_guild.get_channel(711311257570902109), "send", event_data={"kwargs": {"embed": embed}}),
                         Event(action_member, "kick", event_data={"kwargs": {"reason": "Hacked account"}})
