@@ -28,9 +28,10 @@ class HackedAccounts:
             action_content = action_content.lower()
 
             for check in self.hacked_types.keys():
-                matches: int = len([item for item in self.hacked_types[check] if item in action_content])
+                matches: list[str] = [item for item in self.hacked_types[check] if item in action_content]
+                print(matches)
                 
-                if matches > 4:
+                if len(matches) > 4:
                     self.shared.logger.log(f"Match found! {matches} - {action_member.display_name} ({action_member.id})", "TESTING")
                     embed: discord.Embed = apply_embed_items(
                         embed=create_base_embed("Hacked Accounts Protection"),
