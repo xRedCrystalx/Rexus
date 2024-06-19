@@ -68,9 +68,13 @@ class Sender:
                         self.shared.logger.log(f"@Sender.start > Executing API event.", "NP_DEBUG")
                         if function := getattr(event.event_obj, event.action, None):
                             if event._async:
-                                await function(*event_data.get("args", ()), **event_data.get("kwargs", {}))
+                                res = await function(*event_data.get("args", ()), **event_data.get("kwargs", {}))
                             else:
-                                function(*event_data.get("args", ()), **event_data.get("kwargs", {}))
+                                res = function(*event_data.get("args", ()), **event_data.get("kwargs", {}))
+
+                            if res and event._ret_id:
+                                # TODO: logic to append response to global_db after successful execution
+                                pass
                 
                 except Exception as error:
                     if isinstance(error, discord.HTTPException):
