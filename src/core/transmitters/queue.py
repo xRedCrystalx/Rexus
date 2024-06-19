@@ -59,28 +59,13 @@ class QueueSystem:
             self.shared.logger.log(f"@QueueSystem._thread_event_runner ({guild_id}): Exception Group: {', '.join([f'SubE {num}: {exception}' for num, exception in enumerate(groupError.exceptions, 1)])}", "ERROR")
         except Exception as error:
             self.shared.logger.log(f"@QueueSystem._thread_event_runner ({guild_id}): {type(error).__name__}: {error}", "ERROR")
-
-    # hijacker for testing server
-    async def testing_guild(self, **kwargs) -> None:
-        for argument in kwargs.values():
-            if channel := getattr(argument, "channel", None):
-                channel_id: int = channel.id
-                break
-        else:
-            return None
-        
-        if funcs := self.testing_filter.get(channel_id):
-            self.shared.loop.create_task(self._thread_event_runner(funcs, 1230040815116484678, **kwargs))
     
     # main queue adder
     async def add_to_queue(self, event: str, guild_id: int, **kwargs) -> None:
         self.shared.logger.log(f"@QueueSystem.add_to_queue > Recieved {event} event.", "NP_DEBUG")
         functions: tuple[typing.Callable] | None = self.filter.get(event)
 
-        if guild_id == 1230040815116484678:
-            self.shared.loop.create_task(self.testing_guild(**kwargs))
-
-        elif functions:
+        if functions:
             try:
                 self.shared.loop.create_task(self._thread_event_runner(guild_id=guild_id, funcs=functions, **kwargs))
             except Exception as error:
@@ -99,15 +84,5 @@ class QueueSystem:
             "on_member_update": (self.shared.imper_detection.detection_on_update, ),
             "on_raw_reaction_add": (self.shared.reaction_filter.check_reaction, ),
             "on_voice_state_update": ()
-        }
-
-        self.testing_filter: dict[int, list[typing.Callable]] = {
-            1234583064995303506: [self.shared.message_handlers.antilink],
-            1234585828307632238: [self.shared.AI.ask_ai],
-            1234585884389670973: [self.shared.ping_prot.find_pings],
-            1234585964383572063: [self.shared.auto_deleter.add_to_queue],
-            1234586007974973511: [self.shared.auto_slowmode.message_listener],
-            1234586063213690951: [self.shared.reaction_filter.check_reaction],
-            1234586246601379951: [self.shared.message_handlers.responder]
         }
         self.shared.logger.log(f"@QueueSystem.reload_filters > Filters reloaded.", "NP_DEBUG")
