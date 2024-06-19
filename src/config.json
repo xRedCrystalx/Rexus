@@ -13,7 +13,7 @@
                 "Remainings", "pewdiepie", "beluga", "hecker", "pablo", "eugene", "jamal", "ishowspeed", "poke", "labbers", "smythers", "spizee", "ant", "admin", "staff",
                 "kait_superheroic", "xredcrystalx", "caseoh"
             ],
-            "whitelist" : [115926288006512644, 330103416892162061, 611637367542906890, 115913672869543938, 153307466044669953, 312693600842547201, 333588605748510721]
+            "whitelist" : [115926288006512644, 330103416892162061, 611637367542906890, 115913672869543938, 153307466044669953, 312693600842547201, 333588605748510721, 333588605748510721]
         },
         "message" : {
             "bad_words" : [
@@ -64,12 +64,6 @@
         },
 
 
-        "Images": {
-            "path" : "src.core.helpers.images",
-            "var": "images",
-            "kwargs" : {},
-            "save" : []
-        },
         "StringFormats": {
             "path" : "src.core.helpers.string_formats",
             "var": "string_formats",
