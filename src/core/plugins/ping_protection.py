@@ -5,6 +5,7 @@ import src.connector as con
 from src.core.helpers.permissions import check_ids
 from src.core.helpers.embeds import create_base_embed, apply_embed_items
 from src.core.helpers.event import Event
+from src.core.helpers.emojis import CustomEmoji as CEmoji
 
 class PingProtection:
     def __init__(self) -> None:
@@ -45,8 +46,8 @@ class PingProtection:
                     embed: discord.Embed =  apply_embed_items(
                         embed=create_base_embed(f"Ping Protection - {rule_name}"),
                         thumbnail=message.author.display_avatar.url)
-                    embed.add_field(name="`` Author ``", value=f"<:profile:1203409921719140432>┇{message.author.display_name}\n<:global:1203410626492240023>┇{message.author.global_name}\n<:ID:1203410054016139335>┇{message.author.id}", inline=True)
-                    embed.add_field(name="`` Location ``", value=f"<:msg_id:1203422168046768129>┇{message.id}\n<:text_c:1203423388320669716>┇{message.channel.name}\n<:ID:1203410054016139335>┇{message.channel.id}", inline=True)
+                    embed.add_field(name="`` Author ``", value=f"{CEmoji.PROFILE}┇{message.author.display_name}\n{CEmoji.GLOBAL}┇{message.author.global_name}\n{CEmoji.ID}┇{message.author.id}", inline=True)
+                    embed.add_field(name="`` Location ``", value=f"{CEmoji.MSG_ID}┇{message.id}\n{CEmoji.TEXT_C}┇{message.channel.mention}\n{CEmoji.ID}┇{message.channel.id}", inline=True)
                     embed.add_field(name="`` Message ``", value="Could not find the message content." if len(message.content) == 0 else message.content if len(message.content) < 1000 else f"{message.content[:1000]}...", inline=False)
 
                     if log_channel := message.guild.get_channel(log_channel_id):

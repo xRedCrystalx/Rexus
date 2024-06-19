@@ -4,6 +4,7 @@ import src.connector as con
 
 from src.core.helpers.embeds import create_base_embed, apply_embed_items
 from src.core.helpers.event import Event
+from src.core.helpers.emojis import CustomEmoji as CEmoji
 
 class HackedAccounts:
     def __init__(self) -> None:
@@ -37,7 +38,7 @@ class HackedAccounts:
                         embed=create_base_embed("Hacked Accounts Protection"),
                         thumbnail=action_member.display_avatar.url,
                         footer="Member has been kicked from the server.")
-                    embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{action_member.display_name}\n<:global:1203410626492240023>┇{action_member.global_name}\n<:ID:1203410054016139335>┇{action_member.id}", inline=True)
+                    embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{action_member.display_name}\n{CEmoji.GLOBAL}┇{action_member.global_name}\n{CEmoji.ID}┇{action_member.id}", inline=True)
                     embed.add_field(name="`` Rule ``", value=f"Detected patterns of hacked account behaviour.")
 
                     self.shared.sender.resolver([

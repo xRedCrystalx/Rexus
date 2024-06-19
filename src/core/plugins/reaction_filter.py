@@ -6,6 +6,7 @@ import src.connector as con
 from src.core.helpers.embeds import create_base_embed, apply_embed_items
 from src.core.helpers.errors import report_error
 from src.core.helpers.event import Event
+from src.core.helpers.emojis import CustomEmoji as CEmoji
 
 class ReactionFilter:
     def __init__(self) -> None:
@@ -37,7 +38,7 @@ class ReactionFilter:
                     embed=create_base_embed("Reaction Filter"),
                     thumbnail=payload.member.display_avatar.url,
                     footer="Reaction will be removed.")
-                embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{payload.member.display_name}\n<:global:1203410626492240023>┇{payload.member.global_name}\n<:ID:1203410054016139335>┇{payload.member.id}", inline=True)
+                embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{payload.member.display_name}\n{CEmoji.GLOBAL}┇{payload.member.global_name}\n{CEmoji.ID}┇{payload.member.id}", inline=True)
                 embed.add_field(name="`` Rule ``", value=f"User reacted with {payload.emoji} emoji under https://discord.com/channels/{payload.guild_id}/{payload.channel_id}/{payload.message_id}.", inline=True)
 
                 if log_channel := payload.member.guild.get_channel(log_channnel_id):
@@ -70,7 +71,7 @@ class ReactionFilter:
                                     embed=create_base_embed("Reaction Ban"),
                                     thumbnail=member.display_avatar.url,
                                     footer="Sucessfully reaction banned the user.")                          
-                                embed.add_field(name="`` Member ``", value=f"<:profile:1203409921719140432>┇{member.display_name}\n<:global:1203410626492240023>┇{member.global_name}\n<:ID:1203410054016139335>┇{member.id}", inline=True)
+                                embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{member.display_name}\n{CEmoji.GLOBAL}┇{member.global_name}\n{CEmoji.ID}┇{member.id}", inline=True)
 
                                 if log_channel := message.guild.get_channel(log_channel_id):
                                     self.shared.sender.resolver(Event(log_channel, "send", event_data={"kwargs": {"embed": embed}}))

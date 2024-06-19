@@ -6,6 +6,7 @@ import src.connector as con
 from src.core.helpers.embeds import create_base_embed
 from src.core.helpers.errors import report_error
 from src.core.helpers.event import Event
+from src.core.helpers.emojis import CustomEmoji as CEmoji
 
 from xRedUtils.times import seconds_to_str
 
@@ -62,7 +63,7 @@ class AutoSlowmode:
 
             if (log_channel_id := guild_db["auto_slowmode"]["log_channel"]):
                 embed: discord.Embed = create_base_embed("Auto Slowmode")
-                embed.add_field(name="`` Channel ``", value=f"<:text_c:1203423388320669716>┇{channel.mention}\n<:ID:1203410054016139335>┇{channel.id}", inline=True)
+                embed.add_field(name="`` Channel ``", value=f"{CEmoji.TEXT_C}┇{channel.mention}\n{CEmoji.ID}┇{channel.id}", inline=True)
                 embed.add_field(name="`` Change ``", value=f"**Slowmode delay:**\n`{seconds_to_str(channel.slowmode_delay)}` ➔ `{seconds_to_str(delay)}`", inline=True)
 
                 if (log_channel := channel.guild.get_channel(log_channel_id)):
