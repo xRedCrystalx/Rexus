@@ -7,3 +7,4 @@ class Event:
     action: str
     event_data: dict[str, typing.Any]
     _async: bool = True
+    _ret_id: str = None
