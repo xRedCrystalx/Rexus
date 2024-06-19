@@ -47,7 +47,7 @@ class MessageHandlers:
                         embed=create_base_embed(title="XNDUIW | CBE_Simon Protection"),
                         thumbnail=message.author.display_avatar.url,
                         footer="Member has been banned from the guild.")
-                    embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{message.author.display_name}\n{CEmoji.GLOBAL}┇{message.author.global_name}\n{CEmoji.ID}┇{message.author.id}", inline=True)
+                    embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{message.author.display_name}\n{CEmoji.GLOBAL}┇{message.author.name}\n{CEmoji.ID}┇{message.author.id}", inline=True)
                     embed.add_field(name="`` Rule ``", value=f"Detected invite link redirecting to Simon's server.", inline=True)
                     embed.add_field(name="`` Message Content ``", value=message.content if len(message.content) < 1000 else message.content[:1000], inline=False)
 
@@ -74,7 +74,7 @@ class MessageHandlers:
                 embed: discord.Embed = apply_embed_items(
                     embed=create_base_embed("Link Protection"),
                     thumbnail=message.author.display_avatar.url)
-                embed.add_field(name="`` Author ``", value=f"{CEmoji.PROFILE}┇{message.author.display_name}\n{CEmoji.PROFILE}┇{message.author.global_name}\n{CEmoji.ID}┇{message.author.id}", inline=True)
+                embed.add_field(name="`` Author ``", value=f"{CEmoji.PROFILE}┇{message.author.display_name}\n{CEmoji.PROFILE}┇{message.author.name}\n{CEmoji.ID}┇{message.author.id}", inline=True)
                 embed.add_field(name="`` Location ``", value=f"{CEmoji.MSG_ID}┇{message.id}\n{CEmoji.TEXT_C}┇{message.channel.mention}\n{CEmoji.ID}┇{message.channel.id}", inline=True)
                 embed.add_field(name="`` Message ``", value="Could not find the message content." if len(message.content) == 0 else message.content if len(message.content) < 1000 else f"{message.content[:1000]}...", inline=False)
 

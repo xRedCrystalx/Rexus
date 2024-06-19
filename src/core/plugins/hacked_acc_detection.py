@@ -38,7 +38,7 @@ class HackedAccounts:
                         embed=create_base_embed("Hacked Accounts Protection"),
                         thumbnail=action_member.display_avatar.url,
                         footer="Member has been kicked from the server.")
-                    embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{action_member.display_name}\n{CEmoji.GLOBAL}┇{action_member.global_name}\n{CEmoji.ID}┇{action_member.id}", inline=True)
+                    embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{action_member.display_name}\n{CEmoji.GLOBAL}┇{action_member.name}\n{CEmoji.ID}┇{action_member.id}", inline=True)
                     embed.add_field(name="`` Rule ``", value=f"Detected patterns of hacked account behaviour.")
 
                     self.shared.sender.resolver([

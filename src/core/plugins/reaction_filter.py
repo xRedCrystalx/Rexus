@@ -71,7 +71,7 @@ class ReactionFilter:
                                     embed=create_base_embed("Reaction Ban"),
                                     thumbnail=member.display_avatar.url,
                                     footer="Sucessfully reaction banned the user.")                          
-                                embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{member.display_name}\n{CEmoji.GLOBAL}┇{member.global_name}\n{CEmoji.ID}┇{member.id}", inline=True)
+                                embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{member.display_name}\n{CEmoji.GLOBAL}┇{member.name}\n{CEmoji.ID}┇{member.id}", inline=True)
 
                                 if log_channel := message.guild.get_channel(log_channel_id):
                                     self.shared.sender.resolver(Event(log_channel, "send", event_data={"kwargs": {"embed": embed}}))

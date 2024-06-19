@@ -46,7 +46,7 @@ class PingProtection:
                     embed: discord.Embed =  apply_embed_items(
                         embed=create_base_embed(f"Ping Protection - {rule_name}"),
                         thumbnail=message.author.display_avatar.url)
-                    embed.add_field(name="`` Author ``", value=f"{CEmoji.PROFILE}┇{message.author.display_name}\n{CEmoji.GLOBAL}┇{message.author.global_name}\n{CEmoji.ID}┇{message.author.id}", inline=True)
+                    embed.add_field(name="`` Author ``", value=f"{CEmoji.PROFILE}┇{message.author.display_name}\n{CEmoji.GLOBAL}┇{message.author.name}\n{CEmoji.ID}┇{message.author.id}", inline=True)
                     embed.add_field(name="`` Location ``", value=f"{CEmoji.MSG_ID}┇{message.id}\n{CEmoji.TEXT_C}┇{message.channel.mention}\n{CEmoji.ID}┇{message.channel.id}", inline=True)
                     embed.add_field(name="`` Message ``", value="Could not find the message content." if len(message.content) == 0 else message.content if len(message.content) < 1000 else f"{message.content[:1000]}...", inline=False)
 

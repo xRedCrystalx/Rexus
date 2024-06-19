@@ -23,7 +23,7 @@ class MiscellaneousHandlers:
                     thumbnail=member.display_avatar.url,
                     footer="Have an eye on this member."
                 )
-                embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{member.display_name}\n{CEmoji.GLOBAL}┇{member.global_name}\n{CEmoji.ID}┇{member.id}", inline=True)
+                embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{member.display_name}\n{CEmoji.GLOBAL}┇{member.name}\n{CEmoji.ID}┇{member.id}", inline=True)
                 embed.add_field(name="`` Rule ``", value=f"**Account was created <t:{createdAt}:R>.**\n`AccountAge < 3 days`", inline=True)
 
                 if channel := member.guild.get_channel(channel_id):
