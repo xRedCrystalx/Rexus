@@ -1,4 +1,4 @@
-discord==2.3.2
+git+https://github.com/Rapptz/discord.py@master
 schedule==1.2.2
 aiohttp==3.9.5
 xRedUtils
