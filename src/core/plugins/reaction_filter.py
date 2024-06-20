@@ -38,7 +38,7 @@ class ReactionFilter:
                     embed=create_base_embed("Reaction Filter"),
                     thumbnail=payload.member.display_avatar.url,
                     footer="Reaction will be removed.")
-                embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{payload.member.display_name}\n{CEmoji.GLOBAL}┇{payload.member.global_name}\n{CEmoji.ID}┇{payload.member.id}", inline=True)
+                embed.add_field(name="`` Member ``", value=f"{CEmoji.PROFILE}┇{payload.member.display_name}\n{CEmoji.GLOBAL}┇{payload.member.name}\n{CEmoji.ID}┇{payload.member.id}", inline=True)
                 embed.add_field(name="`` Rule ``", value=f"User reacted with {payload.emoji} emoji under https://discord.com/channels/{payload.guild_id}/{payload.channel_id}/{payload.message_id}.", inline=True)
 
                 if log_channel := payload.member.guild.get_channel(log_channnel_id):
