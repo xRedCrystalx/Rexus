@@ -2,7 +2,7 @@
 
 cd $HOME/NoPing
 echo "Updating from git.."
-git pull noping v3
+git pull noping main
 
 if [ ! -d ".venv" ]; then
     echo ".venv folder does not exist in the current directory, creating a new one."
