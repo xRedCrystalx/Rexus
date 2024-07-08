@@ -1,16 +1,27 @@
 import discord, sys
 sys.dont_write_bytecode = True
 from discord.ext import commands
-import src.connector as con
+from src.connector import shared
 
 class AutomodListeners(commands.Cog):
-    def __init__(self, bot: commands.Bot) -> None:
-        self.shared: con.Shared = con.shared
-        self.bot: commands.Bot = bot
+    def __init__(self, bot: commands.AutoShardedBot) -> None:
+        self.bot: commands.AutoShardedBot = bot
+
+    @commands.Cog.listener()
+    async def on_automod_rule_create(self, rule: discord.AutoModRule) -> None:
+        shared.loop.create_task(shared.queue.add_to_queue(event="on_automod_rule_create", guild_id=rule.guild.id, rule=rule))
+
+    @commands.Cog.listener()
+    async def on_automod_rule_update(self, rule: discord.AutoModRule) -> None:
+        shared.loop.create_task(shared.queue.add_to_queue(event="on_automod_rule_update", guild_id=rule.guild.id, rule=rule))
+
+    @commands.Cog.listener()
+    async def on_automod_rule_delete(self, rule: discord.AutoModRule) -> None:
+        shared.loop.create_task(shared.queue.add_to_queue(event="on_automod_rule_delete", guild_id=rule.guild.id, rule=rule))
 
     @commands.Cog.listener()
     async def on_automod_action(self, action: discord.AutoModAction) -> None:
-        self.shared.loop.create_task(self.shared.queue.add_to_queue(event="on_automod_action", guild_id=action.guild_id, action=action))
+        shared.loop.create_task(shared.queue.add_to_queue(event="on_automod_action", guild_id=action.guild_id, action=action))
 
-async def setup(bot: commands.Bot) -> None:
+async def setup(bot: commands.AutoShardedBot) -> None:
     await bot.add_cog(AutomodListeners(bot))
