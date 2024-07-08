@@ -27,7 +27,7 @@ class MessageListeners(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_bulk_message_delete(self, payload: discord.RawBulkMessageDeleteEvent) -> None:
         """If the messages are found in the message cache, they can be accessed via `RawBulkMessageDeleteEvent.cached_messages`."""
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_raw_message_delete", guild_id=payload.guild_id, payload=payload))
+        shared.loop.create_task(shared.queue.add_to_queue(event="on_raw_bulk_message_delete", guild_id=payload.guild_id, payload=payload))
 
 
 async def setup(bot: commands.AutoShardedBot) -> None:

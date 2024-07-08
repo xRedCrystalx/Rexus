@@ -13,7 +13,7 @@ class MemberListeners(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_member_remove", guild_id=payload.guild_id, payload=payload))
+        shared.loop.create_task(shared.queue.add_to_queue(event="on_raw_member_remove", guild_id=payload.guild_id, payload=payload))
 
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member) -> None:

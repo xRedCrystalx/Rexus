@@ -21,6 +21,7 @@ class ThreadListener(commands.Cog):
 
     @commands.Cog.listener()
     async def on_thread_remove(self, thread: discord.Thread) -> None:
+        """Local cache check, when bot left/was removed from thread. Can be delayed."""
         shared.loop.create_task(shared.queue.add_to_queue(event="on_thread_remove", guild_id=thread.guild.id, thread=thread))
 
     @commands.Cog.listener()

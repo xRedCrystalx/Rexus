@@ -17,7 +17,7 @@ class RoleListener(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_role_update(self, before: discord.Role, after: discord.Role) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_raw_reaction_clear", guild_id=after.guild.id, before=before, after=after))
+        shared.loop.create_task(shared.queue.add_to_queue(event="on_guild_role_update", guild_id=after.guild.id, before=before, after=after))
 
 async def setup(bot: commands.AutoShardedBot) -> None:
     await bot.add_cog(RoleListener(bot))
