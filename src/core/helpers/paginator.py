@@ -6,7 +6,7 @@ from .errors import report_error
 
 class BasicPaginator(ViewHelper):
     def __init__(self, messages: list[discord.Embed | str], timeout: float | None = None) -> None:
-        super().__init__(timeout)
+        super().__init__("PaginatorView", timeout)
 
         self.messages: list[discord.Embed | str] = messages
         self.lenList: int = len(self.messages)-1
