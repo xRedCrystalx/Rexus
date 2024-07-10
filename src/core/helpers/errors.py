@@ -31,7 +31,7 @@ async def report_error(caller: typing.Callable | str = None, option: typing.Lite
     return error_id
 
 async def new_error_embed(error_id: str) -> discord.Embed:
-    return await create_base_embed(
+    return create_base_embed(
         title="Error",
         description=f"An error has occured. Please report this to the developer.\n**Error code:** `{error_id}`"
     )
