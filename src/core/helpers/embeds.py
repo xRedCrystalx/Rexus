@@ -70,4 +70,5 @@ def to_dict(embed: Embed) -> dict[str, SIMPLE_ANY]:
     """|sync|"""
     return discord.Embed.to_dict(embed)
 
-NO_PERMISSIONS: Embed = new_embed(title="No permissions", description="You are not allowed to do that!", color=discord.Colour.red())
+class Embeds:
+    NO_PERMISSIONS: Embed = new_embed(title="No permissions", description="You are not allowed to do that!", color=discord.Colour.red())
