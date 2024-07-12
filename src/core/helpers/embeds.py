@@ -25,7 +25,7 @@ def new_embed(title: str = "", thumbnail: str = None, footer: str | dict = None,
     - `footer` - `dict[text: str = None, icon_url: str = None]` | `str` > Everything for footer
     """
     return apply_embed_items(
-        embed= create_base_embed(title=title, **kwargs),
+        embed=create_base_embed(title=title, **kwargs),
         author=kwargs.get("author"),
         thumbnail=thumbnail,
         image=kwargs.get("image"),
@@ -71,4 +71,13 @@ def to_dict(embed: Embed) -> dict[str, SIMPLE_ANY]:
     return discord.Embed.to_dict(embed)
 
 class Embeds:
-    NO_PERMISSIONS: Embed = new_embed(title="No permissions", description="You are not allowed to do that!", color=discord.Colour.red())
+    GENERAL_NO_PERMISSIONS: Embed = new_embed(title="No permissions", description="You are not allowed to do that!", color=discord.Colour.red())
+    COMMAND_NO_PERMISSIONS: Embed = new_embed(title="No permissions", description="You are not allowed to do run this command!", color=discord.Colour.red())
+
+    @staticmethod
+    def new_error_embed(error_id: str) -> discord.Embed:
+        """|sync|"""
+        return create_base_embed(
+            title="Error",
+            description=f"An error has occured. Please report this to the developer.\n**Error code:** `{error_id}`"
+        )
