@@ -1,8 +1,6 @@
-import sys, typing, discord
+import sys, typing
 sys.dont_write_bytecode = True
 from src.connector import shared, Event
-
-from .embeds import create_base_embed
 
 from xRedUtilsAsync.strings import string_split
 from xRedUtilsAsync.errors import simple_error, full_traceback
@@ -15,7 +13,7 @@ async def report_error(caller: typing.Callable | str = None, option: typing.Lite
     Generates and formats error.
 
     ### Returns:
-    - `error_id` as a `string`.
+    - Error ID as a `string`.
     """
 
     error: str = f"\n{await full_traceback()}" if option == "full" else await simple_error() if option == "simple" else error
@@ -30,10 +28,3 @@ async def report_error(caller: typing.Callable | str = None, option: typing.Lite
             await shared.sender.resolver(Event(channel, "send", event_data={"kwargs": {"content": f"```{sliced}```"}}))
 
     return error_id
-
-def new_error_embed(error_id: str) -> discord.Embed:
-    """|sync|"""
-    return create_base_embed(
-        title="Error",
-        description=f"An error has occured. Please report this to the developer.\n**Error code:** `{error_id}`"
-    )
