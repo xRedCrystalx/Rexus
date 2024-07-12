@@ -7,10 +7,11 @@ class ModalHelper(discord.ui.Modal):
     def __init__(self, title: str, custom_id: str, timeout: float | None = None) -> None:
         """
         Handler for `discord.Modal`
+        - `.add_items()` - adds items to the Modal
+    
         
-        - my_modal.get_data()     [`dict` | `None`] -> get original dict of returned data or error
-        or
-        - my_modal.clean_data()   [`dict` | `None`] -> get filtered/clean dict of returned data or error
+        - `.get_data()` - get original dict (discord response) or error
+        - `.clean_data()` - get filtered/clean dict or error
         """
         
         super().__init__(title=title, timeout=timeout, custom_id=custom_id)
@@ -29,7 +30,7 @@ class ModalHelper(discord.ui.Modal):
         self.data = {"error": "Timed out."}
         self.stop()
 
-    async def add_items(self, items: list[discord.Button, discord.SelectMenu] | discord.Button | discord.SelectMenu) -> None:
+    async def add_items(self, items: list[discord.TextInput] | discord.TextInput) -> None:
         """|async|"""
         for item in await to_iterable(items):
             try:
