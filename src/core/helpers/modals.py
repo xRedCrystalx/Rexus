@@ -2,6 +2,7 @@ import discord, sys
 sys.dont_write_bytecode = True
 from .errors import report_error
 
+from xRedUtilsAsync.iterables import to_iterable
 class ModalHelper(discord.ui.Modal):
     def __init__(self, title: str, custom_id: str, timeout: float | None = None) -> None:
         """
@@ -28,15 +29,33 @@ class ModalHelper(discord.ui.Modal):
         self.data = {"error": "Timed out."}
         self.stop()
 
+    async def add_items(self, items: list[discord.Button, discord.SelectMenu] | discord.Button | discord.SelectMenu) -> None:
+        """|async|"""
+        for item in await to_iterable(items):
+            try:
+                self.add_item(item)
+            except Exception:
+                await report_error(self.add_item, "simple")
+
     async def get_data(self) -> dict[str, str | list[dict] | Exception | discord.Interaction] | None:
-        """Returns raw data (discord response)"""
+        """
+        |async|
+        
+        Returns raw data (discord response)
+        """
         await self.wait()
         return self.data
     
     async def clean_data(self) -> dict[str, str | dict[str, str] | Exception] | None:
+        """|async|"""
         raw: dict[str, str | list[dict]] = await self.get_data()
         if not raw or raw.get("error"):
             return raw
     
-        return {"modal_id": raw.get("custom_id"), "interaction": raw.get("interaction"),
-                "components": {item["components"][0].get("custom_id"): item["components"][0].get("value") for item in raw.get("components")}}
+        return {
+            "modal_id": raw.get("custom_id"), 
+            "interaction": raw.get("interaction"),
+            "components": {
+                    item["components"][0].get("custom_id"): item["components"][0].get("value") for item in raw.get("components")
+            }
+        }
