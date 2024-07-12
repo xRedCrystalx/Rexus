@@ -5,8 +5,8 @@ from .views import ViewHelper
 from .errors import report_error
 
 class BasicPaginator(ViewHelper):
-    def __init__(self, messages: list[discord.Embed | str], timeout: float | None = None) -> None:
-        super().__init__("PaginatorView", timeout)
+    def __init__(self, messages: list[discord.Embed | str], timeout: float | None = None, custom_id: str = None) -> None:
+        super().__init__(custom_id or "PaginatorView", timeout)
 
         self.messages: list[discord.Embed | str] = messages
         self.lenList: int = len(self.messages)-1
@@ -34,7 +34,7 @@ class BasicPaginator(ViewHelper):
 
                 await interaction.response.edit_message(embed=message)
             else:
-                await report_error(f"BasicPaginator.paginator<{interaction.guild.id}>", f"An error has occured. Could not find `str` or `discord.Embed` object in list. Index: {self.currentPage}")
+                await report_error(f"BasicPaginator.paginator[{self.custom_id}]<{interaction.guild.id}>", f"An error has occured. Could not find `str` or `discord.Embed` object in list. Index: {self.currentPage}")
         else:
             await interaction.response.edit_message(view=None)
             self.stop()
