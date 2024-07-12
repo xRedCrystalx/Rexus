@@ -1,6 +1,6 @@
 import sys, typing
 sys.dont_write_bytecode = True
-from src.connector import shared, Event
+from src.connector import shared
 
 from xRedUtilsAsync.strings import string_split
 from xRedUtilsAsync.errors import simple_error, full_traceback
@@ -25,6 +25,6 @@ async def report_error(caller: typing.Callable | str = None, option: typing.Lite
 
     if shared.bot and (channel := shared.bot.get_channel(discord)):
         for sliced in await string_split(formatted_error, 1994, option="smart"):
-            await shared.sender.resolver(Event(channel, "send", event_data={"kwargs": {"content": f"```{sliced}```"}}))
+            await channel.send(content=f"```{sliced}```")
 
     return error_id
