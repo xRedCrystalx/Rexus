@@ -9,11 +9,11 @@ class StageListener(commands.Cog):
 
     @commands.Cog.listener()
     async def on_stage_instance_create(self, stage: discord.StageInstance) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_stage_instance_create", guild_id=stage.guild.id, stage=stage))
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_stage_instance_create", guild_id=stage.guild.id, stage=stage))
 
     @commands.Cog.listener()
     async def on_stage_instance_delete(self, stage: discord.StageInstance) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_stage_instance_delete", guild_id=stage.guild.id, stage=stage))
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_stage_instance_delete", guild_id=stage.guild.id, stage=stage))
 
     @commands.Cog.listener()
     async def on_stage_instance_update(self, before: discord.StageInstance, after: discord.StageInstance) -> None:
@@ -22,7 +22,7 @@ class StageListener(commands.Cog):
         - The topic is changed.
         - The privacy level is changed.
         """
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_stage_instance_update", guild_id=after.guild.id, before=before, after=after))
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_stage_instance_update", guild_id=after.guild.id, before=before, after=after))
 
 async def setup(bot: commands.AutoShardedBot) -> None:
     await bot.add_cog(StageListener(bot))

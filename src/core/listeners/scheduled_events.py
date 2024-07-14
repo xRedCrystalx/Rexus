@@ -9,11 +9,11 @@ class ScheduleEventListener(commands.Cog):
 
     @commands.Cog.listener()
     async def on_scheduled_event_create(self, event: discord.ScheduledEvent) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_scheduled_event_create", guild_id=event.guild.id, event=event))
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_scheduled_event_create", guild_id=event.guild.id, event=event))
 
     @commands.Cog.listener()
     async def on_scheduled_event_delete(self, event: discord.ScheduledEvent) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_scheduled_event_delete", guild_id=event.guild.id, event=event))
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_scheduled_event_delete", guild_id=event.guild.id, event=event))
 
     @commands.Cog.listener()
     async def on_scheduled_event_update(self, before: discord.ScheduledEvent, after: discord.ScheduledEvent) -> None:
@@ -25,15 +25,15 @@ class ScheduleEventListener(commands.Cog):
         - The status is changed.
         - The image is changed.
         """
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_scheduled_event_update", guild_id=after.guild.id, before=before, after=after))
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_scheduled_event_update", guild_id=after.guild.id, before=before, after=after))
 
     @commands.Cog.listener()
     async def on_scheduled_event_user_add(self, event: discord.ScheduledEvent, user: discord.User) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_scheduled_event_user_add", guild_id=event.guild.id, event=event, user=user))
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_scheduled_event_user_add", guild_id=event.guild.id, event=event, user=user))
 
     @commands.Cog.listener()
     async def on_scheduled_event_user_remove(self, event: discord.ScheduledEvent, user: discord.User) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_scheduled_event_user_remove", guild_id=event.guild.id, event=event, user=user))
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_scheduled_event_user_remove", guild_id=event.guild.id, event=event, user=user))
 
 async def setup(bot: commands.AutoShardedBot) -> None:
     await bot.add_cog(ScheduleEventListener(bot))

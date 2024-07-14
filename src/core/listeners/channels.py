@@ -9,19 +9,19 @@ class ChannelListeners(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_create(self, channel: discord.abc.GuildChannel) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_guild_channel_create", guild_id=channel.guild.id, channel=channel))
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_guild_channel_create", guild_id=channel.guild.id, channel=channel))
 
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_guild_channel_delete", guild_id=channel.guild.id, channel=channel))
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_guild_channel_delete", guild_id=channel.guild.id, channel=channel))
 
     @commands.Cog.listener()
     async def on_guild_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_guild_channel_update", guild_id=after.guild.id, before=before, after=after))
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_guild_channel_update", guild_id=after.guild.id, before=before, after=after))
 
     @commands.Cog.listener()
     async def on_guild_channel_pins_update(self, channel: discord.abc.GuildChannel, last_pin: datetime.datetime | None) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(event="on_guild_channel_pins_update", guild_id=channel.guild.id, channel=channel, last_pin=last_pin))
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_guild_channel_pins_update", guild_id=channel.guild.id, channel=channel, last_pin=last_pin))
 
 async def setup(bot: commands.AutoShardedBot) -> None:
     await bot.add_cog(ChannelListeners(bot))

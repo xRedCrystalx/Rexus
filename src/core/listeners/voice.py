@@ -10,7 +10,7 @@ class VoiceListeners(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState) -> None:
-        self.shared.loop.create_task(self.shared.queue.add_to_queue(event="on_voice_state_update", guild_id=member.guild.id, member=member, before=before, after=after))
+        self.shared.loop.create_task(self.shared.queue.add_to_queue(e="on_voice_state_update", guild_id=member.guild.id, member=member, before=before, after=after))
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(VoiceListeners(bot))
