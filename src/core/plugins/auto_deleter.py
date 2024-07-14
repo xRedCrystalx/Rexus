@@ -1,25 +1,27 @@
 import discord, asyncio, sys, typing
 sys.dont_write_bytecode = True
-import src.connector as con
-
-from src.core.helpers.event import Event
+from discord.ext import commands
+from src.connector import shared
 
 class AutoDeleter:
     def __init__(self) -> None:
-        self.shared: con.Shared = con.shared
         self.database: dict[discord.Message, int] = {}
 
     async def add_to_queue(self, guild_db: dict[str, typing.Any], message: discord.Message, **OVERFLOW) -> None:
         if str(message.channel.id) in guild_db["auto_delete"]["monitored"] and guild_db["auto_delete"]["status"]:
             self.database.update({message: guild_db["auto_delete"]["monitored"][str(message.channel.id)]})
 
-    async def start(self) -> None:
+    async def background_clock(self) -> None:
         while True:
             for msg in self.database.copy():
                 self.database[msg] -= 5
 
                 if self.database[msg] <=  0:
-                    self.shared.sender.resolver(Event(msg, "delete", event_data={}))
+                    await msg.delete()
                     self.database.pop(msg)
 
             await asyncio.sleep(5)
+
+async def setup(bot: commands.AutoShardedBot) -> None:
+    pass
+    #await con.shared.plugin_load(deleter := AutoDeleter(), callable=(["on_message"], deleter.add_to_queue), tasks=[deleter.background_clock])
