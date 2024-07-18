@@ -28,5 +28,8 @@ class AltDetection:
         return None
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    pass
-    #await con.shared.plugin_load(alt := AltDetection(), callable=(["on_member_join"], alt.detect))
+    await shared.add_plugin(AltDetection, 
+        config={
+            ["on_member_join"]: AltDetection.detect
+        }
+    )

@@ -29,5 +29,8 @@ class SimonProtection:
         return None
 
 async def setup(bot) -> None:
-    pass
-    # await con.shared.plugin_load(simon := SimonProtection(), callable=(["on_message"], simon.simon_invite_link_detection))
+    await shared.add_plugin(SimonProtection, 
+        config={
+            ["on_message", "on_raw_message_edit"]: SimonProtection.simon_invite_link_detection
+        }
+    )

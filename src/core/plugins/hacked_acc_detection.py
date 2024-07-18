@@ -44,7 +44,9 @@ class HackedAccounts:
                     await action_guild.get_channel(711311257570902109).send(embed=embed)
                     await action_member.kick(reason="Hacked account")
 
-
 async def setup(bot) -> None:
-    pass
-    #await con.shared.plugin_load(hacked := HackedAccounts(), callable=(["on_message", "on_automod_action"], hacked.check_hacked))
+    await shared.add_plugin(HackedAccounts, 
+        config={
+            ["on_message", "on_automod_action"]: HackedAccounts.check_hacked
+        }
+    )

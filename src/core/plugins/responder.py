@@ -18,5 +18,8 @@ class Responder:
         return None
 
 async def setup(bot) -> None:
-    pass
-    #await con.shared.plugin_load(responder := Responder(), callable=(["on_message"], responder.respond))
+    await shared.add_plugin(Responder, 
+        config={
+            ["on_message"]: Responder.respond
+        }
+    )
