@@ -1,6 +1,7 @@
-import sys, typing, aiohttp, asyncio, schedule, re
+import sys, aiohttp, asyncio, schedule, re
 sys.dont_write_bytecode = True
 from discord.ext import commands
+from typing import Callable
 
 from xRedUtilsAsync import (
     system,
@@ -14,7 +15,8 @@ class Shared:
     OS: str = system.OS
     session: aiohttp.ClientSession = None
 
-    plugin_filter: dict[str, dict[str, typing.Callable]] = {}
+    plugins: dict[str, Callable] = {}
+    plugin_filter: dict[str, list[Callable]] = {}
     plugin_tasks: list[asyncio.Task] = []
 
     system_modules: dict[str, dict[str, typehints.SIMPLE_ANY]] = {
@@ -60,7 +62,7 @@ class Shared:
         self.reloader = Reloader()
 
         # main modules
-        from core.queue import QueueSystem
+        from src.core.queue import QueueSystem
 
         self.queue = QueueSystem()
 
@@ -72,14 +74,18 @@ class Shared:
         from src.core.helpers.string_formats import StringFormats
         self.string_formats = StringFormats()
 
-    async def add_plugin(self, cls: object, config: dict[typing.Callable, list[str]], tasks: list[typing.Callable] = None) -> None:
-        # check if plugin even exist        
-        if not (plugin := self.bot.extensions.get(cls.__qualname__)):
-            return await self.bot.load_extension(cls.__qualname__)
+    async def add_plugin(self, cls: Callable, config: dict[Callable, list[str]], tasks: list[Callable] = None) -> None:
+        # check if plugin module even exist
+        if not sys.modules.get(cls.__module__):
+            return await self.bot.load_extension(cls.__module__)
+        
+        # load/overwrite plugin class into the memory
+        self.plugins[cls.__module__] = cls
+        plugin: Callable = self.plugins[cls.__module__]
 
         # iterates the config
-        for listeners, func in config.items():
-            for event in listeners:
+        for func, events_list in config.items():
+            for event in events_list:
                 # check if event exist, otherwise creates one
                 if not self.plugin_filter.get(event):
                     self.plugin_filter[event] = []
@@ -93,13 +99,13 @@ class Shared:
             if plugin_task := getattr(plugin, task.__name__, None):
                 self.plugin_tasks.append(self.loop.create_task(plugin_task(), name=plugin_task.__qualname__))
 
-    async def remove_plugin(self, cls: object, listeners: list[str]) -> None:
-        path_id: str = cls.__qualname__
+    async def remove_plugin(self, cls: Callable, listeners: list[str]) -> None:
+        path_id: str = cls.__module__
 
         # remove plugin callables from event listeners        
         for event in listeners:
             for callable in self.plugin_filter.get(event).copy():
-                if callable.__class__.__qualname__ == path_id:
+                if callable.__class__.__module__== path_id:
                     self.plugin_filter[event].remove(callable)
 
         # stop tasks
