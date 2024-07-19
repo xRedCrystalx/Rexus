@@ -23,8 +23,8 @@ class AutoDeleter:
             await asyncio.sleep(5)
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.add_plugin(AutoDeleter, tasks=[AutoDeleter.background_clock],
+    await shared.add_plugin(AutoDeleter(), tasks=[AutoDeleter.background_clock],
         config={
-            ["on_message"]: AutoDeleter.add_to_queue
+            AutoDeleter.add_to_queue: ["on_message"]
         }
     )

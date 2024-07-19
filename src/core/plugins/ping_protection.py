@@ -53,8 +53,8 @@ class PingProtection:
 
 async def setup(bot) -> None:
     
-    await shared.add_plugin(PingProtection, 
+    await shared.add_plugin(PingProtection(), 
         config={
-            ["on_message"]: PingProtection.find_pings # message edit requires payload parameter with cached_message - NEED FIXING
+            PingProtection.find_pings: ["on_message"] # message edit requires payload parameter with cached_message - NEED FIXING
         }
     )

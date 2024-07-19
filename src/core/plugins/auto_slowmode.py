@@ -82,8 +82,8 @@ class AutoSlowmode:
             self.database.clear()
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.add_plugin(AutoSlowmode, tasks=[AutoSlowmode.background_clock],
+    await shared.add_plugin(AutoSlowmode(bot), tasks=[AutoSlowmode.background_clock],
         config={
-            ["on_message"]: AutoSlowmode.message_listener
+            AutoSlowmode.message_listener: ["on_message"]
         }
     )

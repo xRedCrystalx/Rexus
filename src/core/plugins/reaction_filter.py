@@ -92,8 +92,8 @@ class ReactionFilter:
             await asyncio.sleep(2.5)
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.add_plugin(ReactionFilter, tasks=[ReactionFilter.background_clock],
+    await shared.add_plugin(ReactionFilter(bot), tasks=[ReactionFilter.background_clock],
         config={
-            ["on_raw_reaction_add"]: ReactionFilter.check_reaction
+            ReactionFilter.check_reaction: ["on_raw_reaction_add"]
         }
     )

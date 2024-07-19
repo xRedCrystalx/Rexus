@@ -23,8 +23,8 @@ class AutoMod:
         return None
     
 async def setup(bot) -> None:
-    await shared.add_plugin(AutoMod, 
+    await shared.add_plugin(AutoMod(), 
         config={
-            ["on_automod_action"]: AutoMod.response
+            AutoMod.response: ["on_automod_action"]
         }
     )
