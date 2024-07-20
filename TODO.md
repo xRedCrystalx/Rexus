@@ -1,0 +1,3 @@
+- logger
+- remove plugin
+- test plugin with variable update
