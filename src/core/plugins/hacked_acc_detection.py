@@ -45,8 +45,8 @@ class HackedAccounts:
                     await action_member.kick(reason="Hacked account")
 
 async def setup(bot) -> None:
-    await shared.add_plugin(HackedAccounts(), 
+    await shared.add_plugin(hacked := HackedAccounts(), 
         config={
-            HackedAccounts.check_hacked: ["on_message", "on_automod_action"]
+            hacked.check_hacked: ["on_message", "on_automod_action"]
         }
     )

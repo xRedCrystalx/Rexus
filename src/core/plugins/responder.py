@@ -18,8 +18,8 @@ class Responder:
         return None
 
 async def setup(bot) -> None:
-    await shared.add_plugin(Responder(), 
+    await shared.add_plugin(responder := Responder(), 
         config={
-            Responder.respond: ["on_message"]
+            responder.respond: ["on_message"]
         }
     )

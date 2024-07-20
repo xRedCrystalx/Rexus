@@ -52,8 +52,8 @@ class AntiLink:
         return None
     
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.add_plugin(AntiLink(), 
+    await shared.add_plugin(link := AntiLink(), 
         config={
-            AntiLink.antilink: ["on_message"] # support for on_raw_message_update
+            link.antilink: ["on_message"] # support for on_raw_message_update
         }
     )
