@@ -1,15 +1,15 @@
-import sys, typing
+import sys
 sys.dont_write_bytecode = True
+from typing import Callable
+from discord.ext.commands.errors import NoEntryPointError
 from src.connector import shared
 
 from xRedUtilsAsync.type_hints import SIMPLE_ANY
+from xRedUtilsAsync.modules.reloader import load_module, unload_module
 
 class Reloader:
-    async def load(self, cls: typing.Callable | str, config: dict[typing.Callable, list[str]], tasks: list[typing.Callable] = None) -> object:
-        # check if plugin module even exist
-        if not sys.modules.get(cls if isinstance(cls, str) else cls.__module__):
-            return await shared.bot.load_extension(cls if isinstance(cls, str) else cls.__module__)
-
+    async def _plugin_load(self, cls: Callable, config: dict[Callable, list[str]], tasks: list[Callable] = None) -> None:
+        """Helper method to deal with Rexus plugins"""
         # load/overwrite plugin class into the memory
         shared.plugins[cls.__module__] = cls
         
@@ -26,51 +26,78 @@ class Reloader:
 
         # starting plugin tasks
         for task in tasks or []:
-            shared.plugin_tasks.append(shared.loop.create_task(task(), name=f"{task.__class__.__module__}.{task.__qualname__}"))
-        return cls
+            shared.plugin_tasks.append(shared.loop.create_task(task(), name=f"{task.__module__}.{task.__qualname__}"))
+
+    async def _module_load(self, cls: Callable, config: dict[str, str | Callable]) -> None:
+        """Helper method to deal with normal modules"""
+        # overwrite/create to the specified location
+        if (location := config.get("location")) and (var := config.get("var")):
+            setattr(location, var, cls)
+
+        ### NOTE: more configs can be added
+    
+    async def load(self, cls: Callable | str, config: dict = None, tasks: list[Callable] = None) -> None:
+        # loading into system
+        path: str = cls if isinstance(cls, str) else cls.__module__
+        if not sys.modules.get(path):
+            try:
+                return await shared.bot.load_extension(path) # NOTE: Return: None
+            except NoEntryPointError:
+                cls = await load_module(path) # NOTE: retuns a module
+
+        # setups
+        if config:
+            if config.get("module"):
+                await self._module_load(cls, config)
+            else:
+                await self._plugin_load(cls, config, tasks)
+
 
     async def unload(self, path: str) -> None:
-        # plugin - running class instance
-        if not (plugin := shared.plugins.get(path)):
+        # if plugin
+        if (plugin := shared.plugins.get(path)):
+            # kill tasks
+            for task in shared.plugin_tasks:
+                if task.get_name().startswith(f"{plugin.__class__.__module__}.{plugin.__class__.__name__}"):
+                    task.cancel()
+                    shared.plugin_tasks.remove(task)
+                    try:
+                        await task
+                    except: pass
+
+            # update filter
+            for listener, callables in shared.plugin_filter.items():
+                for func in callables:
+                    if func.__self__ == plugin:
+                        shared.plugin_filter[listener].remove(func)
+
+            # removing from the plugins dict
+            shared.plugins.pop(path)
+
+        # laoded by discord.py
+        if shared.bot.extensions.get(path):
+            await shared.bot.unload_extension(path)
+        else:
+            await unload_module(path)
+
+    async def reload(self, path: str) -> Callable:
+        # check if the module exist
+        if not (module := sys.modules.get(path)):
             return
 
-        # removing from the plugins dict
-        shared.plugins.pop(path)
-
-        # kill tasks
-        for task in shared.plugin_tasks:
-            if task.get_name().startswith(f"{plugin.__module__}.{plugin.__name__}"):
-                task.cancel()
-                shared.plugin_tasks.remove(task)
-                try:
-                    await task
-                except: pass
-
-        # update filter
-        for listener, callables in shared.plugin_filter.items():
-            for func in callables:
-                if func.__class__ == plugin:
-                    shared.plugin_filter[listener].remove(func)
-        
-        # call discord.py finisher
-        await shared.bot.unload_extension(path)
-
-    async def reload(self, path: str) -> object:
-        # check if the plugin exist
-        if not (plugin := shared.plugins.get(path)):
-            return
-
-        # save important data to RAM db
+        # save important data to RAM db - ig plugin
         old_data: dict[str, SIMPLE_ANY] = dict()
-        for var in getattr(plugin, "CLS_SAVE"):
-            old_data[var] = getattr(plugin, var.__name__)
+        
+        if plugin := shared.plugins.get(path):
+            for var in getattr(module, "SAVE", []):
+                old_data[var] = getattr(plugin, var)
 
-        # unload and load back from the Rexus system and discord.py library
+        # unload and load back from the Rexus system, sys.modules and discord.py library
         await self.unload(path)
-        cls: object = await self.load(path, config=dict())
+        await self.load(path)
 
-        # migrating saved data
-        for var, data in old_data.items():
-            setattr(cls, var, data)
+        # migrating saved data - if plugin
+        if plugin := shared.plugins.get(path):
+            for var, data in old_data.items():
+                setattr(plugin, var, data)
 
-        return cls
