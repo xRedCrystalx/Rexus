@@ -1,127 +1,76 @@
-import sys, typing, asyncio
+import sys, typing
 sys.dont_write_bytecode = True
-import src.connector as con
+from src.connector import shared
+
+from xRedUtilsAsync.type_hints import SIMPLE_ANY
 
 class Reloader:
-    def __init__(self) -> None:
-        self.shared: con.Shared = con.shared
+    async def load(self, cls: typing.Callable | str, config: dict[typing.Callable, list[str]], tasks: list[typing.Callable] = None) -> object:
+        # check if plugin module even exist
+        if not sys.modules.get(cls if isinstance(cls, str) else cls.__module__):
+            return await shared.bot.load_extension(cls if isinstance(cls, str) else cls.__module__)
 
-    def _resolver(self, keyword: str) -> str:
-        if keyword == "*":
-            for module in self.config:
-                self.reload_module(module)
-        else:
-            return keyword
-
-    def load_configuration(self) -> dict[str, dict[str, str | list[str] | dict]]:
-        return self.shared.db.load_data().get("reloader")
-
-    def stop_task(self, module: str) -> None:
-        self.shared.logger.log(f"@Reloader.stop_task > Checking for active task.", "NP_DEBUG")
-        for task in self.shared.plugin_tasks:
-            if task.get_name().startswith(module):
-                if task.cancel():
-                    self.shared.logger.log(f"@Reloader.stop_task > Task terminated.", "NP_DEBUG")
-                    try:
-                        task.result()
-                    except (asyncio.CancelledError, asyncio.InvalidStateError):
-                        pass
-                    except Exception as error:
-                        self.shared.logger.log(f"@Plugins.stop_tasks.Task.{task.get_name()}: {type(error).__name__}: {error}", "ERROR")
-                
-                self.shared.logger.log(f"@Reloader.stop_task > Removing task from the list.", "NP_DEBUG")
-                self.shared.plugin_tasks.remove(task)
-                return
-        else:
-            self.shared.logger.log(f"@Reloader.stop_task > Did not find any active task.", "NP_DEBUG")
+        # load/overwrite plugin class into the memory
+        shared.plugins[cls.__module__] = cls
         
-    def start_task(self, module: typing.Callable) -> None:
+        # iterates the config
+        for callable, events_list in config.items():
+            for event in events_list:
+                # check if event exist, otherwise creates one
+                if not shared.plugin_filter.get(event):
+                    shared.plugin_filter[event] = []
+                
+                # checks if it already exists, otherwise adds it
+                if callable not in shared.plugin_filter.get(event):
+                    shared.plugin_filter[event].append(callable)
 
-        if module.__class__.__dict__.get("main"):
-            module.main()
-            self.shared.logger.log(f"@Reloader.start_task > Found and executed `main` function.", "NP_DEBUG")
-        else:
-            self.shared.logger.log(f"@Reloader.start_task > Did not find `main` function. Ignoring.", "NP_DEBUG")
+        # starting plugin tasks
+        for task in tasks or []:
+            shared.plugin_tasks.append(shared.loop.create_task(task(), name=f"{task.__class__.__module__}.{task.__qualname__}"))
+        return cls
 
-        self.shared.logger.log(f"@Reloader.start_task > Checking for plugin functions.", "NP_DEBUG")
-        if module.__class__.__dict__.get("start"):
-            task: asyncio.Task = asyncio.get_running_loop().create_task(module.start(), name=module.start.__qualname__)
-            self.shared.logger.log(f"@Reloader.start_task > Found and started `start` task.", "NP_DEBUG")
-
-            self.shared.plugin_tasks.append(task)
-            self.shared.logger.log(f"@Reloader.start_task > Added task to the list. {len(self.shared.plugin_tasks)}", "NP_DEBUG")
-        else:
-            self.shared.logger.log(f"@Reloader.start_task > Did not find `start` function. Ignoring.", "NP_DEBUG")
-
-    def finish(self) -> None:
-        self.shared.logger.log(f"@Reloader.finish > Reloading filters.", "NP_DEBUG")
-        self.shared.queue.reload_filters()
-
-    def reload_module(self, module: str) -> bool:
-        """
-        Reloads module.\n
-        Kills running tasks, saves important variables, removes and re-imports into the system, execute, start tasks and updates variables with data.
-        Config: config.json[reloader]
-
-        Arguments:
-        - module: `str` > name of Module
-        """
-        self.shared.logger.log(f"@Reloader.module > Re-loading {module}", "NP_DEBUG")
-        self.config = self.load_configuration()
-
-        # resolver check
-        if not (module := self._resolver(module)):
+    async def unload(self, path: str) -> None:
+        # plugin - running class instance
+        if not (plugin := shared.plugins.get(path)):
             return
 
-        # load updated configuration
-        if not (config := self.config.get(module)):
-            return self.shared.logger.log(f"@Reloader.reload_module > Failed to load configuration for {module}.", "ERROR")
+        # removing from the plugins dict
+        shared.plugins.pop(path)
 
-        # stop running tasks
-        self.stop_task(module)
+        # kill tasks
+        for task in shared.plugin_tasks:
+            if task.get_name().startswith(f"{plugin.__module__}.{plugin.__name__}"):
+                task.cancel()
+                shared.plugin_tasks.remove(task)
+                try:
+                    await task
+                except: pass
 
-        # save important RAM db
-        old_data: dict = {}
-        for var in config["save"]:
-            old_data[var] = getattr(getattr(self.shared, config["var"]), var)
-        self.shared.logger.log(f"@Reloader.reload_module > Saved old variable data of a module: Len: {len(old_data.keys())}.", "NP_DEBUG")
+        # update filter
+        for listener, callables in shared.plugin_filter.items():
+            for func in callables:
+                if func.__class__ == plugin:
+                    shared.plugin_filter[listener].remove(func)
+        
+        # call discord.py finisher
+        await shared.bot.unload_extension(path)
 
-        # get module name and remove it from system.modules (if it exists)
-        if (path := config["path"]) in sys.modules:
-            del sys.modules[path]
-        self.shared.logger.log(f"@Reloader.reload_module > Removed module from sys.modules.", "NP_DEBUG")
+    async def reload(self, path: str) -> object:
+        # check if the plugin exist
+        if not (plugin := shared.plugins.get(path)):
+            return
 
-        # import class from the path
-        try:
-            exec(f"from {path} import {module}")
-            self.shared.logger.log(f"@Reloader.reload_module > Re-importing module.", "NP_DEBUG")
-        except Exception as error:
-            self.shared.logger.log(f"@Reloader.reload_module > {type(error).__name__}: {error}", "ERROR")
+        # save important data to RAM db
+        old_data: dict[str, SIMPLE_ANY] = dict()
+        for var in getattr(plugin, "CLS_SAVE"):
+            old_data[var] = getattr(plugin, var.__name__)
 
-        # try to save variable and run class with arguments
-        try:
-            exec_module: typing.Callable = eval(module)
-            setattr(self.shared, config["var"], exec_module := eval(f"{module}(**{config["kwargs"]})"))
-            self.shared.logger.log(f"@Reloader.reload_module > Executed module and applied it to the shared object.", "NP_DEBUG")
-            
-            # apply saved data to updated class/module
-            for var, data in old_data.items():
-                setattr(getattr(self.shared, config["var"]), var, data)
-            self.shared.logger.log(f"@Reloader.reload_module > Applied old data to reloaded module.", "NP_DEBUG")
+        # unload and load back from the Rexus system and discord.py library
+        await self.unload(path)
+        cls: object = await self.load(path, config=dict())
 
-            self.start_task(exec_module)
-            self.finish()
-            self.shared.logger.log(f"@Reloader.reload_module > Successfully reloaded {module}!", "SYSTEM")
-            return True
+        # migrating saved data
+        for var, data in old_data.items():
+            setattr(cls, var, data)
 
-        except Exception as error:
-            self.shared.logger.log(f"@Reloader.reload_module > {type(error).__name__}: {error}", "ERROR")
-
-    async def reload_discord_module(self, path: str) -> None:
-        self.shared.logger.log(f"@Reloader.reload_discord_module > Attempting to reload discord module: {path}.", "NP_DEBUG")
-        try:
-            await self.shared.bot.reload_extension(path)
-            self.shared.logger.log(f"@Reloader.reload_discord_module > Successfully reloaded {path}!", "SYSTEM")
-        except Exception as error:
-            self.shared.logger.log(f"@Reloader.reload_discord_module > {type(error).__name__}: {error}", "ERROR")
-
+        return cls
