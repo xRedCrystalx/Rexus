@@ -1,124 +1,107 @@
-import logging, sys, logging.handlers, typing
+import logging, sys
 sys.dont_write_bytecode = True
-import src.connector as con
+from types import MethodType
+from src.connector import shared
 
-class Logger:
-    def __init__(self) -> None:
-        self.shared: con.Shared = con.shared
-        self.c = self.shared.colors
-        self._levels: dict[str, int] = {
-            "UPDATE": 25, 
-            "SYSTEM": 21,
-            "NP_DEBUG": 15,
-            "TESTING": 17
+from xRedUtilsAsync.colors import (
+    Foreground16 as FG,
+    Style as ST
+)
+from xRedUtils.dates import get_datetime
+
+# fucking hate logging module - monkeypatch for custom options
+class OverWriter:
+    def format(self, record: logging.LogRecord) -> str:
+        color: str = self.COLORS.get(record.levelno, FG.BLUE)
+
+        # Override the traceback to always print in red
+        if record.exc_info:
+            text: str = self.formatException(record.exc_info)
+            record.exc_text = f"{FG.RED}{text}{ST.RESET}"
+
+        formatted: str = logging.Formatter.format(self, record).format(lvl_c=color)
+    
+        # Remove the cache layer
+        record.exc_text = None
+        return formatted
+    
+    def emit(self, record: logging.LogRecord) -> None:
+        if record.levelno not in self.LEVELS:
+            return
+        getattr(logging, self.__class__.__name__).emit(self, record) # check if it works
+
+class Logger(logging.Logger):
+    def __init__(self, config: dict[str, dict[str, tuple]]) -> None:
+        self.config: dict[str, dict[str, tuple]] = config
+        super().__init__("noping", 1)
+        # remove previous handlers and update levels
+        self.handlers.clear()
+        self._setLevels()
+
+        for name, (lvl, path, format) in self.config["handlers"].items():
+            self.createHandler(name, lvl, path, format)
+
+    def _setLevels(self) -> None:
+        """Removes all levels from the `dicts` and adds new ones."""
+        logging._nameToLevel.clear()
+        logging._levelToName.clear()
+    
+        for name, level in self.config["levels"].items():
+            logging.addLevelName(level[0], name)
+
+    def createHandler(self, name: str, level: int | list[int], path: str | None, format: str) -> logging.Formatter:
+        if path:
+            handler = logging.FileHandler(path, encoding="utf-8")
+        else:
+            handler = logging.StreamHandler()
+        
+        if isinstance(level, (list, tuple)):
+            handler.LEVELS = level
+            handler.emit = MethodType(OverWriter.emit, handler) # monkeypatch
+            level = min(level)
+
+        handler.set_name(name)
+        handler.setLevel(level)
+
+        formatter = logging.Formatter(fmt=format, datefmt="%Y-%m-%d %H:%M:%S")
+        if not path and sys.stdout.isatty():
+            formatter.COLORS = {level: colour for level, colour in self.config["levels"].values()}
+            formatter.format = MethodType(OverWriter.format, formatter) # monkeypatch
+
+        handler.setFormatter(formatter)
+        self.addHandler(handler)
+
+    def log(self, level: int | str, msg: str, *args, logger_name: str = None, **kwargs) -> None:
+        if isinstance(level, str):
+            level = logging._nameToLevel.get(level.upper(), logging.INFO)
+
+        logger: logging.Logger = logging.getLogger(logger_name) if logger_name else self
+        logger._log(level, msg, args, **kwargs)
+
+configuration: dict[str, dict[str, tuple]] = {
+    "levels": {
+        "CRITICAL": (50, FG.RED),
+        "ERROR": (40, FG.BRIGHT_RED),
+        "WARNING": (30, FG.BRIGHT_YELLOW),
+        "UPDATE": (25, FG.GREEN),
+        "SYSTEM": (22, None),
+        "INFO": (20, FG.BLUE),
+        "TESTING": (18,  FG.MAGENTA),
+        "DEBUG": (10, FG.BRIGHT_WHITE),
+        "NOTSET": (0, None)
+    },
+    "handlers": {
+        "Console": (20, None, "\x1b[30;1m%(asctime)s\x1b[0m {lvl_c}%(levelname)-10s\x1b[0m \x1b[35m%(name)s\x1b[0m %(message)s\x1b[0m"),
+        "InDev": ([10, 18], f"./logs/development.log", "[%(asctime)s] [%(levelname)-10s] %(name)s: %(message)s"),
+        "Daily": (1, f"./logs/{get_datetime():%Y-%m-%d}.log", "[%(asctime)s] [%(levelname)-10s] %(name)s: %(message)s"),
+    }
+}
+
+async def setup(bot) -> None:
+    await shared.reloader.load(Logger(configuration),
+        config={
+            "module": True,
+            "location": shared,
+            "var": "logger"
         }
-        self.FILE_LEVEL = 17
-        self.CONSOLE_LEVEL = 21
-
-        self.handlers: list[logging.Handler] = []
-        self.logger: logging.Logger = logging.getLogger("discord")
-        self.logger.setLevel(10)
-
-    def _level_handler(self) -> None:
-        for name, level in self._levels.items():
-            setattr(logging, name, level)
-            logging.addLevelName(level, name)
-
-        self.log(f"@Logger._level_handler > Injected custom levels to logging library.", "NP_DEBUG")
-
-    def _handler_reloader(self) -> None:
-        for handler in self.handlers.copy():
-            self.log(f"@Logger._handler_reloader > Removing {handler.get_name()}", "NP_DEBUG")
-            self.logger.removeHandler(handler)
-            self.handlers.remove(handler)
-
-    def _formatter(self, option: str = None):
-        class ColorFormatter(logging.Formatter):
-            LEVEL_COLOURS: list[int, str] = [
-                (logging.DEBUG, self.c.White),
-                (logging.INFO, self.c.Blue),
-                (logging.WARNING, self.c.Bold+self.c.Yellow),
-                (logging.ERROR, self.c.Bold+self.c.Red),
-                (logging.CRITICAL, self.c.Red),
-                (17, self.c.Bold+self.c.White)
-            ]
-
-            FORMATS: dict[int, logging.Formatter] = {level: logging.Formatter(
-                f'\x1b[30;1m%(asctime)s{self.c.R} {colour}%(levelname)-8s{self.c.R} \x1b[35m%(name)s{self.c.R} %(message)s', '%Y-%m-%d %H:%M:%S') for level, colour in LEVEL_COLOURS}
-
-            def format(self, record) -> str:
-                formatter: logging.Formatter | None = self.FORMATS.get(record.levelno)
-                if formatter is None:
-                    formatter = self.FORMATS[logging.DEBUG]
-
-                # Override the traceback to always print in red
-                if record.exc_info:
-                    text = formatter.formatException(record.exc_info)
-                    record.exc_text = f'\x1b[31m{text}\x1b[0m'
-
-                output = formatter.format(record)
-
-                # Remove the cache layer
-                record.exc_text = None
-                return output
-
-        if option:
-            return ColorFormatter()
-        else:
-            return logging.Formatter("[{asctime}] [{levelname:<8}] {name}: {message}", "%Y-%m-%d %H:%M:%S", style="{")
-
-    def StreamHandler(self) -> None:
-        self.log(f"@Logger.StreamHandler > Creating stream handler (console)", "NP_DEBUG")
-        stream_handler = logging.StreamHandler()
-
-        if sys.stdout.isatty():
-            formmatter = self._formatter("COLOR")
-        else:
-            formmatter = self._formatter()
-
-        self.log(f"@Logger.StreamHandler > Setting handler's data.", "NP_DEBUG")
-        stream_handler.setFormatter(formmatter)
-        stream_handler.setLevel(self.CONSOLE_LEVEL)
-        stream_handler.set_name("Stream Handler")
-
-        self.handlers.append(stream_handler)
-        self.logger.addHandler(stream_handler)
-        self.log(f"@Logger.StreamHandler > Added handler to logger.", "NP_DEBUG")
-
-    def FileHandler(self) -> None:
-        self.log(f"@Logger.FileHandler > Creating new handler and formatter for file handler.", "NP_DEBUG")
-        formatter: logging.Formatter = self._formatter()
-        file_handler: logging.handlers.RotatingFileHandler = logging.handlers.RotatingFileHandler(filename=f"{self.shared.path}/logs/logger@discord-system.log", encoding="utf-8")
-
-        self.log(f"@Logger.FileHandler > Setting handler's data.", "NP_DEBUG")
-        file_handler.setLevel(self.FILE_LEVEL) # NoPing Debug +
-        file_handler.setFormatter(formatter)
-        file_handler.set_name("MainFile Handler")
-
-        self.handlers.append(file_handler)
-        self.logger.addHandler(file_handler)
-        self.log(f"@Logger.FileHandler > Added file handler to logger.", "NP_DEBUG")
-
-    def main(self) -> typing.Self:
-        self._level_handler()
-        self._handler_reloader()
-
-        self.StreamHandler()
-        self.FileHandler()
-        return self
-
-    def log(self, msg: str, level: str = "INFO") -> None:
-        try:
-            lvl: int = getattr(logging, level)
-            self.logger.log(lvl, msg=msg)
-        except:
-            pass
-
-"""
-FATAL/CRITICAL = 50
-ERROR = 40
-WARN/WARNING = 30
-INFO = 20
-DEBUG = 10
-NOTSET = 0
-"""
+    )
