@@ -21,7 +21,7 @@ async def report_error(caller: typing.Callable | str = None, option: typing.Lite
 
     formatted_error: str = f"@{caller if isinstance(caller, str) else caller.__qualname__}[{error_id}] > {error} "
 
-    await shared.logger.log("ERROR", formatted_error)
+    shared.logger.log("ERROR", formatted_error)
 
     if shared.bot and (channel := shared.bot.get_channel(discord)):
         for sliced in await string_split(formatted_error, 1994, option="smart"):

@@ -2,6 +2,8 @@ import sys, typing, discord
 sys.dont_write_bytecode = True
 import src.connector as con
 
+# TODO
+
 async def fetch_invite_links(string: str, option: typing.Literal["simon", "scam_guilds"] = None) -> list[int]:
     invites: list[int] = []
     for link in con.shared.global_db["invite_links"].get("regex").findall(string):
