@@ -21,11 +21,11 @@ class BaseSecuredMeta(type):
         return super().__new__(cls, clsname, bases, attrs)
     
     def __secured_setattr__(self, __name: str, __value: typing.Any, __pass: str) -> None:
-        if __pass == self._ID:
+        if __pass == self._ID: # TODO
             return __class__.__setattr__(type(self), __name, __value)
 
     def __secured_delattr__(self, __name: str, __pass: str) -> None:
-        if __pass == self._ID:
+        if __pass == self._ID: # TODO
             return __class__.__delattr__(type(self), __name)
 
     def __secured_hash() -> str:
