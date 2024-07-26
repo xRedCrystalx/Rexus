@@ -1,6 +1,6 @@
 import sys, typing, os
 sys.dont_write_bytecode = True
-import src.connector as con
+from src.connector import shared
 from src.core.helpers.errors import report_error
 
 from xRedUtils import files
@@ -8,10 +8,9 @@ from xRedUtils.type_hints import SIMPLE_ANY
 
 class Database:
     def __init__(self) -> None:
-        self.shared: con.Shared = con.shared
-        self.config_path: str = f"{self.shared.path}/src/config.json"
-        self.databases_path: str = self.shared.path+"/databases/{type}/{id}.json"
-        self.template_path: str = self.shared.path+"/databases/{type}.json"
+        self.config_path: str = f"{shared.path}/src/config.json"
+        self.databases_path: str = shared.path+"/databases/{type}/{id}.json"
+        self.template_path: str = shared.path+"/databases/{type}.json"
     
     def load_data(self, id: int | None = None, db: str = "guilds") -> dict[str, SIMPLE_ANY]:
         if id:
@@ -67,7 +66,7 @@ class Database:
                     recursive_add_value(d[current_segment], path_segments[1:])
 
         if not db_id:
-            for file in os.listdir(f"{self.shared.path}/database"):
+            for file in os.listdir(f"{shared.path}/database"):
                 if file.endswith(".json"):
                     serverID = int(file.removesuffix(".json"))
                     main: dict = self.load_data(server_id=serverID, serverData=True)
@@ -111,7 +110,7 @@ class Database:
 
     def remove_value(self, key: str, path: str = None, db_id: int = None) -> bool:
         if not db_id:
-            for file in os.listdir(f"{self.shared.path}/database"):
+            for file in os.listdir(f"{shared.path}/database"):
                 if file.endswith(".json"):
                     serverID = int(file.removesuffix(".json"))
                     main: dict = self.load_data(server_id=serverID, serverData=True)
@@ -135,3 +134,12 @@ class Database:
             except Exception as error:
                 print(f"Could not remove key from the DB. {type(error).__name__}: {error}")  
                 return
+            
+async def setup(bot) -> None:
+    await shared.reloader.load(Database(),
+        config={
+            "module": True,
+            "location": shared,
+            "var": "database"
+        }
+    )

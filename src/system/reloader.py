@@ -52,7 +52,6 @@ class Reloader:
             else:
                 await self._plugin_load(cls, config, tasks)
 
-
     async def unload(self, path: str) -> None:
         # if plugin
         if (plugin := shared.plugins.get(path)):
@@ -100,4 +99,13 @@ class Reloader:
         if plugin := shared.plugins.get(path):
             for var, data in old_data.items():
                 setattr(plugin, var, data)
+
+async def setup(bot) -> None:
+    await shared.reloader.load(Reloader(),
+        config={
+            "module": True,
+            "location": shared,
+            "var": "reloader"
+        }
+    )
 
