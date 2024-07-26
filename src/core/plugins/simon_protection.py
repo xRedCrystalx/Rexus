@@ -29,7 +29,7 @@ class SimonProtection:
         return None
 
 async def setup(bot) -> None:
-    await shared.add_plugin(simon := SimonProtection(), 
+    await shared.reloader.load(simon := SimonProtection(), 
         config={
             simon.simon_invite_link_detection: ["on_message", "on_raw_message_edit"]
         }

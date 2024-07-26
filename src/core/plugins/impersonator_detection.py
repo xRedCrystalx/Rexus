@@ -31,7 +31,7 @@ class ImpersonatorDetection:
                     await channel.send(embed=embed)
 
 async def setup(bot) -> None:
-    await shared.add_plugin(impersonator := ImpersonatorDetection(), 
+    await shared.reloader.load(impersonator := ImpersonatorDetection(), 
         config={
             impersonator.detect: ["on_member_join", "on_member_update"]
         }

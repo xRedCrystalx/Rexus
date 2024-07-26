@@ -28,7 +28,7 @@ class AltDetection:
         return None
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.add_plugin(alt := AltDetection(), 
+    await shared.reloader.load(alt := AltDetection(), 
         config={
             alt.detect: ["on_member_join"]
         }

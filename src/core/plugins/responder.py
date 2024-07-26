@@ -18,7 +18,7 @@ class Responder:
         return None
 
 async def setup(bot) -> None:
-    await shared.add_plugin(responder := Responder(), 
+    await shared.reloader.load(responder := Responder(), 
         config={
             responder.respond: ["on_message"]
         }

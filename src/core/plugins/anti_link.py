@@ -18,7 +18,7 @@ class AntiLink:
             "netflix.com", "disneyplus.com", "spotify.com", "myspace.com", "flickr.com", "roblox.com", "garticphone.com"
         ]
         self.links: dict[str, re.Pattern[str]] = {
-            "allowDiscordInvites": shared.global_db["invite_links"]["regex"],
+            "allowDiscordInvites": re.compile(r""),
             "allowNitroGifts": re.compile(r"https?://(?:www\.)?discord\.gift/[a-zA-Z0-9]+"),
             "allowSocialLinks": re.compile(rf"https?://(?:www\.)?(?:{'|'.join(re.escape(domain) for domain in self.social_media_domains)})/[a-zA-Z0-9]+")
         }
@@ -52,7 +52,7 @@ class AntiLink:
         return None
     
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.add_plugin(link := AntiLink(), 
+    await shared.reloader.load(link := AntiLink(), 
         config={
             link.antilink: ["on_message"] # support for on_raw_message_update
         }

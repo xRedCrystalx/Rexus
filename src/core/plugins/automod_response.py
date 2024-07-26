@@ -23,7 +23,7 @@ class AutoMod:
         return None
     
 async def setup(bot) -> None:
-    await shared.add_plugin(automod := AutoMod(), 
+    await shared.reloader.load(automod := AutoMod(), 
         config={
             automod.response: ["on_automod_action"]
         }

@@ -91,8 +91,9 @@ class ReactionFilter:
                 self.counter = 0
             await asyncio.sleep(2.5)
 
+SAVE: list[str] = ["db", "counter"]
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.add_plugin(reaction := ReactionFilter(bot), tasks=[reaction.background_clock],
+    await shared.reloader.load(reaction := ReactionFilter(bot), tasks=[reaction.background_clock],
         config={
             reaction.check_reaction: ["on_raw_reaction_add"]
         }

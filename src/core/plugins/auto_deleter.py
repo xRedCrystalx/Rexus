@@ -22,8 +22,9 @@ class AutoDeleter:
 
             await asyncio.sleep(5)
 
+SAVE: list[str] = ["database"]
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.add_plugin(autodelete := AutoDeleter(), tasks=[autodelete.background_clock],
+    await shared.reloader.load(autodelete := AutoDeleter(), tasks=[autodelete.background_clock],
         config={
             autodelete.add_to_queue: ["on_message"]
         }
