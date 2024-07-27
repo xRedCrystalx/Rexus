@@ -1,15 +1,24 @@
 import discord, sys
 sys.dont_write_bytecode = True
 from discord.ext import commands
-import src.connector as con
+from src.connector import shared
 
 from src.core.helpers.modals import ModalHelper
 from src.core.helpers.embeds import create_base_embed
 
+from xRedUtils.type_hints import SIMPLE_ANY, BUILTINS
+
 class NoPing(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot) -> None:
-        self.shared: con.Shared = con.shared
         self.bot: commands.AutoShardedBot = bot
+
+        self.troubleshooter: dict[str, str] = {
+            "status": "Bot is **disabled**. Make sure to enable it in `General` settings",
+            "staffRole": "Missing **staff/mod role.**",
+            "staffChannel": "Missing **staff/mod text channel.**",
+            "adminRole": "Missing **administrator role.**",
+            "adminChannel": "Missing **administrator text channel.**"
+        }
     
     async def report(self, option: str, components: list[dict], interaction: discord.Interaction) -> None:        
         if option == "bug" and (report_channel := self.bot.get_channel(1234544223236260010)):
@@ -46,6 +55,7 @@ class NoPing(commands.Cog):
     @discord.app_commands.choices(cmd=[
         discord.app_commands.Choice(name="help", value="help"),
         discord.app_commands.Choice(name="ping", value="ping"),
+        discord.app_commands.Choice(name="troubleshoot", value="trouble"),
         discord.app_commands.Choice(name="feedback", value="feedback"),
         discord.app_commands.Choice(name="report_bug", value="bug"),
     ])
@@ -84,6 +94,15 @@ class NoPing(commands.Cog):
                 discord.ui.TextInput(label="Other:", custom_id="txt_other", style=discord.TextStyle.long, max_length=1000, placeholder="Other information. Can be anything, not required.", required=False)
             ]
             await self.handle_modal(interaction, cmd.value, text_inputs)
-            
+
+        elif cmd.value == "trouble":
+            guild_db: dict[str, SIMPLE_ANY] = shared.db.load_data(interaction.guild.id)
+            embed: discord.Embed = create_base_embed(title="Troubleshooter")
+
+            # checking required settings
+            general_settings: dict[str, BUILTINS] = guild_db.get("general")
+
+            # checking plugin settings
+
 async def setup(bot: commands.AutoShardedBot) -> None:
     await bot.add_cog(NoPing(bot))
