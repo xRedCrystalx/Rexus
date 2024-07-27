@@ -5,10 +5,6 @@ from typing import Callable, TYPE_CHECKING
 from discord.ext import commands
 
 from xRedUtilsAsync import typehints
-from xRedUtilsAsync.colors import (
-    Foreground16 as FG,
-    Style as ST
-)
 
 if TYPE_CHECKING:
     from src.system.database import Database
