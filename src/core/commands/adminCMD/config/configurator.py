@@ -1,7 +1,7 @@
 import sys, discord, typing, ast
 sys.dont_write_bytecode = True
 from discord.ui import RoleSelect, ChannelSelect, UserSelect, Select, MentionableSelect, Button, TextInput
-import src.connector as con
+from src.connector import shared
 
 from xRedUtils.dicts import dict_walk
 from xRedUtils.dates import get_datetime
@@ -24,7 +24,6 @@ local_db -> STATIC - perm
 
 class Configurator:
     def __init__(self, guild_id: int) -> None:
-        self.shared: con.Shared = con.shared
         self.reset_configurator()
 
         self.FALLBACK: dict = dict(title="Configuration Wizard 🪄", description="This plugin does not have any configurations! ✨", color=discord.Colour.dark_embed())
@@ -617,12 +616,12 @@ class Configurator:
                 "autoSlowmode": 0               
             }
         }
-        self.shared.logger.log(f"@Configurator.reset_configurator > Reset configurator", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@Configurator.reset_configurator > Reset configurator")
     
     # navigation for interaction
     def navigate(self, custom_id: str, value: str = None) -> dict:
         if not custom_id:
-            self.shared.logger.log(f"@Configurator.navigate > Going back", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@Configurator.navigate > Going back")
             self.local_db["local_path"].pop(-1)
 
         current_config: dict[str, typing.Any] = dict_walk(self.config, self.local_db["local_path"])
@@ -640,7 +639,7 @@ class Configurator:
             self.local_db["local_path"].append(segment)
             current_config = current_config[segment]
             
-            self.shared.logger.log(f"@Configurator.navigate > Got segment: {segment}", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@Configurator.navigate > Got segment: {segment}")
 
         # local database path        
         if (old_path := self.local_db["db"]) and not custom_id:
@@ -676,10 +675,10 @@ class Configurator:
                     # replaces @LOCAL with the database path
                     value: str = value.replace("@LOCAL", f"{db_path[0]}{"".join([f"[{x}]" for x in db_path[1:]])}")
 
-                dict_embed[key] = self.shared.string_formats.format(value, self.guild_db)
+                dict_embed[key] = shared.string_formats.format(value, self.guild_db)
         
         EMBED: discord.Embed = discord.Embed(**dict_embed)
-        self.shared.logger.log(f"@Configurator.format_embed > Formatted embed.", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@Configurator.format_embed > Formatted embed.")
 
         if footer := self.local_db["footer"]:
             EMBED.set_footer(text=footer)
@@ -690,7 +689,7 @@ class Configurator:
 
     # logic that handles saving to database
     def handle_db(self, item_id: str, database_config: dict[str, typing.Any], extra: typing.Any = None) -> None:
-        self.shared.logger.log(f"@Configurator.handle_db > Got db request: ID: {item_id}", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@Configurator.handle_db > Got db request: ID: {item_id}")
         
         def save_to_database(path: list[str], value: typing.Any, func: str = None, search: str = None) -> None:
             keys: list[str] = [*self.local_db["db_path"], *path[1:]] if path[0].startswith("local") else path
@@ -708,7 +707,7 @@ class Configurator:
                 data: dict[str, typing.Any] | list[typing.Any] = database[last_key]
 
                 if callable := getattr(data, func, None):
-                    self.shared.logger.log(f"@Configurator.handle_db.save_to_database > Func: {callable}, value: {value}, db: {data}", "NP_DEBUG")
+                    shared.logger.log("NP_DEBUG", f"@Configurator.handle_db.save_to_database > Func: {callable}, value: {value}, db: {data}")
                     try: 
                         callable(value) if callable.__name__ not in ["pop"] else callable(str(value))
                     except: pass
@@ -720,7 +719,7 @@ class Configurator:
             else:
                 database[last_key] = value
 
-            self.shared.db.save_data(self.interaction.guild.id, self.guild_db)
+            shared.db.save_data(self.interaction.guild.id, self.guild_db)
             self.local_db["footer"] = "✅ Sucessfully applied configuration settings."
 
         # ---------------------------------------------------------------------------------------------------
@@ -744,12 +743,12 @@ class Configurator:
             else:
                 raise ValueError("Recieved `None` as value.")
 
-        self.shared.logger.log(f"@Configurator.handle_db > Save arguments: {database_config}", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@Configurator.handle_db > Save arguments: {database_config}")
         return save_to_database(path=database_config[0], value=values, func=database_config[2], search=database_config[3])
 
     #NOTE: look at it later - new syntax possibly?
     def item_generator(self, item_config: dict[str, typing.Any]) -> list:
-        self.shared.logger.log(f"@Configurator.item_generator > Generating items..", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@Configurator.item_generator > Generating items..", "NP_DEBUG")
         if isinstance(item_config, dict):
             database: dict[str, str | dict[str, str | int] | int] = dict_walk(self.guild_db, path=item_config.get("path"))
 
@@ -765,7 +764,7 @@ class Configurator:
 
     # checks for "view" key, iterates and appends pre-created view items
     def handle_view(self, current_config: dict[str, typing.Any]):
-        self.shared.logger.log(f"@Configurator.handle_view > Creating view.", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@Configurator.handle_view > Creating view.")
         discord_items: dict[str, tuple[typing.Callable, dict[str, typing.Any]]] = {
             "btn_create": (Button, dict(label="Create", custom_id="CONFIG:btn_create", style=discord.ButtonStyle.green)),
             "btn_edit": (Button, dict(label="Edit", custom_id="CONFIG:btn_edit", style=discord.ButtonStyle.gray)),
@@ -820,7 +819,7 @@ class Configurator:
     # handles modal interactions
     async def modal_interaction(self, current_config: dict[str, typing.Any]) -> None:
         clean_data: dict[str, str | list[dict]] = await self.view.create_modal(**current_config.get("modal"))
-        self.shared.logger.log(f"@Configurator.modal_interaction > Got modal.", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@Configurator.modal_interaction > Got modal.")
 
         if not (current_config := self.navigate(clean_data.get("modal_id"))):
             raise NotImplementedError("Failed to find screen for the next interaction (Modal)")
@@ -835,7 +834,7 @@ class Configurator:
                 raise LookupError(f"Could not find required information for modal text input of: {text_input}")    
             
             await self.create_new_screen(screen_config)
-        self.shared.logger.log(f"@Configurator.modal_interaction > Handled modal's text inputs.", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@Configurator.modal_interaction > Handled modal's text inputs.")
 
     # creates new screen
     async def create_new_screen(self, current_config: dict[str, typing.Any]) -> None:
@@ -843,16 +842,16 @@ class Configurator:
             # returning x times (value of the return key)
             for _ in range(repeat_return):
                 current_config = self.navigate(None)
-            self.shared.logger.log(f"@Configurator.create_new_screen > Returned {repeat_return} times.", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@Configurator.create_new_screen > Returned {repeat_return} times.")
 
         # handle modal display
         if current_config.get("modal"):
-            self.shared.logger.log(f"@Configurator.create_new_screen > Sending modal.", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@Configurator.create_new_screen > Sending modal.")
             await self.modal_interaction(current_config)
 
         # display logic -> find embed and view and display
         elif (embed := current_config.get("embed")) and current_config.get("view"):
-            self.shared.logger.log(f"@Configurator.create_new_screen > Sending embed & view", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@Configurator.create_new_screen > Sending embed & view")
             await self.view.update_message(self.interaction, dict(embed=self.format_embed(embed), view=self.handle_view(current_config)))
 
     # if option provided exists in config, display, otherwise display FALLBACK embed - no config for that option
@@ -866,14 +865,14 @@ class Configurator:
     # handles view interaction
     async def handle_interaction(self, custom_id: str, view) -> None:
         #check for view and database
-        self.shared.logger.log(f"@Configurator.handle_interaction > Got new event with ID: {custom_id}.", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@Configurator.handle_interaction > Got new event with ID: {custom_id}.")
         if not view:
             raise ValueError("No view recieved.")
         
         self.view: BaseConfigCMDView = view        
         self.interaction: discord.Interaction = self.view.interaction       
         
-        if not (guild_db := self.shared.db.load_data(self.interaction.guild.id)):
+        if not (guild_db := shared.db.load_data(self.interaction.guild.id)):
             raise ValueError(f"No database data found, corrupted or missing database for: {self.interaction.guild.name} ({self.interaction.guild.id}) ?")
 
         # setting global values per interaction
@@ -882,16 +881,16 @@ class Configurator:
 
         # start handler
         if custom_id.endswith(":START"):
-            self.shared.logger.log(f"@Configurator.handle_interaction > Executed start event.", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@Configurator.handle_interaction > Executed start event.")
             self.reset_configurator()
             await self.first_screen()
 
         # just switch handler
         elif custom_id.endswith(":btn_switch"):
-            self.shared.logger.log(f"@Configurator.handle_interaction > Executed switch event.", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@Configurator.handle_interaction > Executed switch event.")
             self.reset_configurator()
             self.guild_db[self.option]["status"] = not self.guild_db[self.option]["status"]
-            self.shared.db.save_data(self.interaction.guild.id, self.guild_db)
+            shared.db.save_data(self.interaction.guild.id, self.guild_db)
             await self.first_screen()
 
         else:
@@ -900,23 +899,23 @@ class Configurator:
             
             # on btn_back, goes one navigation back
             if item_id == "btn_back":
-                self.shared.logger.log(f"@Configurator.handle_interaction > Executed back event.", "NP_DEBUG")
+                shared.logger.log("NP_DEBUG", f"@Configurator.handle_interaction > Executed back event.")
                 current_config: dict[str, typing.Any] = self.navigate(None)
 
             # handle selects
             elif item_id.startswith("slc_"):
-                self.shared.logger.log(f"@Configurator.handle_interaction > Got select menu event.", "NP_DEBUG")
+                shared.logger.log("NP_DEBUG", f"@Configurator.handle_interaction > Got select menu event.")
                 first_value: str = self.interaction.data.get("values")[0]
                 current_config: dict[str, typing.Any] = self.navigate(item_id, first_value)
 
             # handle buttons
             elif item_id.startswith("btn_"):
-                self.shared.logger.log(f"@Configurator.handle_interaction > Got button event.", "NP_DEBUG")
+                shared.logger.log("NP_DEBUG", f"@Configurator.handle_interaction > Got button event.")
                 current_config: dict[str, typing.Any] = self.navigate(item_id)
             else:
                 raise NotImplementedError("Failed to navigate interaction in the config.")
 
             await self.create_new_screen(current_config)
         
-        self.shared.logger.log(f"@Configurator.handle_interaction > Local path: {self.local_db["local_path"]} DB path: {self.local_db["db_path"]}", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@Configurator.handle_interaction > Local path: {self.local_db["local_path"]} DB path: {self.local_db["db_path"]}")
   

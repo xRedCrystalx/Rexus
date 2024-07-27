@@ -1,15 +1,13 @@
 import sys, discord
 sys.dont_write_bytecode = True
-import src.connector as con
 from discord import Embed
+from src.connector import shared
 
 from src.core.helpers.embeds import create_base_embed
 
 class HelpPages:
     def __init__(self, guild_id: int) -> None:
         self.guild_id: int = guild_id
-
-    shared: con.Shared = con.shared
 
     ERROR: Embed = create_base_embed("Error", description="An error has occured. Please report this to the developer.\n**Error code:** `{error}`")
     ERROR.set_footer(text="Configuration has been terminated.")
@@ -67,7 +65,6 @@ class ConfigPages:
     def __init__(self, guild_id: int) -> None:
         self.guild_id: int = guild_id
 
-    shared: con.Shared = con.shared
     formatter = shared.string_formats
 
     general: Embed = create_base_embed("General", description="<:bot:1226153730836140054>┇{status:boolean_format?option='switch'&discord_format}\n<:location:1226157748547227668>┇{language:discord_format}\n<:settings:1205253280741982259> **Can admins configure?:** {allowAdminEditing:boolean_format?option='y/n'&discord_format}")
@@ -139,16 +136,16 @@ class ConfigPages:
             embed: Embed = create_base_embed(blueprint_embed.title or "", description=self.formatter.format(blueprint_embed.description or "", data), color=blueprint_embed.color)
             
             if blueprint_embed.thumbnail.url:
-                self.shared.logger.log(f"@ConfigPages.create_embed > Blueprint has thumbnail: {blueprint_embed.thumbnail.url}", "NP_DEBUG")
+                shared.logger.log("NP_DEBUG", f"@ConfigPages.create_embed > Blueprint has thumbnail: {blueprint_embed.thumbnail.url}")
                 embed.set_thumbnail(url=blueprint_embed.thumbnail.url)
             
             if blueprint_embed.footer.text:
                 embed.set_footer(text=blueprint_embed.footer.text)
 
-            self.shared.logger.log(f"@ConfigPages.create_embed > Creating new {name} embed.", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@ConfigPages.create_embed > Creating new {name} embed.")
 
             if blueprint_embed and blueprint_embed.fields:
-                self.shared.logger.log(f"@ConfigPages.create_embed > Handling fields", "NP_DEBUG")
+                shared.logger.log("NP_DEBUG", f"@ConfigPages.create_embed > Handling fields")
                 for field in blueprint_embed.fields.copy():
                     if "$" in field.name:
                         for new_filed in self.handle_fields(field, data):

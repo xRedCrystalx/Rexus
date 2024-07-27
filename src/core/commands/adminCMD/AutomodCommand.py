@@ -1,19 +1,18 @@
 import discord, sys, typing
 sys.dont_write_bytecode = True
 from discord.ext import commands
-import src.connector as con
+from src.connector import shared
 
 from src.core.helpers.paginator import BasicPaginator
 from src.core.helpers.embeds import create_base_embed
 
 class AutomodCommand(commands.GroupCog, name="automod"):
     def __init__(self, bot: commands.Bot) -> None:
-        self.shared: con.Shared = con.shared
         self.bot: commands.Bot = bot
 
     @discord.app_commands.command(name = "load_rules", description = "Loads all automod modules.")
     async def load(self, interaction: discord.Interaction) -> None:
-        bot_db: dict = self.shared.db.load_data(interaction.guild.id)
+        bot_db: dict = shared.db.load_data(interaction.guild.id)
         
         embed_list: list[discord.Embed] = []
         def replace_symbols(strs: list[str]) -> list[str]:
@@ -55,8 +54,8 @@ class AutomodCommand(commands.GroupCog, name="automod"):
         ])
     @discord.app_commands.command(name = "create_response", description = "Creates responses and uses them on automod trigger.")
     async def save(self, interaction: discord.Interaction, rule_id: str, response: str, trigger: str, pre_sets: discord.app_commands.Choice[str] | None = None) -> None:
-        bot_db: dict[str, typing.Any] = self.shared.db.load_data()
-        guild_db: dict[str, typing.Any] = self.shared.db.load_data(interaction.guild.id)
+        bot_db: dict[str, typing.Any] = shared.db.load_data()
+        guild_db: dict[str, typing.Any] = shared.db.load_data(interaction.guild.id)
         
         def create_db_path(id: str, single: bool = False, path: str | None = None) -> bool:
             try:
@@ -85,7 +84,7 @@ class AutomodCommand(commands.GroupCog, name="automod"):
                 create_db_path(id=rule_id, single=True)
                 guild_db["automod"]["rules"][rule_id] = response
 
-                self.shared.db.save_data(interaction.guild.id, guild_db)
+                shared.db.save_data(interaction.guild.id, guild_db)
                 
                 await interaction.response.send_message(content=f"Successfully set `{response}` as response on rule trigger: **{automod_rule.name} ({rule_id})**")
 
@@ -99,7 +98,7 @@ class AutomodCommand(commands.GroupCog, name="automod"):
                     for x in trigger.split(","):
                         guild_db["automod"]["rules"][rule_id][x] = response
 
-                self.shared.db.save_data(interaction.guild.id, guild_db)
+                shared.db.save_data(interaction.guild.id, guild_db)
 
                 await interaction.response.send_message(content=f"Successfully set `{response}` as response on rule trigger: **{automod_rule.name} ({rule_id})**; Keywords: `{trigger if trigger != '/' else 'GLOBAL_VALUE'}`", ephemeral=True)
 
@@ -108,7 +107,7 @@ class AutomodCommand(commands.GroupCog, name="automod"):
                 create_db_path(id=rule_id, path=pre_sets.value)
                 guild_db["automod"]["rules"][rule_id][pre_sets.value] = response
 
-                self.shared.db.save_data(interaction.guild.id, guild_db)
+                shared.db.save_data(interaction.guild.id, guild_db)
     
                 await interaction.response.send_message(content=f"Successfully set `{response}` as response on rule trigger: **{automod_rule.name} ({rule_id})**; Pre-set: `{pre_sets.name}`", ephemeral=True)
             else:

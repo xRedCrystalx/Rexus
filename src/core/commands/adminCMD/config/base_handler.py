@@ -1,6 +1,6 @@
 import sys, typing, discord
 sys.dont_write_bytecode = True
-import src.connector as con
+from src.connector import shared
 
 from src.core.helpers.views import ViewHelper
 from src.core.helpers.modals import ModalHelper
@@ -9,7 +9,6 @@ from src.core.helpers.errors import report_error
 class BaseConfigCMDView(ViewHelper):
     def __init__(self, current_position: str, guild_id: int, timeout: float | None = 60 * 60) -> None:
         super().__init__(timeout=timeout)
-        self.shared: con.Shared = con.shared
         self._handle_imports(guild_id)
 
         self.global_config: dict[str, str] = {
@@ -32,14 +31,14 @@ class BaseConfigCMDView(ViewHelper):
         self.current_position: str = current_position if current_position else self.page_names[-1]
 
     def _handle_imports(self, guild_id: int) -> None:
-        self.shared.logger.log(f"@AdvancedPaginator._handle_imports > Importing handlers.", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@AdvancedPaginator._handle_imports > Importing handlers.")
         from .pages import HelpPages, ConfigPages
         from .configurator import Configurator
         
         self.help_obj: HelpPages = HelpPages(guild_id)
         self.config_obj: ConfigPages = ConfigPages(guild_id)
         self.configurator: Configurator = Configurator(guild_id)
-        self.shared.logger.log(f"@AdvancedPaginator._handle_imports > Imported and executed handlers..", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@AdvancedPaginator._handle_imports > Imported and executed handlers..")
 
     def create_back_button(self, item: bool = False) -> typing.Self | discord.Button:
         button = discord.ui.Button(label="↩", custom_id="PAGINATOR:RETURN", style=discord.ButtonStyle.red)
@@ -53,11 +52,11 @@ class BaseConfigCMDView(ViewHelper):
         self.add_item(discord.ui.Button(emoji="⚙️", custom_id="CONFIG:START", style=discord.ButtonStyle.gray))
         self.add_item(discord.ui.Button(label="►", custom_id="PAGINATOR:NEXT", style=discord.ButtonStyle.blurple))
         self.add_item(discord.ui.Button(label="✕", custom_id="PAGINATOR:STOP", style=discord.ButtonStyle.red))
-        self.shared.logger.log(f"@AdvancedPaginator.create_paginator_buttons > Created and appended PAGINATOR buttons to view.", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@AdvancedPaginator.create_paginator_buttons > Created and appended PAGINATOR buttons to view.")
         return self
 
     async def update_message(self, interaction: discord.Interaction, data: dict[str, typing.Any]) -> None:
-        self.shared.logger.log(f"@BaseConfigCMDView.update_message > Updating message...", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@BaseConfigCMDView.update_message > Updating message...")
         if interaction.response.is_done():
             return await interaction.edit_original_response(**data)
 
@@ -78,7 +77,7 @@ class BaseConfigCMDView(ViewHelper):
         return data
 
     async def change_page(self, custom_id: str) -> None:
-        guild_db: dict = self.shared.db.load_data(self.interaction.guild.id)
+        guild_db: dict = shared.db.load_data(self.interaction.guild.id)
         
         if custom_id.endswith(":BACK") or custom_id.endswith(":NEXT"):
             value: int = 1 if custom_id.endswith(":NEXT") else -1
@@ -88,25 +87,25 @@ class BaseConfigCMDView(ViewHelper):
             self.current_position = self.page_names[index]
 
             if config := guild_db.get(self.current_position):
-                self.shared.logger.log(f"@AdvancedPaginator.change_page > Changing page to {self.current_position}.", "NP_DEBUG")
+                shared.logger.log("NP_DEBUG", f"@AdvancedPaginator.change_page > Changing page to {self.current_position}.")
                 await self.update_message(self.interaction, {"embed": self.config_obj.create_embed(config, name=self.global_config.get(self.current_position), interaction=self.interaction, blueprint_embed=getattr(self.config_obj, self.current_position, None))})
             else:
                 raise ValueError(f"Could not find data for {self.current_position} in {self.interaction.guild.name} ({self.interaction.guild.id}) >> Triggered by PAGINATOR interaction.")
 
         elif custom_id.endswith(":INFO"):
-            self.shared.logger.log(f"@AdvancedPaginator.change_page > Changing page to INFO.", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@AdvancedPaginator.change_page > Changing page to INFO.")
             await self.update_message(self.interaction, {"embed": getattr(self.help_obj, self.current_position, None), "view": self.clear_items().create_back_button()})
 
         elif custom_id.endswith(":STOP"):
-            self.shared.logger.log(f"@AdvancedPaginator.change_page > Changing page to STOP.", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@AdvancedPaginator.change_page > Changing page to STOP.")
             await self.update_message(self.interaction, {"view": self.clear_items()})
             self.stop()
 
         elif custom_id.endswith(":RETURN"):
-            self.shared.logger.log(f"@AdvancedPaginator.change_page > Resetting configurator.", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@AdvancedPaginator.change_page > Resetting configurator.", "NP_DEBUG")
             self.configurator.reset_configurator()
             if config := guild_db.get(self.current_position):
-                self.shared.logger.log(f"@AdvancedPaginator.change_page > Changing page to RETURN.", "NP_DEBUG")
+                shared.logger.log("NP_DEBUG", f"@AdvancedPaginator.change_page > Changing page to RETURN.")
                 await self.update_message(self.interaction, {"embed": self.config_obj.create_embed(config, name=self.global_config.get(self.current_position), interaction=self.interaction, blueprint_embed=getattr(self.config_obj, self.current_position, None)), "view": self.clear_items().create_paginator_buttons()})
             else:
                 raise ValueError(f"Could not find data for {self.current_position} in {self.interaction.guild.name} ({self.interaction.guild.id}) >> Triggered by RETURN interaction.")
@@ -117,7 +116,7 @@ class BaseConfigCMDView(ViewHelper):
 
         custom_id: str = dict(interaction.data ).get('custom_id')
         self.interaction: discord.Interaction = interaction
-        self.shared.logger.log(f"@AdvancedPaginator.interaction_check > Recieved interaction with ID: {custom_id}.", "NP_DEBUG")
+        shared.logger.log("NP_DEBUG", f"@AdvancedPaginator.interaction_check > Recieved interaction with ID: {custom_id}.")
 
         if interaction.type == discord.InteractionType.component:
             if custom_id.startswith("PAGINATOR:"):
@@ -129,7 +128,7 @@ class BaseConfigCMDView(ViewHelper):
         return
     
     async def on_error(self, interaction: discord.Interaction, error: Exception, item: discord.ui.item.Item) -> None:
-        error_id: str = report_error(error, self.on_error, "full")
+        error_id: str = await report_error(self.on_error, error)
 
         error_embed: discord.Embed = self.help_obj.ERROR
         error_embed.description = error_embed.description.format(error=error_id)

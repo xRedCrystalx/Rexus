@@ -1,14 +1,12 @@
 import sys, discord
 sys.dont_write_bytecode = True
 from discord.ext import commands
-import src.connector as con
+from src.connector import shared
 
-from src.core.helpers.permissions import check_bot_owner
 from .config.base_handler import BaseConfigCMDView
 
 class ConfigureCommand(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot) -> None:
-        self.shared: con.Shared = con.shared
         self.bot: commands.AutoShardedBot = bot
 
     @discord.app_commands.choices(plugin=[
@@ -29,23 +27,23 @@ class ConfigureCommand(commands.Cog):
     async def config(self, interaction: discord.Interaction, plugin: discord.app_commands.Choice[str] | None) -> None:
         if not interaction.guild:
             await interaction.response.send_message("Sorry, but this command only works in guilds!", ephemeral=True)
-            self.shared.logger.log(f"@ConfigureCommand.config[cmd] > In DMs command execution attempt.", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@ConfigureCommand.config[cmd] > In DMs command execution attempt.")
 
-        guild_db: dict[str, dict] = self.shared.db.load_data(interaction.guild.id)
+        guild_db: dict[str, dict] = shared.db.load_data(interaction.guild.id)
         allowAdminEditing: bool = guild_db["general"].get("allowAdminEditing")
 
-        if (allowAdminEditing and interaction.user.guild_permissions.administrator) or (interaction.user.id == interaction.guild.owner.id) or check_bot_owner(interaction.user.id):
+        if (allowAdminEditing and interaction.user.guild_permissions.administrator) or (interaction.user.id == interaction.guild.owner.id):# or check_bot_owner(interaction.user.id)
             paginator = BaseConfigCMDView(current_position=plugin.value if plugin else None, guild_id=interaction.guild.id)
-            self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Created base paginator system.", "NP_DEBUG")
+            shared.logger.log("NP_DEBUG", f"@ConfigureCommand.config[cmd] > Created base paginator system.")
             
             if plugin:
                 # plugin specific config
                 await interaction.response.send_message(embed=paginator.config_obj.create_embed(guild_db.get(plugin.value), name=plugin.value, interaction=interaction, blueprint_embed=getattr(paginator.config_obj, plugin.value, None)), view=paginator.create_paginator_buttons(), ephemeral=True)
-                self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Executing plugin specific config.", "NP_DEBUG")
+                shared.logger.log("NP_DEBUG", f"@ConfigureCommand.config[cmd] > Executing plugin specific config.")
             else:
                 # global config
                 await interaction.response.send_message(embed=paginator.help_obj.START, view=paginator.create_paginator_buttons(), ephemeral=True)
-                self.shared.logger.log(f"@ConfigureCommand.config[cmd] > Executing global config.", "NP_DEBUG")
+                shared.logger.log("NP_DEBUG", f"@ConfigureCommand.config[cmd] > Executing global config.")
         else:
             await interaction.response.send_message("You do not have permissions to execute this command!", ephemeral=True)
 
