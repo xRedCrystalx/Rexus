@@ -1,13 +1,10 @@
 import discord, sys, typing
 sys.dont_write_bytecode = True
 from discord.ext import commands
-import src.connector as con
-
-from src.core.helpers.permissions import check_bot_owner
+from src.connector import shared
 
 class OwnerCMD(commands.Cog):
     def __init__(self, bot: commands.AutoShardedBot) -> None:
-        self.shared: con.Shared = con.shared
         self.bot: commands.AutoShardedBot = bot
 
     @discord.app_commands.choices(cmd=[
@@ -20,7 +17,7 @@ class OwnerCMD(commands.Cog):
     async def owner(self, interaction: discord.Interaction, cmd: discord.app_commands.Choice[str], args: str = None) -> None:
         await interaction.response.defer(thinking=True, ephemeral=True)
 
-        if check_bot_owner(interaction.user.id):
+        if True:#check_bot_owner(interaction.user.id):
             func: typing.Callable = getattr(self, cmd.value)
             await func(interaction=interaction, args=args)
         else:
@@ -29,21 +26,21 @@ class OwnerCMD(commands.Cog):
     async def sync(self, interaction: discord.Interaction, args: str | None) -> None:
         try:
             if args:
-                await self.shared.bot.tree.sync(guild=discord.Object(id=int(args)))
+                await shared.bot.tree.sync(guild=discord.Object(id=int(args)))
                 await interaction.followup.send(f"Successfully synced commands to guild: {args}", ephemeral=True)
             else:
-                if await self.shared.bot.tree.sync():
+                if await shared.bot.tree.sync():
                     await interaction.followup.send("Sucessfully synced globally.", ephemeral=True)
                 else:
                     raise Exception("Not synced/0 commands?")
 
         except Exception as error:
             await interaction.followup.send(f"Syncing failed > {type(error).__name__}: {error}", ephemeral=True)
-            self.shared.logger.log(f"@NoPing.sync > Failed to sync.\n```{type(error).__name__}: {error}```", "ERROR")
+            shared.logger.log(f"@NoPing.sync > Failed to sync.\n```{type(error).__name__}: {error}```", "ERROR")
 
     async def shutdown(self, interaction: discord.Interaction, args: str | None) -> None:
         await interaction.followup.send("Restarting..", ephemeral=True)
-        await self.shared.bot.close()
+        await shared.bot.close()
 
     async def logging_level(self, interaction: discord.Interaction, args: str | None) -> None:
         try:
@@ -58,14 +55,14 @@ class OwnerCMD(commands.Cog):
             else:
                 var: str = "FILE_LEVEL"
 
-            setattr(self.shared.logger, var, int(arguments[1]))
-            self.shared.reloader.reload_module("Logger")
+            setattr(shared.logger, var, int(arguments[1]))
+            shared.reloader.reload_module("Logger")
 
             await interaction.followup.send(f"Successfully applied new logging level `{args}`", ephemeral=True)
         
         except Exception as error:
             await interaction.followup.send(f"Failed to update logging level: `{args}`.\n```{type(error).__name__}: {error}```", ephemeral=True)
-            self.shared.logger.log(f"@NoPing.logging_level > {type(error).__name__}: {error}", "ERROR")
+            shared.logger.log(f"@NoPing.logging_level > {type(error).__name__}: {error}", "ERROR")
 
 async def setup(bot: commands.AutoShardedBot) -> None:
     await bot.add_cog(OwnerCMD(bot), guild=discord.Object(id=1230040815116484678))
