@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd $HOME/NoPing
+cd $HOME/Rexus
 source .venv/bin/activate
 
 clear

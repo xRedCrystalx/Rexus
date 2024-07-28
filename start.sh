@@ -1,8 +1,8 @@
 #!/bin/bash
 
-cd $HOME/NoPing
+cd $HOME/Rexus
 echo "Updating from git.."
-git pull noping main
+git pull rexus main
 
 if [ ! -d ".venv" ]; then
     echo ".venv folder does not exist in the current directory, creating a new one."
