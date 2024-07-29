@@ -10,7 +10,7 @@
 - better system statistics
 - support server setup
 
-SECURITY:
+# SECURITY:
 - metaclass BaseSecuredMeta with hash (how to save it?)
 - database access for only xyz hashes
 - lots of honey tokens/pots
@@ -19,3 +19,27 @@ SECURITY:
 - discord notifications
 
 * somehow isolate critical modules?
+
+# DATABASE:
+SQLite - simple and fast
+
+Each plugin - own table + global table (on/off plugin)
+
+### Example Global:
+
+| guild_id | general | cmd   | alt   | imper | ai    | automod | link  | ping  | auto_delete |
+|----------|---------|-------|-------|-------|-------|---------|-------|-------|-------------|
+|  1234567 | false   | false | false | false | false | false   | false | false | false       |
+
+### Example plugin-specific:
+```
+CREATE TABLE reaction (
+    guild_ID INT(20) PRIMARY KEY,
+    log_channel int,
+    reactionBanRole int,
+);
+```
+
+| guild_id | log_channel | reactionBanRole |
+|----------|-------------|-----------------|
+|  1234567 | 54857285236 | 64282285266     |
