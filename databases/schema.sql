@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS automod (
 );
 
 CREATE TABLE IF NOT EXISTS link (
-    guild_ID INT(24) NOT NULL,
+    guild_id INT(24) NOT NULL,
 
     log_channel INT(24),
     options JSON NOT NULL,
