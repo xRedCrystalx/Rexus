@@ -1,0 +1,12 @@
+CREATE DATABASE IF NOT EXISTS Rexus;
+
+USE Rexus;
+
+START TRANSACTION;
+
+-- User table
+CREATE TABLE IF NOT EXISTS plugins (
+    user_id INT(24) NOT NULL PRIMARY KEY,
+);
+
+COMMIT;
