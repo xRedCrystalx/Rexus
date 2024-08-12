@@ -98,7 +98,7 @@ configuration: dict[str, dict[str, tuple]] = {
 }
 
 async def setup(bot) -> None:
-    await shared.reloader.load(Logger(configuration),
+    await shared.module_manager.load(Logger(configuration),
         config={
             "module": True,
             "location": shared,

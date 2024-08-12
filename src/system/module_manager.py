@@ -7,7 +7,7 @@ from src.connector import shared
 from xRedUtilsAsync.type_hints import SIMPLE_ANY
 from xRedUtilsAsync.modules.reloader import load_module, unload_module
 
-class DynamicModuleManager:
+class ModuleManager:
     async def _plugin_load(self, cls: Callable, config: dict[Callable, list[str]], tasks: list[Callable] = None) -> None:
         """Helper method to deal with Rexus plugins"""
         # load/overwrite plugin class into the memory
@@ -43,7 +43,7 @@ class DynamicModuleManager:
             try:
                 return await shared.bot.load_extension(path) # NOTE: Return: None
             except NoEntryPointError:
-                cls = await load_module(path) # NOTE: retuns a module
+                cls = await load_module(path) # NOTE: Return: module
 
         # setups
         if config:
@@ -101,7 +101,7 @@ class DynamicModuleManager:
                 setattr(plugin, var, data)
 
 async def setup(bot) -> None:
-    await shared.module_manager.load(DynamicModuleManager(),
+    await shared.module_manager.load(ModuleManager(),
         config={
             "module": True,
             "location": shared,
