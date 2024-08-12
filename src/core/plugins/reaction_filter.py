@@ -93,7 +93,7 @@ class ReactionFilter:
 
 SAVE: list[str] = ["db", "counter"]
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.reloader.load(reaction := ReactionFilter(bot), tasks=[reaction.background_clock],
+    await shared.module_manager.load(reaction := ReactionFilter(bot), tasks=[reaction.background_clock],
         config={
             reaction.check_reaction: ["on_raw_reaction_add"]
         }

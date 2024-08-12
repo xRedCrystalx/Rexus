@@ -24,7 +24,7 @@ class AutoDeleter:
 
 SAVE: list[str] = ["database"]
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.reloader.load(autodelete := AutoDeleter(), tasks=[autodelete.background_clock],
+    await shared.module_manager.load(autodelete := AutoDeleter(), tasks=[autodelete.background_clock],
         config={
             autodelete.add_to_queue: ["on_message"]
         }

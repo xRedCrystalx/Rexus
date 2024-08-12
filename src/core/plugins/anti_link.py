@@ -52,7 +52,7 @@ class AntiLink:
         return None
     
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.reloader.load(link := AntiLink(), 
+    await shared.module_manager.load(link := AntiLink(), 
         config={
             link.antilink: ["on_message"] # support for on_raw_message_update
         }
