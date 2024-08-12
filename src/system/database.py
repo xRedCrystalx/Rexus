@@ -1,145 +1,146 @@
-import sys, typing, os
+import sys, aiomysql, asyncio, typing
 sys.dont_write_bytecode = True
 from src.connector import shared
 from src.core.helpers.errors import report_error
 
-from xRedUtils import files
-from xRedUtils.type_hints import SIMPLE_ANY
+from xRedUtilsAsync.dicts import json_to_dict, dict_to_json
+from xRedUtilsAsync.type_hints import SIMPLE_ANY
 
-class Database:
-    def __init__(self) -> None:
-        self.config_path: str = f"{shared.path}/src/config.json"
-        self.databases_path: str = shared.path+"/databases/{type}/{id}.json"
-        self.template_path: str = shared.path+"/databases/{type}.json"
-    
-    def load_data(self, id: int | None = None, db: str = "guilds") -> dict[str, SIMPLE_ANY]:
-        if id:
-            try:
-                database = files.open_file(self.databases_path.format(type=db, id=id), decoder="json")
-            except FileNotFoundError:
-                database: dict[str, SIMPLE_ANY] = self.create_database(id, db)
-            
-            return database
-        else:
-            return files.open_file(self.config_path, decoder="json")
+class DatabaseManager:
+    def __init__(self, name: str, minsize: int = 5, maxsize: int = 25, pool_recycle: int = 3600, **kwargs) -> None:
+        self.name: str = name
 
-    def save_data(self, id: int, update_data: dict, db: str = "guilds") -> None:
-        if id:
-            files.save_file(self.databases_path.format(type=db, id=id), update_data, encoder="json", indent=4)
-        else:
-            files.save_file(self.config_path, update_data, encoder="json", indent=4)
-    
-    def create_database(self, id: str | int, option: str = "guilds") -> dict[str, typing.Any]:
+        self.loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
+        self.pool: aiomysql.Pool = aiomysql.Pool(minsize=minsize, maxsize=maxsize, pool_recycle=pool_recycle, cursorclass=aiomysql.DictCursor, **kwargs)
+
+    def isJson(self, s: str) -> bool:
+        return s.endswith("}") and s.startswith("{")
+
+    async def json_codec(self, d: dict[str, SIMPLE_ANY] | str, option: typing.Literal["encode", "decode"] = "decode") -> dict[str, SIMPLE_ANY] | SIMPLE_ANY:
+        if not self.isJson(d):
+            return d
+        
         try:
-            template: dict = files.open_file(self.template_path.format(type="user_template" if option == "member" else "guild_template"), decoder="json")
-            files.save_file(self.databases_path.format(type=option, id=id), template, encoder="json")
-        except Exception as error:
-            report_error(error, self.create_database, "full")
-
-
-    # FIX THESE ˇˇˇˇˇˇ
-    def add_value(self, key: str, value_type: typing.Literal["str", "int", "bool", "list", "dict", "none"], path: str | None = None, db_id: int | None = None) -> bool:
-        values: dict[str, typing.Any] = {
-            "str" : "",
-            "int" : 0,
-            "bool" : False,
-            "list" : [],
-            "dict" : {},
-            "none" : None
-        }
-
-        def recursive_add_value(d, path_segments):
-            if not path_segments:
-                # We've reached the target level, so add the key-value pair
-                d[key] = values.get(value_type)
+            if option == "decode":
+                return json_to_dict(d)
             else:
-                # Continue navigating the path
-                current_segment = path_segments[0]
+                return dict_to_json(d)
+
+        except Exception as error:
+            return d
+
+    async def better_execute(self, query: str, args: list[SIMPLE_ANY] = None) -> list[dict[str, SIMPLE_ANY]] | None:
+        async with self.pool.acquire() as con:
+            con: aiomysql.Connection
+            await con.begin()
+
+            async with con.cursor() as cursor:
+                cursor: aiomysql.DictCursor
+
+                try:
+                    await cursor.execute(query, args if args else [])
+                    await con.commit()
+
+                    return await cursor.fetchall()
+
+                except Exception:
+                    await con.rollback()
+                    await report_error(self.better_execute, "simple")
+
+    async def select_data(self, id: int, table: str, columns: list[str] = "*", many: bool | int = False) -> dict[str, SIMPLE_ANY] | list[dict[str, SIMPLE_ANY]] | None:
+        selection: list[dict[str, SIMPLE_ANY]] | None = await self.better_execute(
+            f"SELECT {columns if not isinstance(columns, list) else " ,".join(columns)} FROM {table} WHERE id = %s", [id]
+        )
+
+        if selection:
+            if many:
+                result: list[dict[str, SIMPLE_ANY]] = selection if isinstance(many, bool) else (selection[:many] if len(selection) >= many else selection)
+                return [
+                    { key: await self.json_codec(value, "decode") for key, value in group.items() } 
+                    for group in selection
+                ]
+
+            else:
+                result: dict[str, SIMPLE_ANY] = selection[0] 
+                return { key: await self.json_codec(value, "decode") for key, value in result.items() }
+
+    async def update_data(self, id: int, table: str, data: dict[str, SIMPLE_ANY]) -> None:                        
+        await self.better_execute(
+            f"UPDATE {table} SET {", ".join([f"{column} = %s" for column in data.keys()])} WHERE id = %s", 
+            [await self.json_codec(value, "encode") for value in data.values()] + [id]
+        )
+
+    async def dict_updater(self, table: str, column: str, path: str, key: str, value: str = "_REM", id: list[int] = None) -> dict[str, SIMPLE_ANY]:
+        def recursive(d: dict[str, SIMPLE_ANY], path_segments) -> None:
+            if path_segments:
+                current_segment: str = path_segments[0]
                 if current_segment == '*':
-                    for k, v in d.items():
-                        if isinstance(v, dict):
-                            recursive_add_value(v, path_segments[1:])
-                        elif isinstance(v, list):
-                            for item in v:
-                                recursive_add_value(item, path_segments[1:])
+                    for value in d.values():
+                        if isinstance(value, dict):
+                            recursive(value, path_segments[1:])
+                        
+                        elif isinstance(value, list):
+                            for item in value:
+                                recursive(item, path_segments[1:])
+                
                 elif current_segment in d:
-                    recursive_add_value(d[current_segment], path_segments[1:])
-
-        if not db_id:
-            for file in os.listdir(f"{shared.path}/database"):
-                if file.endswith(".json"):
-                    serverID = int(file.removesuffix(".json"))
-                    main: dict = self.load_data(server_id=serverID, serverData=True)
-                    db = main
-                    try:
-                        if path:
-                            recursive_add_value(db, path.split("."))
-                        else:
-                            # Handle the case when no path is provided
-                            for k, v in db.items():
-                                if isinstance(v, dict):
-                                    recursive_add_value(v, path.split("."))
-                                elif isinstance(v, list):
-                                    for item in v:
-                                        recursive_add_value(item, path.split("."))
-
-                        self.save_data(server_id=serverID, update_data=main)
-                    
-                    except Exception as error:
-                        print(f"Could not create a new key/value pair in the DB. {type(error).__name__}: {error}")
-                        return False
-        else:
-            main: dict = self.load_data(server_id=db_id, serverData=True)
-            db: dict = main
-            try:
-                if path:
-                    recursive_add_value(db, path.split("."))
+                    recursive(d[current_segment], path_segments[1:])
+            else:
+                if value == "_REM":
+                    d.pop(key, None)
                 else:
-                    # Handle the case when no path is provided
-                    for k, v in db.items():
-                        if isinstance(v, dict):
-                            recursive_add_value(v, path.split("."))
-                        elif isinstance(v, list):
-                            for item in v:
-                                recursive_add_value(item, path.split("."))
+                    d[key] = value
+        
+        if id:
+            for indentifier in id:
+                result: dict[str, SIMPLE_ANY] | None = await self.select_data(indentifier, table, column)
 
-                self.save_data(server_id=db_id, update_data=main)
-            except Exception as error:
-                print(f"Could not create a new key/value pair in the DB. {type(error).__name__}: {error}")
-                return False
+                if result:
+                    local_copy: dict[str, SIMPLE_ANY] = result.get(column)
+                    local_editable = local_copy
 
-    def remove_value(self, key: str, path: str = None, db_id: int = None) -> bool:
-        if not db_id:
-            for file in os.listdir(f"{shared.path}/database"):
-                if file.endswith(".json"):
-                    serverID = int(file.removesuffix(".json"))
-                    main: dict = self.load_data(server_id=serverID, serverData=True)
-                    db = main
-                    try:
-                        for p in path.split("."):
-                            db = db[p]
-                        db.pop(key)
-                        self.save_data(server_id=serverID, update_data=main)
-                    except Exception as error:
-                        print(f"Could not remove key from the DB. {type(error).__name__}: {error}")
-                        return
+                    if local_editable:
+                        recursive(local_editable, path.split("."))
+
+                    await self.update_data(indentifier, table, {column: local_copy})
         else:
-            main: dict = self.load_data(server_id=db_id, serverData=True)
-            db: dict = main            
-            try:
-                for p in path.split("."):
-                    db = db[p]
-                db.pop(key)    
-                self.save_data(server_id=db_id, update_data=main)
-            except Exception as error:
-                print(f"Could not remove key from the DB. {type(error).__name__}: {error}")  
-                return
-            
+            page_number = 1
+            while True:
+                offset: int = (page_number - 1) * 50
+
+                rows: list[dict] = await self.better_execute(f"SELECT id, {column} FROM {table} LIMIT 50 OFFSET {offset}")
+                if not rows:
+                    break
+                
+                for row in rows:
+                    identifier: int = row["id"]
+                    local_copy: dict[str, SIMPLE_ANY] = row.get(column)
+                    local_editable = local_copy
+
+                    if local_editable:
+                        recursive(local_editable, path.split("."))
+
+                    await self.update_data(identifier, table, {column: local_copy})
+
+                page_number += 1
+
 async def setup(bot) -> None:
-    await shared.reloader.load(Database(),
+    connection_data: dict[str, str] = {
+        "host": "192.168.96.136",
+        "port": 3306,
+        "charset": "utf8mb4",
+        "db": "Rexus"
+    }
+
+    await shared.module_manager.load(DatabaseManager(name="read-agent", user="DevRexus", password="root", **connection_data),
         config={
             "module": True,
             "location": shared,
-            "var": "database"
-        }
-    )
+            "var": "db_read"
+    })
+    await shared.module_manager.load(DatabaseManager(name="write-agent", user="DevRexus", password="root", **connection_data),
+        config={
+            "module": True,
+            "location": shared,
+            "var": "db_write"
+    })
