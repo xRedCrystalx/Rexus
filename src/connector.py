@@ -7,10 +7,10 @@ from discord.ext import commands
 from xRedUtilsAsync import typehints
 
 if TYPE_CHECKING:
-    from src.system.database import Database
-    from src.system.logging import Logger
-    from src.system.reloader import Reloader
-    from src.core.root.queue import QueueSystem
+    from .system.database import DatabaseManager
+    from .system.logging import Logger
+    from .system.module_manager import ModuleManager
+    from .core.root.queue import QueueSystem
 
 class Shared:
     path: str = None
@@ -25,9 +25,10 @@ class Shared:
     schedule_jobs: list[schedule.Job] = []
     global_db: dict[str, typehints.SIMPLE_ANY] = {}
 
-    db: Database = None
     logger: Logger = None
-    reloader: Reloader =  None
+    module_manager: ModuleManager =  None
     queue: QueueSystem = None
+    db_read: DatabaseManager = None
+    db_write: DatabaseManager = None
 
 shared: Shared = Shared()
