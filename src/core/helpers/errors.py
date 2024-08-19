@@ -6,7 +6,7 @@ from xRedUtilsAsync.strings import string_split
 from xRedUtilsAsync.errors import simple_error, full_traceback
 from xRedUtilsAsync.general import generate_uuid
 
-async def report_error(caller: typing.Callable | str = None, option: typing.Literal["simple", "full"] = "full", discord: int = 1234547496454459432) -> str:
+async def report_error(caller: typing.Callable | str = None, option: typing.Literal["simple", "full"] = "full", discord: int = 1274859323343765534) -> str:
     """
     |async|
 

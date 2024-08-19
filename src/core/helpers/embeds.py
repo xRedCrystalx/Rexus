@@ -1,6 +1,8 @@
 import sys, discord
 sys.dont_write_bytecode = True
-from discord import Embed
+from discord import Embed, Member, User
+
+from .emojis import CustomEmoji as CEmoji
 
 from xRedUtils.dates import get_datetime
 from xRedUtils.type_hints import SIMPLE_ANY
@@ -70,12 +72,21 @@ def to_dict(embed: Embed) -> dict[str, SIMPLE_ANY]:
     """|sync|"""
     return discord.Embed.to_dict(embed)
 
+class EmbedFields:
+
+    @staticmethod
+    def member_field(embed: Embed, member: Member | User) -> Embed:
+        embed.add_field(name=f"` {member.__class__.__name__} `", value=f"{CEmoji.PROFILE}┇{member.display_name}\n{CEmoji.GLOBAL}┇{member.name}\n{CEmoji.ID}┇{member.id}", inline=True)
+
+        return embed
+
+
 class Embeds:
     GENERAL_NO_PERMISSIONS: Embed = new_embed(title="No permissions", description="You are not allowed to do that!", color=discord.Colour.red())
     COMMAND_NO_PERMISSIONS: Embed = new_embed(title="No permissions", description="You are not allowed to do run this command!", color=discord.Colour.red())
 
     @staticmethod
-    def new_error_embed(error_id: str) -> discord.Embed:
+    def new_error_embed(error_id: str) -> Embed:
         """|sync|"""
         return create_base_embed(
             title="Error",
