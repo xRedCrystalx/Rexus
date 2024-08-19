@@ -1,4 +1,5 @@
-- database system (schema, type, system)
+# MAIN TODO
+
 - fix permission check for admin-only commands
 - async PIL py library
 - re-organizing plugins?
@@ -9,8 +10,10 @@
 - background task checker
 - better system statistics
 - support server setup
+- terminator to safely end connections/modules
 
-# SECURITY:
+## SECURITY
+
 - metaclass BaseSecuredMeta with hash (how to save it?)
 - database access for only xyz hashes
 - lots of honey tokens/pots
@@ -20,19 +23,23 @@
 
 * somehow isolate critical modules?
 
-# DATABASE:
-SQLite - simple and fast
+## DATABASE
+
+SQLite - simple and fast ? cache<br>MariaDB main db
+
+! Use mariadb py library with run_in_executor to prevent blocking code
 
 Each plugin - own table + global table (on/off plugin)
 
-### Example Global:
+### Example Global
 
 | guild_id | general | cmd   | alt   | imper | ai    | automod | link  | ping  | auto_delete |
 |----------|---------|-------|-------|-------|-------|---------|-------|-------|-------------|
 |  1234567 | false   | false | false | false | false | false   | false | false | false       |
 
-### Example plugin-specific:
-```
+### Example plugin-specific
+
+```sql
 CREATE TABLE reaction (
     guild_ID INT(20) PRIMARY KEY,
     log_channel int,
