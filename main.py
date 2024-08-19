@@ -16,18 +16,15 @@ class Rexus(commands.AutoShardedBot):
 
         super().__init__(command_prefix="-", intents=discord.Intents.all(), shard_count=2, help_command=None, max_messages=100)
 
-    def system_load(self) -> bool:
-        from src.system.database import Database
-        from src.system.logging import Logger, configuration
-        from src.system.reloader import Reloader
-        from src.core.root.queue import QueueSystem
+    async def system_load(self) -> bool:
+        from src.system.module_manager import ModuleManager
+        shared.module_manager = ModuleManager()
 
-        shared.reloader = Reloader()
-        shared.logger = Logger(configuration)
-        shared.db = Database()
-        shared.queue = QueueSystem()
+        for sys_module in glob.glob(f"src/system/*.py"):
+            if not sys_module.endswith("module_manager"):
+                await shared.module_manager.load(sys_module.replace("\\", ".").replace("/", ".").removesuffix(".py"))
 
-        return all((shared.reloader, shared.logger, shared.db, shared.queue, shared.loop, shared.bot, shared.session, shared.path))
+        return all((shared.module_manager, shared.logger, shared.db_read, shared.db_write, shared.queue)) and all((shared.loop, shared.bot, shared.session, shared.path))
 
     async def setup_hook(self) -> None:
         shared.session = self.session = aiohttp.ClientSession()
@@ -40,33 +37,21 @@ ____ ____ _  _ _  _ ____
 {FG.GREY}──────────────────────────────────────────{ST.RESET}""")
         shared.loop = self.loop
         
-        if not self.system_load():
+        if not await self.system_load():
             print(f"{FG.RED}Error: Failed to initialize critical systems.{ST.RESET}")
             return await self.close()
 
-        # TODO: database connection
-        for path in ("src/core/listeners", "src/core/commands", "src/core/plugins", "src/core/helpers"):
+        for path in ("src/core/helpers", "src/core/listeners", "src/core/plugins", "src/core/commands"):
             print(f"{FG.GREEN}+{ST.RESET} Loading {path}..")
             counter = 0
-            for cog in (cogList := [*glob.glob(f"{path}/*.py"), *glob.glob(f"{path}/*/*.py")]):
+            for cog in (cogList := glob.glob(f"{path}/**/*.py", recursive=True)):
                 try:
-                    await shared.reloader.load(cog.replace("\\", ".").replace("/", ".").removesuffix(".py"))
+                    await shared.module_manager.load(cog.replace("\\", ".").replace("/", ".").removesuffix(".py"))
                     counter += 1
                 except Exception:
                     print(f"{FG.RED}Failed to load {cog}:\n{full_traceback()}{ST.RESET}")
 
             print(f"{FG.CYAN}i{ST.RESET} Successfully loaded {FG.CYAN}{counter}/{len(cogList)}{ST.RESET} extensions.")
-        
-        print(f"{FG.GREY}──────────────────────────────────────────{ST.RESET}")
-        if not (synced := await self.tree.sync()):
-            print(f"{FG.RED}Syncing failed.{ST.RESET}")
-        else:
-            print(f"{FG.GREEN}Synced {len(synced)} commands globally{ST.RESET}")
-
-        if not (testing_guild_sync := await self.tree.sync(guild=discord.Object(id=1230040815116484678))):
-            print(f"{FG.RED}Syncing to testing guild failed.{ST.RESET}")
-        else:
-            print(f"{FG.GREEN}Synced {len(testing_guild_sync)} commands to testing guild.{ST.RESET}")
 
         print(f"{FG.GREY}──────────────────────────────────────────{ST.RESET}\nConsole:")
 
