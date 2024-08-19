@@ -11,10 +11,15 @@ class DatabaseManager:
         self.name: str = name
 
         self.loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
-        self.pool: aiomysql.Pool = aiomysql.Pool(minsize=minsize, maxsize=maxsize, pool_recycle=pool_recycle, cursorclass=aiomysql.DictCursor, **kwargs)
+        self.pool: aiomysql.Pool = aiomysql.Pool(minsize=minsize, maxsize=maxsize, pool_recycle=pool_recycle, cursorclass=aiomysql.DictCursor, echo=False, loop=asyncio.get_running_loop(), **kwargs)
 
     def isJson(self, s: str) -> bool:
         return s.endswith("}") and s.startswith("{")
+
+    def handle_single(d: dict[str, SIMPLE_ANY]) -> dict[SIMPLE_ANY] | SIMPLE_ANY:
+        if len( values := d.values() ) > 1:
+            return values[0]
+        return d
 
     async def json_codec(self, d: dict[str, SIMPLE_ANY] | str, option: typing.Literal["encode", "decode"] = "decode") -> dict[str, SIMPLE_ANY] | SIMPLE_ANY:
         if not self.isJson(d):
@@ -47,7 +52,7 @@ class DatabaseManager:
                     await con.rollback()
                     await report_error(self.better_execute, "simple")
 
-    async def select_data(self, id: int, table: str, columns: list[str] = "*", many: bool | int = False) -> dict[str, SIMPLE_ANY] | list[dict[str, SIMPLE_ANY]] | None:
+    async def select_data(self, id: int, table: str, columns: list[str] = "*", many: bool | int = False) -> dict[str, SIMPLE_ANY] | list[dict[str, SIMPLE_ANY]] | list[SIMPLE_ANY] | SIMPLE_ANY | None:
         selection: list[dict[str, SIMPLE_ANY]] | None = await self.better_execute(
             f"SELECT {columns if not isinstance(columns, list) else " ,".join(columns)} FROM {table} WHERE id = %s", [id]
         )
@@ -56,13 +61,13 @@ class DatabaseManager:
             if many:
                 result: list[dict[str, SIMPLE_ANY]] = selection if isinstance(many, bool) else (selection[:many] if len(selection) >= many else selection)
                 return [
-                    { key: await self.json_codec(value, "decode") for key, value in group.items() } 
+                    self.handle_single({ key: await self.json_codec(value, "decode") for key, value in group.items() })
                     for group in selection
                 ]
 
             else:
                 result: dict[str, SIMPLE_ANY] = selection[0] 
-                return { key: await self.json_codec(value, "decode") for key, value in result.items() }
+                return self.handle_single({ key: await self.json_codec(value, "decode") for key, value in result.items() })
 
     async def update_data(self, id: int, table: str, data: dict[str, SIMPLE_ANY]) -> None:                        
         await self.better_execute(
@@ -93,14 +98,11 @@ class DatabaseManager:
         
         if id:
             for indentifier in id:
-                result: dict[str, SIMPLE_ANY] | None = await self.select_data(indentifier, table, column)
+                local_copy: dict[str, SIMPLE_ANY] | None = await self.select_data(indentifier, table, column)
 
-                if result:
-                    local_copy: dict[str, SIMPLE_ANY] = result.get(column)
+                if local_copy:
                     local_editable = local_copy
-
-                    if local_editable:
-                        recursive(local_editable, path.split("."))
+                    recursive(local_editable, path.split("."))
 
                     await self.update_data(indentifier, table, {column: local_copy})
         else:
@@ -113,7 +115,7 @@ class DatabaseManager:
                     break
                 
                 for row in rows:
-                    identifier: int = row["id"]
+                    identifier: int = row.get("id")
                     local_copy: dict[str, SIMPLE_ANY] = row.get(column)
                     local_editable = local_copy
 
