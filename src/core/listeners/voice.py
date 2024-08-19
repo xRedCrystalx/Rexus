@@ -3,9 +3,9 @@ sys.dont_write_bytecode = True
 from discord.ext import commands
 from src.connector import shared
 
-class VoiceListeners(commands.AutoShardedBot):
-    def __init__(self, bot: commands.Bot) -> None:
-        self.bot: commands.Bot = bot
+class VoiceListeners(commands.Cog):
+    def __init__(self, bot: commands.AutoShardedBot) -> None:
+        self.bot: commands.AutoShardedBot = bot
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState) -> None:
