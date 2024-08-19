@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from .system.database import DatabaseManager
     from .system.logging import Logger
     from .system.module_manager import ModuleManager
-    from .core.root.queue import QueueSystem
+    from .system.queue import QueueSystem
 
 class Shared:
     path: str = None
