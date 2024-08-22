@@ -4,8 +4,6 @@ from discord.ext import commands
 from src.connector import shared
 
 class PollListeners(commands.Cog):
-    def __init__(self, bot: commands.AutoShardedBot) -> None:
-        self.bot: commands.AutoShardedBot = bot
 
     @commands.Cog.listener()
     async def on_raw_poll_vote_add(self, payload: discord.RawPollVoteActionEvent) -> None:
@@ -18,4 +16,4 @@ class PollListeners(commands.Cog):
             shared.loop.create_task(shared.queue.add_to_queue(e="on_raw_poll_vote_remove", guild_id=payload.guild_id, payload=payload))
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await bot.add_cog(PollListeners(bot))
+    await bot.add_cog(PollListeners())

@@ -4,9 +4,7 @@ from discord.ext import commands
 from src.connector import shared
 
 class MemberListeners(commands.Cog):
-    def __init__(self, bot: commands.AutoShardedBot) -> None:
-        self.bot: commands.AutoShardedBot = bot
-    
+
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
         shared.loop.create_task(shared.queue.add_to_queue(e="on_member_join", guild_id=member.guild.id, member=member))
@@ -52,4 +50,4 @@ class MemberListeners(commands.Cog):
         shared.loop.create_task(shared.queue.add_to_queue(e="on_presence_update", guild_id=after.guild.id, before=before, after=after))
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await bot.add_cog(MemberListeners(bot))
+    await bot.add_cog(MemberListeners())

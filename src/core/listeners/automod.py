@@ -4,8 +4,6 @@ from discord.ext import commands
 from src.connector import shared
 
 class AutomodListeners(commands.Cog):
-    def __init__(self, bot: commands.AutoShardedBot) -> None:
-        self.bot: commands.AutoShardedBot = bot
 
     @commands.Cog.listener()
     async def on_automod_rule_create(self, rule: discord.AutoModRule) -> None:
@@ -24,4 +22,4 @@ class AutomodListeners(commands.Cog):
         shared.loop.create_task(shared.queue.add_to_queue(e="on_automod_action", guild_id=action.guild_id, action=action))
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await bot.add_cog(AutomodListeners(bot))
+    await bot.add_cog(AutomodListeners())

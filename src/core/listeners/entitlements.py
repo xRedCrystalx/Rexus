@@ -4,9 +4,7 @@ from discord.ext import commands
 from src.connector import shared
 
 class EntitlementListeners(commands.Cog):
-    def __init__(self, bot: commands.AutoShardedBot) -> None:
-        """Actual bot subscription"""
-        self.bot: commands.AutoShardedBot = bot
+    """Actual bot subscription"""
 
     @commands.Cog.listener()
     async def on_entitlement_create(self, entitlement: discord.Entitlement) -> None:
@@ -20,6 +18,5 @@ class EntitlementListeners(commands.Cog):
     async def on_entitlement_delete(self, entitlement: discord.Entitlement) -> None:
         ...
 
-
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await bot.add_cog(EntitlementListeners(bot))
+    await bot.add_cog(EntitlementListeners())

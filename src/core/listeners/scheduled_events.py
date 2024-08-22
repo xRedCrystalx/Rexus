@@ -4,8 +4,6 @@ from discord.ext import commands
 from src.connector import shared
 
 class ScheduleEventListener(commands.Cog):
-    def __init__(self, bot: commands.AutoShardedBot) -> None:
-        self.bot: commands.AutoShardedBot = bot
 
     @commands.Cog.listener()
     async def on_scheduled_event_create(self, event: discord.ScheduledEvent) -> None:
@@ -36,4 +34,4 @@ class ScheduleEventListener(commands.Cog):
         shared.loop.create_task(shared.queue.add_to_queue(e="on_scheduled_event_user_remove", guild_id=event.guild.id, event=event, user=user))
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await bot.add_cog(ScheduleEventListener(bot))
+    await bot.add_cog(ScheduleEventListener())

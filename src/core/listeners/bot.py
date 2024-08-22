@@ -16,7 +16,7 @@ class BotListeners(commands.Cog):
         channel: discord.TextChannel = guild.system_channel
 
         # read attempt, db handler will create or read database, if nothing returned, error happened.
-        database: dict[str, typing.Any] = shared.db.load_data(guild.id)
+        #database: dict[str, typing.Any] = shared.db.load_data(guild.id)
         
         embed: discord.Embed = new_embed("Hey there!", 
                 description="Firstly, thank you for inviting me to your guild!\n\nI'm **NoPing**, friendly little robot that will help you protect your community.\nTo start with my configuration, use </config:1235708858580860929> command or </noping:1235708858136002623> for quick start pointers.",

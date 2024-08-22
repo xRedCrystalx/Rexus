@@ -4,8 +4,6 @@ from discord.ext import commands
 from src.connector import shared
 
 class GuildListeners(commands.Cog):
-    def __init__(self, bot: commands.AutoShardedBot) -> None:
-        self.bot: commands.AutoShardedBot = bot
 
     @commands.Cog.listener()
     async def on_guild_available(self, guild: discord.Guild) -> None:
@@ -48,4 +46,4 @@ class GuildListeners(commands.Cog):
         shared.loop.create_task(shared.queue.add_to_queue(e="on_invite_delete", guild_id=invite.guild.id, invite=invite))
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await bot.add_cog(GuildListeners(bot))
+    await bot.add_cog(GuildListeners())

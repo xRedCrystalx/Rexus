@@ -4,8 +4,6 @@ from discord.ext import commands
 from src.connector import shared
 
 class ThreadListener(commands.Cog):
-    def __init__(self, bot: commands.AutoShardedBot) -> None:
-        self.bot: commands.AutoShardedBot = bot
 
     @commands.Cog.listener()
     async def on_thread_create(self, thread: discord.Thread) -> None:
@@ -36,6 +34,5 @@ class ThreadListener(commands.Cog):
     async def on_raw_thread_member_remove(self, payload: discord.RawThreadMembersUpdate) -> None:
         shared.loop.create_task(shared.queue.add_to_queue(e="on_raw_thread_member_remove", guild_id=payload.guild_id, payload=payload))
 
-
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await bot.add_cog(ThreadListener(bot))
+    await bot.add_cog(ThreadListener())

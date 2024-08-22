@@ -4,8 +4,6 @@ from discord.ext import commands
 from src.connector import shared
 
 class ConnectionListeners(commands.Cog):
-    def __init__(self, bot: commands.AutoShardedBot) -> None:
-        self.bot: commands.AutoShardedBot = bot
 
     @commands.Cog.listener()
     async def on_connect(self) -> None:
@@ -40,4 +38,4 @@ class ConnectionListeners(commands.Cog):
         ...
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await bot.add_cog(ConnectionListeners(bot))
+    await bot.add_cog(ConnectionListeners())

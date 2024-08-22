@@ -4,8 +4,6 @@ from discord.ext import commands
 from src.connector import shared
 
 class StageListener(commands.Cog):
-    def __init__(self, bot: commands.AutoShardedBot) -> None:
-        self.bot: commands.AutoShardedBot = bot
 
     @commands.Cog.listener()
     async def on_stage_instance_create(self, stage: discord.StageInstance) -> None:
@@ -25,4 +23,4 @@ class StageListener(commands.Cog):
         shared.loop.create_task(shared.queue.add_to_queue(e="on_stage_instance_update", guild_id=after.guild.id, before=before, after=after))
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await bot.add_cog(StageListener(bot))
+    await bot.add_cog(StageListener())

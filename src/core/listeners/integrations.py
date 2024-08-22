@@ -4,8 +4,6 @@ from discord.ext import commands
 from src.connector import shared
 
 class IntegrationListeners(commands.Cog):
-    def __init__(self, bot: commands.AutoShardedBot) -> None:
-        self.bot: commands.AutoShardedBot = bot
 
     @commands.Cog.listener()
     async def on_integration_create(self, integration: discord.Integration) -> None:
@@ -28,4 +26,4 @@ class IntegrationListeners(commands.Cog):
         shared.loop.create_task(shared.queue.add_to_queue(e="on_raw_integration_delete", guild_id=payload.guild_id, payload=payload))
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await bot.add_cog(IntegrationListeners(bot))
+    await bot.add_cog(IntegrationListeners())
