@@ -1,94 +1,145 @@
 import sys, discord
 sys.dont_write_bytecode = True
-from discord import Embed, Member, User
+from typing import Self
+from discord import Embed
 
 from .emojis import CustomEmoji as CEmoji
 
-from xRedUtils.dates import get_datetime
+from xRedUtils.dates import get_datetime, timestamp
 from xRedUtils.type_hints import SIMPLE_ANY
 
-def new_embed(title: str = "", thumbnail: str = None, footer: str | dict = None, **kwargs) -> Embed:
-    """
-    |sync|
 
-    Simple mostly used function. Use `create_base_embed` and `apply_embed_items` for more customization.
+class EmbedGenerator(Embed):
+    def __init__(self, title: str = None, description: str = None) -> None:
+        super().__init__(title=title, description=description, timestamp=get_datetime(), colour=discord.Colour.dark_embed())
 
-    Base embed:
-    - `title` - `str`
-    - `description` - `str`
-    - `color` - `str` | `discord.Colour`
-    - `url` - `str`
-    - `timestamp` - `datetime` | `None`
+    # superclass methods:
+    # .set_author, .set_thumbnail, .set_image, .set_footer, .set_field_at, .add_field, .insert_field_at
+    # .remove_field, clear_fields, .remove_footer, .remove_author
+    # .copy, .to_dict
 
-    Embed items:
-    - `author` - `dict[name: str, url: str, icon_url: str]` > Author field (Small thing on top, `url` parameter is for link)
-    - `image` - `str` > URL of image (under the text image)
-    - `thumbnail` - `str` > URL of thumbnail (on the side image)
-    - `footer` - `dict[text: str = None, icon_url: str = None]` | `str` > Everything for footer
-    """
-    return apply_embed_items(
-        embed=create_base_embed(title=title, **kwargs),
-        author=kwargs.get("author"),
-        thumbnail=thumbnail,
-        image=kwargs.get("image"),
-        footer=footer
-    )
+    # missing methods
+    def set_color(self, color: str | int | discord.Colour) -> Self:
+        self.colour = color
+        return self
 
-def create_base_embed(title: str = "", description: str = None, **kwargs) -> Embed:
-    """|sync|"""
-    return discord.Embed(title=title, description=description, 
-                        color=kwargs.get("color") or discord.Colour.dark_embed(),
-                        url=kwargs.get("url"),
-                        timestamp=kwargs.get("timestamp") or get_datetime())
+    def remove_color(self) -> Self:
+        self.color = None
+        return self
 
-def apply_embed_items(embed: discord.Embed, author: dict[str, str] = None, thumbnail: str = None, image: str = None, footer: str | dict[str, str] = None) -> Embed:
-    """
-    |sync|
+    def remove_image(self) -> Self:
+        try:
+            del self._image
+        except AttributeError:
+            pass
+    
+    def remove_thumbnail(self) -> Self:
+        try:
+            del self._thumbnail
+        except AttributeError:
+            pass
 
-    Adds data to the embed.
-    - author: `dict[name: str, url: str = None, icon_url: str = None]` > Author field (Small thing on top, `url` parameter is for link)
-    - image: `str` > URL of image (under the text image)
-    - thumbnail: `str` > URL of thumbnail (on the side image)
-    - footer: `dict[text: str = None, icon_url: str = None]` | `str` > Everything for footer
-    """
-    if author:
-        embed.set_author(**author)
+    # verify checks
 
-    embed.set_thumbnail(url=thumbnail)
-    embed.set_image(url=image)
+    # custom fields
+    def add_member_field(self, account: discord.Member | discord.User, inline: bool = True) -> Self:
+        if isinstance(account, discord.Member | discord.User):
+            self.add_field(
+                name=f"` {account.__class__.__name__.capitalize()} `", 
+                value=f"{CEmoji.PROFILE}┇{account.mention}\n{CEmoji.GLOBAL}┇{account.name}\n{CEmoji.ID}┇{account.id}", 
+                inline=inline
+            )
+        return self
+    
+    def add_guild_channel_field(self, channel: discord.abc.GuildChannel, inline: bool = True) -> Self:
+        if isinstance(channel, discord.abc.GuildChannel):
+            self.add_field(
+                name=f"` Channel `",
+                # category is optional due to possibility of channel not being under a category
+                value=f"{CEmoji.TEXT_C}┇{channel.mention}{f"\n**Category**┇{channel.category.mention}" if channel.category else ""}\n**Type**┇{channel.type.name.replace("_", " ").title()}\n{CEmoji.ID}┇{channel.id}",
+                inline=inline
+            )
+        return self
 
-    if isinstance(footer, dict):
-        embed.set_footer(**footer)
-    else:
-        embed.set_footer(text=footer)
+    def add_role_field(self, role: discord.Role, inline: bool = True) -> Self:
+        if isinstance(role, discord.Role):
+            self.add_field(
+                name="` Role `",
+                value=f"{CEmoji.ROLE}┇{role.mention}\n**Position**┇`{role.position}`\n**Creation**┇<t:{timestamp(role.created_at)}:f>\n{CEmoji.ID}┇{role.id}\n{CEmoji.ART}┇`{str(role.colour).upper()}`", # color should return HEX
+                inline=inline
+            )
+        return self
 
-    return embed
+    def add_category_field(self, category: discord.CategoryChannel, inline: bool = True) -> Self:
+        if isinstance(category, discord.CategoryChannel):
+            self.add_field(
+                name="` Category `",
+                value=f"**Name**┇{category.mention}\n**Creation**┇<t:{timestamp(category.created_at)}:f>\n{CEmoji.ID}┇{category.id}",
+                inline=inline
+            )
+        return self
 
-def to_embed(embed: dict[str, SIMPLE_ANY]) -> Embed:
-    """|sync|"""
-    return discord.Embed.from_dict(embed)
+    def add_message_location_field(self, message: discord.Message, inline: bool = True) -> Self:
+        if isinstance(message, discord.Message):
+            self.add_field(
+                name="` Location `",
+                value=f"{CEmoji.MESSAGE}┇{message.jump_url}\n{CEmoji.TEXT_C}┇{message.channel.mention}\n{CEmoji.ID}┇{message.channel.id}",
+                inline=inline
+            )
+        return self
 
-def to_dict(embed: Embed) -> dict[str, SIMPLE_ANY]:
-    """|sync|"""
-    return discord.Embed.to_dict(embed)
+    def add_invite_link_field(self, invite: discord.Invite, inline: bool = True) -> Self:
+        if isinstance(invite, discord.Invite):
+            self.add_field(
+                name="` Invite link `",
+                value=f"{CEmoji.ID}┇`{invite.code}`\n**Expiration**┇<t:{timestamp(invite.expires_at) if invite.expires_at else "`Infinite`"}:R>\n[` Invite Link `]({invite.url})",
+                inline=inline
+            )
+        return self
 
-class EmbedFields:
+    """def add_webhook_field(self, webhook: discord.Webhook, inline: bool = True) -> Self:
+        if isinstance(webhook, discord.Webhook):
+            self.add_field(
+                name="` Webhook `",
+                value=f"{CEmoji.MSG_ID}┇{message.id}\n{CEmoji.TEXT_C}┇{message.channel.mention}\n{CEmoji.ID}┇{message.channel.id}",
+                inline=inline
+            )
+        return self"""
 
-    @staticmethod
-    def member_field(embed: Embed, member: Member | User) -> Embed:
-        embed.add_field(name=f"` {member.__class__.__name__} `", value=f"{CEmoji.PROFILE}┇{member.display_name}\n{CEmoji.GLOBAL}┇{member.name}\n{CEmoji.ID}┇{member.id}", inline=True)
+    def add_thread_field(self, thread: discord.Thread, inline: bool = True) -> Self:
+        if isinstance(thread, discord.Thread):
+            self.add_field(
+                name="` Location `",
+                value=f"**Name**┇{thread.name}\n{CEmoji.ID}┇`{thread.id}`{f"\n{CEmoji.TEXT_C}┇{thread.parent.mention}" if thread.parent else ""}{f"\n{CEmoji.PING}┇{thread.owner.mention}" if thread.owner else ""}",
+                inline=inline
+            )
+        return self
 
-        return embed
+    """def add_integration_field(self, integration: discord.Integration, inline: bool = True) -> Self:
+        if isinstance(integration, discord.Integration):
+            self.add_field(
+                name="` Location `",
+                value=f"**Name**┇{thread.name}\n{CEmoji.ID}┇`{thread.id}`{f"\n{CEmoji.TEXT_C}┇{thread.parent.mention}" if thread.parent else ""}{f"\n{CEmoji.PING}┇{thread.owner.mention}" if thread.owner else ""}",
+                inline=inline
+            )
+        integration.type
+        return self"""
 
+    def add_emoji_or_sticker_field(self, eors: discord.Emoji | discord.Sticker, inline: bool = True) -> Self:
+        if isinstance(eors, discord.Emoji | discord.Sticker):
+            self.add_field(
+                name=f"` {eors.__class__.__name__.capitalize()} `",
+                value=f"**Name**┇{eors.name}\n{CEmoji.ID}┇`{eors.id}`",
+                inline=inline
+            )
+            self.set_image(url=eors.url)
+        return self
 
 class Embeds:
-    GENERAL_NO_PERMISSIONS: Embed = new_embed(title="No permissions", description="You are not allowed to do that!", color=discord.Colour.red())
-    COMMAND_NO_PERMISSIONS: Embed = new_embed(title="No permissions", description="You are not allowed to do run this command!", color=discord.Colour.red())
+    GENERAL_NO_PERMISSIONS: EmbedGenerator = EmbedGenerator(title="No permissions", description="You are not allowed to do that!").set_color(0xFF0000)
+    COMMAND_NO_PERMISSIONS: EmbedGenerator = EmbedGenerator(title="No permissions", description="You are not allowed to do run this command!").set_color(0xFF0000)
 
     @staticmethod
-    def new_error_embed(error_id: str) -> Embed:
+    def new_error_embed(error_id: str) -> EmbedGenerator:
         """|sync|"""
-        return create_base_embed(
-            title="Error",
-            description=f"An error has occured. Please report this to the developer.\n**Error code:** `{error_id}`"
-        )
+        return EmbedGenerator(title="Error", description=f"An error has occured. Please report this to the developer.\n**Error code:** `{error_id}`")
