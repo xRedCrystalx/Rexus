@@ -26,7 +26,7 @@ class CustomEmoji:
     LOG: str = "<:log:1203410684365504692>"             # log, logging, log_setting
     GLOBAL: str = "<:global:1203410626492240023>"       # global, global_name
     RULES: str = "<:rules:1203410571140137050>"         # rules, rule_channel
-    ART: str = "<:art:1203410471042945095>"             # --future--
+    ART: str = "<:art:1203410471042945095>"             # colors
     MODERATOR: str = "<:moderator:1203410451690426388>" # mod, staff, server protection
     ID: str = "<:ID:1203410054016139335>"               # ID, identificator
     PROFILE: str = "<:profile:1203409921719140432>"     # profile, card, user_profile
