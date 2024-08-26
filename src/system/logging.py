@@ -4,7 +4,7 @@ from types import MethodType
 from src.connector import shared
 
 from xRedUtilsAsync.colors import (
-    Foreground16 as FG,
+    Foreground255 as FG,
     Style as ST
 )
 from xRedUtils.dates import get_datetime
@@ -33,7 +33,7 @@ class OverWriter:
 class Logger(logging.Logger):
     def __init__(self, config: dict[str, dict[str, tuple]]) -> None:
         self.config: dict[str, dict[str, tuple]] = config
-        super().__init__("noping", 1)
+        super().__init__("Rexus", 1)
         # remove previous handlers and update levels
         self.handlers.clear()
         self._setLevels()
@@ -81,19 +81,19 @@ class Logger(logging.Logger):
 configuration: dict[str, dict[str, tuple]] = {
     "levels": {
         "CRITICAL": (50, FG.RED),
-        "ERROR": (40, FG.BRIGHT_RED),
-        "WARNING": (30, FG.BRIGHT_YELLOW),
+        "ERROR": (40, FG.RED_BERRY),
+        "WARNING": (30, FG.YELLOW),
         "UPDATE": (25, FG.GREEN),
-        "SYSTEM": (22, None),
-        "INFO": (20, FG.BLUE),
-        "TESTING": (18,  FG.MAGENTA),
-        "DEBUG": (10, FG.BRIGHT_WHITE),
+        "SYSTEM": (22, FG.PLATINUM),
+        "INFO": (20, FG.CANARY),
+        "TESTING": (18,  FG.CHARCOAL),
+        "DEBUG": (10, FG.WHITE),
         "NOTSET": (0, None)
     },
     "handlers": {
-        "Console": (20, None, "\x1b[30;1m%(asctime)s\x1b[0m {lvl_c}%(levelname)-10s\x1b[0m \x1b[35m%(name)s\x1b[0m %(message)s\x1b[0m"),
+        "Console": (18, None, "\x1b[30;1m%(asctime)s\x1b[0m {lvl_c}%(levelname)-10s\x1b[0m \x1b[35m%(name)s\x1b[0m %(message)s\x1b[0m"),
         "InDev": ([10, 18], f"./logs/development.log", "[%(asctime)s] [%(levelname)-10s] %(name)s: %(message)s"),
-        "Daily": (1, f"./logs/{get_datetime():%Y-%m-%d}.log", "[%(asctime)s] [%(levelname)-10s] %(name)s: %(message)s"),
+        "Daily": (1, f"./logs/{get_datetime():%Y-%m-%d}.log", "[%(asctime)s] [%(levelname)-10s] %(name)s: %(message)s")
     }
 }
 
