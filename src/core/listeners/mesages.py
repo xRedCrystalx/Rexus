@@ -4,6 +4,8 @@ from discord.ext import commands
 from src.connector import shared
 
 class MessageListeners(commands.Cog):
+    def __init__(self, bot: commands.AutoShardedBot) -> None:
+        self.bot: commands.AutoShardedBot = bot
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
@@ -28,4 +30,4 @@ class MessageListeners(commands.Cog):
         shared.loop.create_task(shared.queue.add_to_queue(e="on_raw_bulk_message_delete", guild_id=payload.guild_id, payload=payload))
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await bot.add_cog(MessageListeners())
+    await bot.add_cog(MessageListeners(bot))

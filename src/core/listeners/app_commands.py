@@ -11,7 +11,7 @@ class AppCMDListeners(commands.Cog):
 
     @commands.Cog.listener()
     async def on_app_command_completion(self, interaction: discord.Interaction, command: discord.app_commands.ContextMenu | discord.app_commands.Command) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(e="on_app_command_completion", guild_id=interaction.guild.id, interaction=interaction, command=command))
+        ...
 
 async def setup(bot: commands.AutoShardedBot) -> None:
     await bot.add_cog(AppCMDListeners())

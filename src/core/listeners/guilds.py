@@ -34,16 +34,18 @@ class GuildListeners(commands.Cog):
         shared.loop.create_task(shared.queue.add_to_queue(e="on_guild_stickers_update", guild_id=guild.id, guild=guild, before=before, after=after))
 
     @commands.Cog.listener()
-    async def on_audit_log_entry_create(self, entry: discord.AuditLogEntry) -> None:
-        shared.loop.create_task(shared.queue.add_to_queue(e="on_audit_log_entry_create", guild_id=entry.guild.id, entry=entry))
-
-    @commands.Cog.listener()
     async def on_invite_create(self, invite: discord.Invite) -> None:
         shared.loop.create_task(shared.queue.add_to_queue(e="on_invite_create", guild_id=invite.guild.id, invite=invite))
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite: discord.Invite) -> None:
         shared.loop.create_task(shared.queue.add_to_queue(e="on_invite_delete", guild_id=invite.guild.id, invite=invite))
+
+    # AUDIT LOG ENTRIES
+    @commands.Cog.listener()
+    async def on_audit_log_entry_create(self, entry: discord.AuditLogEntry) -> None:
+        shared.loop.create_task(shared.queue.add_to_queue(e="on_audit_log_entry_create", guild_id=entry.guild.id, entry=entry))
+
 
 async def setup(bot: commands.AutoShardedBot) -> None:
     await bot.add_cog(GuildListeners())
