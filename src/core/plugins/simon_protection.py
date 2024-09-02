@@ -29,8 +29,8 @@ class SimonProtection:
         return None
 
 async def setup(bot) -> None:
-    await shared.module_manager.load(simon := SimonProtection(), 
+    """await shared.module_manager.load(simon := SimonProtection(), 
         config={
             simon.simon_invite_link_detection: ["on_message", "on_raw_message_edit"]
         }
-    )
+    )"""

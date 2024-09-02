@@ -13,19 +13,25 @@ class AutoDeleter:
 
     async def background_clock(self) -> None:
         while True:
-            for msg in self.database.copy():
-                self.database[msg] -= 5
+            for saved_msg in self.database.copy():
+                self.database[saved_msg] -= 5
 
-                if self.database[msg] <=  0:
-                    await msg.delete()
+                if self.database[saved_msg] <= 0:
+                    try:
+                        msg: discord.Message = await saved_msg.channel.fetch_message(saved_msg.id)
+                    
+                        if not msg.pinned: 
+                            await msg.delete()
+                    except: pass
+
                     self.database.pop(msg)
 
             await asyncio.sleep(5)
 
 SAVE: list[str] = ["database"]
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.module_manager.load(autodelete := AutoDeleter(), tasks=[autodelete.background_clock],
+    """await shared.module_manager.load(autodelete := AutoDeleter(), tasks=[autodelete.background_clock],
         config={
             autodelete.add_to_queue: ["on_message"]
         }
-    )
+    )"""

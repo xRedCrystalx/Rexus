@@ -28,8 +28,8 @@ class AltDetection:
         return None
 
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.module_manager.load(alt := AltDetection(), 
+    """await shared.module_manager.load(alt := AltDetection(), 
         config={
             alt.detect: ["on_member_join"]
         }
-    )
+    )"""

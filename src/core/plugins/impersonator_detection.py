@@ -31,8 +31,8 @@ class ImpersonatorDetection:
                     await channel.send(embed=embed)
 
 async def setup(bot) -> None:
-    await shared.module_manager.load(impersonator := ImpersonatorDetection(), 
+    """await shared.module_manager.load(impersonator := ImpersonatorDetection(), 
         config={
             impersonator.detect: ["on_member_join", "on_member_update"]
         }
-    )
+    )"""

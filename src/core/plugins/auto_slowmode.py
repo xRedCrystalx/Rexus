@@ -83,8 +83,8 @@ class AutoSlowmode:
 
 SAVE: list[str] = ["database"]
 async def setup(bot: commands.AutoShardedBot) -> None:
-    await shared.module_manager.load(autoslow := AutoSlowmode(bot), tasks=[autoslow.background_clock],
+    """await shared.module_manager.load(autoslow := AutoSlowmode(bot), tasks=[autoslow.background_clock],
         config={
             autoslow.message_listener: ["on_message"]
         }
-    )
+    )"""
