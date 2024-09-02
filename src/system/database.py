@@ -50,7 +50,7 @@ class DatabaseManager:
 
                 except Exception:
                     await con.rollback()
-                    await report_error(self.better_execute, "simple")
+                    await report_error(self.better_execute, "simple", None)
 
     async def select_data(self, id: int, table: str, columns: list[str] = "*", many: bool | int = False) -> dict[str, SIMPLE_ANY] | list[dict[str, SIMPLE_ANY]] | list[SIMPLE_ANY] | SIMPLE_ANY | None:
         selection: list[dict[str, SIMPLE_ANY]] | None = await self.better_execute(

@@ -8,7 +8,7 @@ from xRedUtilsAsync.type_hints import SIMPLE_ANY
 
 class QueueSystem:
     
-    async def _event_runner(self, funcs: tuple[typing.Callable], guild_id: int, **kwargs) -> None:        
+    async def _event_runner(self, funcs: tuple[typing.Callable], event_name: str, guild_id: int, event_data: dict[str, object]) -> None:        
         try:
             guild_database: dict[str, SIMPLE_ANY] = await shared.db_read.select_data(guild_id, "plugins", many=False)
 
@@ -30,7 +30,7 @@ class QueueSystem:
             
             tasks: list[asyncio.Task] = [
                 shared.loop.create_task(
-                    func(guild_id=guild_id, guild_db=guild_database,  **kwargs), #bot_db=bot_database,
+                    func(guild_id=guild_id, guild_db=guild_database, event_name=event_name, event_data=event_data), #bot_db=bot_database,
                     name=f"{func.__name__} - {guild_id}"
                 ) 
                 for func in funcs]
@@ -58,7 +58,7 @@ class QueueSystem:
         functions: tuple[typing.Callable] | None = shared.plugin_filter.get(e)
 
         if functions and guild_id:
-            shared.loop.create_task(self._event_runner(guild_id=guild_id, funcs=functions, **kwargs))
+            shared.loop.create_task(self._event_runner(guild_id=guild_id, funcs=functions, event_name=e, event_data=kwargs))
         return None
 
 # TODO: support of non-guild events, new database system, other.
