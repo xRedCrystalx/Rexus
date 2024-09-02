@@ -21,13 +21,12 @@ class Rexus(commands.AutoShardedBot):
         shared.module_manager = ModuleManager()
 
         for sys_module in glob.glob(f"src/system/*.py"):
-            if not sys_module.endswith("module_manager"):
+            if not sys_module.endswith("module_manager.py"):
                 await shared.module_manager.load(sys_module.replace("\\", ".").replace("/", ".").removesuffix(".py"))
 
         return all((shared.module_manager, shared.logger, shared.db_read, shared.db_write, shared.queue)) and all((shared.loop, shared.bot, shared.session, shared.path))
 
     async def setup_hook(self) -> None:
-        shared.session = self.session = aiohttp.ClientSession()
         print(rf"""{FG.RED}
 ____ ____ _  _ _  _ ____ 
 |__/ |___  \/  |  | [__  
@@ -36,6 +35,7 @@ ____ ____ _  _ _  _ ____
 {ST.RESET}Loading... Please wait. 
 {FG.GREY}──────────────────────────────────────────{ST.RESET}""")
         shared.loop = self.loop
+        shared.session = self.session = aiohttp.ClientSession()
         
         if not await self.system_load():
             print(f"{FG.RED}Error: Failed to initialize critical systems.{ST.RESET}")
@@ -65,7 +65,7 @@ ____ ____ _  _ _  _ ____
 
     async def on_ready(self) -> None:
         print(f"{FG.MAGENTA}{self.user} has connected to Discord!{ST.RESET}")
-        await self.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.playing, name="Hi there :)"))
+        await self.change_presence(status=discord.Status.online, activity=discord.Game("with the API"))
 
 if __name__ == "__main__":
     Rexus().run("TOKEN", reconnect=True, log_level=20)
