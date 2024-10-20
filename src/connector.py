@@ -22,8 +22,9 @@ class Shared:
     plugin_filter: dict[str, list[types.MethodType]] = {}
     plugin_tasks: list[asyncio.Task] = []
 
-    schedule_jobs: list[schedule.Job] = []
+    scheduled_jobs: list[schedule.Job] = []
     global_db: dict[str, typehints.SIMPLE_ANY] = {}
+    system_tasks: list[asyncio.Task] = []
 
     logger: Logger = None
     module_manager: ModuleManager =  None
