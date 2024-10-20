@@ -2,7 +2,6 @@
 
 - fix permission check for admin-only commands
 - async PIL py library
-- re-organizing plugins?
 - discord loggers
 - permission handlers > double check
 - better event runner of queue system (new db system first)
@@ -25,28 +24,5 @@
 
 ## DATABASE
 
-SQLite - simple and fast ? cache<br>MariaDB main db
-
-! Use mariadb py library with run_in_executor to prevent blocking code
-
-Each plugin - own table + global table (on/off plugin)
-
-### Example Global
-
-| guild_id | general | cmd   | alt   | imper | ai    | automod | link  | ping  | auto_delete |
-|----------|---------|-------|-------|-------|-------|---------|-------|-------|-------------|
-|  1234567 | false   | false | false | false | false | false   | false | false | false       |
-
-### Example plugin-specific
-
-```sql
-CREATE TABLE reaction (
-    guild_ID INT(20) PRIMARY KEY,
-    log_channel int,
-    reactionBanRole int,
-);
-```
-
-| guild_id | log_channel | reactionBanRole |
-|----------|-------------|-----------------|
-|  1234567 | 54857285236 | 64282285266     |
+PostgreSQL - psycopg[pool]
+Each plugin - own table
