@@ -18,6 +18,8 @@ from xRedUtilsAsync.iterables import compare_iterables
 each module requires:
 async def setup(bot) -> None: ...
 
+object(custom_id)
+
 #a SAVE variable
 SAVE = {
     CallableObject: list[str]
@@ -277,13 +279,8 @@ class ModuleManager:
                 for var, data in old_data[obj.ID].items():
                     setattr(obj, var, data)
 
-
-SAVE: dict[type, list[str]] = {
-    ModuleManager: ["cache"]
-}
-
 async def setup(bot: Bot) -> None:
-    await shared.module_manager.load(ModuleManager(), option="system",
+    await shared.module_manager.load(ModuleManager("mdl_mngr"), option="system",
         config={
             "location": shared,
             "var": "module_manager"
